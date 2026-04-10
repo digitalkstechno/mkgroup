@@ -13,8 +13,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'MK Group Digital Card',
-  description: 'A digital business card and project showcase for MK Group and Ananta Heights.',
+  title: 'Digital Card',
+  description: 'A digital business card and project showcase.',
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

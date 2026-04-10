@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MobileFrame } from '@/components/MobileFrame';
+import Link from 'next/link';
+import { ShieldCheck, User } from 'lucide-react';
 import { 
   HomeView, 
   DashboardView, 
@@ -32,7 +34,30 @@ type View =
   | 'dropbox' 
   | 'popup';
 
-export default function MKGroupApp() {
+type MKGroupAppProps = {
+  showAccessPanel?: boolean;
+};
+
+export default function MKGroupApp({ showAccessPanel = true }: MKGroupAppProps) {
+  const [isLocalhostBooting, setIsLocalhostBooting] = useState<boolean>(true);
+
+  useEffect(() => {
+    const isLocalhost =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    if (!isLocalhost) {
+      setIsLocalhostBooting(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setIsLocalhostBooting(false);
+    }, 900);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const [startFromHome, setStartFromHome] = useState<boolean>(() => {
     try {
       const stored = localStorage.getItem('mkgroup:startFromHome');
@@ -103,8 +128,45 @@ export default function MKGroupApp() {
     }
   };
 
+  if (isLocalhostBooting) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-4 border-blue-600 border-t-transparent animate-spin" />
+          <p className="text-xs font-black tracking-[0.2em] text-gray-600 uppercase">Loading demo</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <MobileFrame currentView={view} setView={setView}>
+    <div className="relative min-h-screen bg-gray-50 flex items-center justify-center py-10">
+      {showAccessPanel && (
+        <div className="fixed top-8 left-8 z-50 flex flex-col gap-4">
+          <div className="bg-white/80 backdrop-blur-md p-2 rounded-2xl border border-white/50 shadow-xl flex flex-col gap-2">
+            <Link
+              href="/user/login"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-blue-50 text-blue-700 transition-all group"
+            >
+              <div className="bg-blue-100 p-2 rounded-lg group-hover:bg-blue-200">
+                <User size={18} />
+              </div>
+              <span className="text-sm font-bold">User Login</span>
+            </Link>
+            <Link
+              href="/admin/login"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-purple-50 text-purple-700 transition-all group"
+            >
+              <div className="bg-purple-100 p-2 rounded-lg group-hover:bg-purple-200">
+                <ShieldCheck size={18} />
+              </div>
+              <span className="text-sm font-bold">Admin Login</span>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <MobileFrame currentView={view} setView={setView}>
       <AnimatePresence mode="wait">
         <motion.div
           key={view}
@@ -117,6 +179,7 @@ export default function MKGroupApp() {
           {renderView()}
         </motion.div>
       </AnimatePresence>
-    </MobileFrame>
+      </MobileFrame>
+    </div>
   );
 }

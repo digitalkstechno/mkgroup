@@ -32,21 +32,21 @@ interface HomeViewProps extends ViewProps {
   setStartFromHome: (v: boolean) => void;
 }
 
-export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewProps) => {
-  const ContactItem = ({ icon: Icon, text, isName = false, isAddress = false }: { icon: any, text: string | React.ReactNode, isName?: boolean, isAddress?: boolean }) => (
-    <div className="bg-white rounded-2xl flex items-stretch shadow-sm border border-gray-200 overflow-hidden h-10 w-full">
-      <div className="w-10 flex items-center justify-center text-gray-700 flex-shrink-0">
-        <Icon size={18} strokeWidth={2.5} className={Icon === Send ? 'rotate-0' : ''} />
-      </div>
-      <div className="w-[1.5px] bg-gray-200 my-1.5" />
-      <div className={`flex-1 flex items-center px-4 ${isAddress ? 'py-1' : ''}`}>
-        <span className={`${isName ? 'font-black text-sm' : 'font-bold text-xs'} text-gray-800 tracking-tight leading-none`}>
-          {text}
-        </span>
-      </div>
+const ContactItem = ({ icon: Icon, text, isName = false, isAddress = false }: { icon: any, text: string | React.ReactNode, isName?: boolean, isAddress?: boolean }) => (
+  <div className="bg-white rounded-2xl flex items-stretch shadow-sm border border-gray-200 overflow-hidden h-10 w-full">
+    <div className="w-10 flex items-center justify-center text-gray-700 flex-shrink-0">
+      <Icon size={18} strokeWidth={2.5} className={Icon === Send ? 'rotate-0' : ''} />
     </div>
-  );
+    <div className="w-[1.5px] bg-gray-200 my-1.5" />
+    <div className={`flex-1 flex items-center px-4 ${isAddress ? 'py-1' : ''}`}>
+      <span className={`${isName ? 'font-black text-sm' : 'font-bold text-xs'} text-gray-800 tracking-tight leading-none`}>
+        {text}
+      </span>
+    </div>
+  </div>
+);
 
+export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewProps) => {
   return (
     <div className="flex flex-col items-center px-6 space-y-4 w-full h-full justify-center mt-4">
       <div className="relative w-44 h-44 rounded-full  shadow-lg mb-2 overflow-hidden bg-white">
@@ -292,7 +292,7 @@ export const AboutUsView = () => (
     <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest">M K GROUP</div>
     <div className="space-y-5 pt-2">
       <div className="border-b-2 border-gray-200 pb-1.5">
-        <h2 className="text-xl font-black text-[#333333]">ABOUT MK Group</h2>
+        <h2 className="text-xl font-black text-[#333333]">ABOUT US</h2>
       </div>
       <p className="text-sm font-bold leading-relaxed text-gray-700">Those wishing to own a piece of paradise rejoicing nature&apos;s tranquilly and modern day opulence have found the right address.</p>
       <p className="text-[13px] font-medium leading-relaxed text-gray-600">Every apartment of this splendid development gets to enjoy the breathtakingly beautiful views of the shimmering Tapi river. The cool breeze, ample sunlight and uninterrupted skyline views are the bonus.</p>
