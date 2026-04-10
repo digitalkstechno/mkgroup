@@ -1,23 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAdmin, clearError } from "@/lib/redux/slices/authSlice";
+import { RootState, AppDispatch } from "@/lib/redux/store";
 
 export default function AdminLoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { loading: isLoading, error, admin } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (admin) {
+      router.push("/admin");
+    }
+    return () => {
+      dispatch(clearError());
+    };
+  }, [admin, router, dispatch]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      localStorage.setItem('mkgroup_admin_auth', 'true');
-      document.cookie = 'mkgroup_admin_auth=true; path=/; max-age=86400; samesite=lax';
-      router.push("/admin");
-    }, 1000);
+    dispatch(loginAdmin(formData));
   };
 
   return (
@@ -35,14 +43,21 @@ export default function AdminLoginPage() {
         {/* Login Card */}
         <div className="bg-white rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100">
           <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-bold animate-shake">
+                {error}
+              </div>
+            )}
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1 mb-2 block">Admin Email</label>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1 mb-2 block">Admin Email or Phone</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input 
-                  type="email" 
+                  type="text" 
                   required
-                  placeholder="admin@mkgroup.com"
+                  value={formData.identifier}
+                  onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                  placeholder="admin@mkgroup.com or 9999999999"
                   className="w-full bg-gray-50 border-none rounded-2xl px-12 py-4 text-sm focus:ring-2 focus:ring-black outline-none transition-all"
                 />
               </div>
@@ -55,6 +70,8 @@ export default function AdminLoginPage() {
                 <input 
                   type="password" 
                   required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
                   className="w-full bg-gray-50 border-none rounded-2xl px-12 py-4 text-sm focus:ring-2 focus:ring-black outline-none transition-all"
                 />

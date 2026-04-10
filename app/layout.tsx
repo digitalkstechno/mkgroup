@@ -17,10 +17,16 @@ export const metadata: Metadata = {
   description: 'A digital business card and project showcase.',
 };
 
+import { ReduxProvider } from '@/lib/redux/provider';
+
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body suppressHydrationWarning className="font-sans">{children}</body>
+      <body suppressHydrationWarning className="font-sans">
+        <ReduxProvider>
+          {children}
+        </ReduxProvider>
+      </body>
     </html>
   );
 }

@@ -1,27 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, User, ArrowRight, Sparkles, Zap, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, clearError } from "@/lib/redux/slices/authSlice";
+import { RootState, AppDispatch } from "@/lib/redux/store";
 
 export default function UserLoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({ identifier: "", password: "" });
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { loading: isLoading, error, user } = useSelector((state: RootState) => state.auth);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      localStorage.setItem('mkgroup_user_auth', 'true');
-      document.cookie = 'mkgroup_user_auth=true; path=/; max-age=86400; samesite=lax';
+  useEffect(() => {
+    if (user) {
       router.push("/user");
-    }, 1200);
+    }
+    return () => {
+      dispatch(clearError());
+    };
+  }, [user, router, dispatch]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(loginUser(formData));
   };
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row">
-      {/* Left Side - Visual/Marketing */}
+      {/* ... (left side remains same) */}
       <div className="hidden md:flex flex-1 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 p-12 flex-col justify-between relative overflow-hidden text-white">
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-12">
@@ -72,14 +81,21 @@ export default function UserLoginPage() {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-bold animate-shake">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[2px] ml-1">Email Address</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[2px] ml-1">Email or Phone Number</label>
               <div className="relative group">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
                 <input 
-                  type="email" 
+                  type="text" 
                   required
-                  placeholder="user@example.com"
+                  value={formData.identifier}
+                  onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                  placeholder="name@example.com or 9999999999"
                   className="w-full bg-white border border-gray-100 rounded-[20px] px-14 py-4 text-sm font-bold shadow-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
                 />
               </div>
@@ -92,6 +108,8 @@ export default function UserLoginPage() {
                 <input 
                   type="password" 
                   required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
                   className="w-full bg-white border border-gray-100 rounded-[20px] px-14 py-4 text-sm font-bold shadow-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
                 />
