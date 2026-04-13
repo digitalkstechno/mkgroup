@@ -6,7 +6,7 @@ import {
   Phone, MapPin, Clock, Globe, Share2, Edit, User, Info, Calendar, 
   Image as ImageIcon, Video, HelpCircle, FileText, MessageSquare, 
   Star, ThumbsUp, ThumbsDown, ChevronLeft, ChevronRight, Box, 
-  Mail, Mic, Plus, Download, Bell, Eye, Send
+  Mail, Mic, Plus, Download, Bell, Eye, Send, Check
 } from 'lucide-react';
 import { useContext } from 'react';
 import { BuilderContext } from '@/app/page';
@@ -1004,30 +1004,107 @@ export const BrochureView = () => {
   );
 };
 
-export const InquiryView = () => (
-  <div className="px-6 space-y-4 pt-4 pb-10">
-    <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">INQUIRY</div>
-    <div className="space-y-3">
-      <input type="text" placeholder="Name" className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none" />
-      <input type="text" placeholder="Mobile" className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none" />
-      <input type="email" placeholder="Email" className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none" />
-      <textarea placeholder="Text Massage" className="w-full bg-white rounded-2xl py-3 px-4 text-sm border border-gray-200 outline-none h-32 resize-none" />
-      <div className="bg-[#6B849E]/30 rounded-full p-2 flex items-center space-x-4">
-        <button className="bg-blue-600 text-white p-2 rounded-full"><Video size={16} fill="currentColor" /></button>
-        <div className="flex-1 h-8 flex items-center space-x-0.5">
-          {[10, 40, 60, 30, 80, 20, 50, 90, 40, 70, 30, 60, 20, 50, 80, 40, 60, 30, 70, 20].map((h, i) => (
-            <div key={i} className="bg-white w-0.5" style={{ height: `${h}%` }}></div>
-          ))}
+export const InquiryView = () => {
+  const builderData = useContext(BuilderContext);
+  const [formData, setFormData] = React.useState({
+    name: "",
+    mobile: "",
+    email: "",
+    message: ""
+  });
+  const [loading, setLoading] = React.useState(false);
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!builderData?._id) return;
+    if (!formData.name || !formData.mobile || !formData.message) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inquiry/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, userId: builderData._id }),
+      });
+      const result = await response.json();
+      if (result.status === "Success") {
+        setSubmitted(true);
+        setFormData({ name: "", mobile: "", email: "", message: "" });
+        setTimeout(() => setSubmitted(false), 5000);
+      } else {
+        alert(result.message || "Failed to submit inquiry");
+      }
+    } catch (error) {
+       console.error("Inquiry error:", error);
+       alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="px-6 space-y-4 pt-4 pb-10">
+      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20 uppercase tracking-widest">
+        INQUIRY
+      </div>
+      
+      {submitted ? (
+        <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-3xl text-center space-y-3 animate-in fade-in zoom-in duration-300">
+           <div className="h-16 w-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
+              <Check size={32} />
+           </div>
+           <h3 className="text-emerald-900 font-black uppercase text-sm">Thank You!</h3>
+           <p className="text-emerald-600 text-[10px] font-bold">Your inquiry has been submitted successfully. Our team will contact you soon.</p>
         </div>
-        <span className="text-[10px] text-white font-bold pr-2">01:35</span>
-      </div>
-      <div className="flex justify-center py-4">
-        <button className="bg-gradient-to-b from-pink-500 to-purple-600 text-white p-6 rounded-full shadow-xl"><Mic size={40} /></button>
-      </div>
-      <button className="w-full bg-white py-2 rounded-md font-bold text-gray-800 shadow-sm border border-gray-200">Submit</button>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input 
+            type="text" 
+            placeholder="Name" 
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+          />
+          <input 
+            type="text" 
+            placeholder="Mobile" 
+            required
+            value={formData.mobile}
+            onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+          />
+          <input 
+            type="email" 
+            placeholder="Email (Optional)" 
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+          />
+          <textarea 
+            placeholder="Inquiry Details" 
+            required
+            value={formData.message}
+            onChange={(e) => setFormData({...formData, message: e.target.value})}
+            className="w-full bg-white rounded-2xl py-3 px-4 text-sm border border-gray-200 outline-none h-32 resize-none shadow-sm focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+          />
+          
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#003B46] py-3.5 rounded-full font-black text-white shadow-xl shadow-[#003B46]/20 flex items-center justify-center gap-2 transition-all active:scale-95 uppercase tracking-widest text-xs"
+          >
+            {loading ? <div className="h-4 w-4 border-2 border-white border-t-transparent animate-spin rounded-full" /> : "Submit Inquiry"}
+          </button>
+        </form>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 export const DropboxView = () => (
   <div className="px-6 space-y-4 pt-4 pb-10">

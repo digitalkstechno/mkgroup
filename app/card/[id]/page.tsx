@@ -1,14 +1,13 @@
-'use client';
-
+import React from 'react';
 import MKGroupApp from '@/app/page';
 
 type CardPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export default function CardPage({ params }: CardPageProps) {
-  const { id } = params;
+  const { id } = React.use(params);
   return <MKGroupApp showAccessPanel={false} builderId={id} />;
 }
