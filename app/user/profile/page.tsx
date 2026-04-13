@@ -19,13 +19,22 @@ export default function ProfilePage() {
     timing: "",
     website: "",
     profileImage: "",
+    secondaryNumber: "",
+    whatsappNumber: "",
+    facebookLink: "",
+    instagramLink: "",
+    messageNumber: "",
+    logo: "",
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string>("");
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const logoRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     dispatch(fetchProfile());
@@ -40,6 +49,12 @@ export default function ProfilePage() {
         timing: user.timing || "",
         website: user.website || "",
         profileImage: user.profileImage || "",
+        secondaryNumber: user.secondaryNumber || "",
+        whatsappNumber: user.whatsappNumber || "",
+        facebookLink: user.facebookLink || "",
+        instagramLink: user.instagramLink || "",
+        messageNumber: user.messageNumber || "",
+        logo: user.logo || "",
       });
     }
   }, [user]);
@@ -68,6 +83,14 @@ export default function ProfilePage() {
     }
   };
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedLogo(file);
+      setLogoPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSaveProfile = async () => {
     const formData = new FormData();
     formData.append("name", localProfile.name);
@@ -75,16 +98,26 @@ export default function ProfilePage() {
     formData.append("location", localProfile.location);
     formData.append("timing", localProfile.timing);
     formData.append("website", localProfile.website);
+    formData.append("secondaryNumber", localProfile.secondaryNumber);
+    formData.append("whatsappNumber", localProfile.whatsappNumber);
+    formData.append("facebookLink", localProfile.facebookLink);
+    formData.append("instagramLink", localProfile.instagramLink);
+    formData.append("messageNumber", localProfile.messageNumber);
 
     if (selectedFile) {
       formData.append("profileImage", selectedFile);
+    }
+    if (selectedLogo) {
+      formData.append("logo", selectedLogo);
     }
 
     try {
       await dispatch(updateProfile(formData)).unwrap();
       toast.success("Profile updated successfully");
       setSelectedFile(null);
+      setSelectedLogo(null);
       setPreviewUrl("");
+      setLogoPreviewUrl("");
     } catch (err: any) {
       toast.error(err || "Failed to update profile");
     }
@@ -93,18 +126,32 @@ export default function ProfilePage() {
   const fields = [
     { key: "name", label: "Full Name", icon: User, placeholder: "Enter full name" },
     { key: "number", label: "Phone Number", icon: Phone, placeholder: "Enter phone number" },
+    { key: "secondaryNumber", label: "Secondary Number", icon: Phone, placeholder: "Enter secondary number" },
+    { key: "whatsappNumber", label: "WhatsApp Number", icon: Phone, placeholder: "Enter WhatsApp number" },
+    { key: "messageNumber", label: "Message (SMS) Number", icon: Phone, placeholder: "Enter SMS number" },
     { key: "location", label: "Address", icon: MapPin, placeholder: "Enter address" },
     { key: "timing", label: "Timing", icon: Clock, placeholder: "e.g. Mon-Sat: 9AM - 6PM" },
     { key: "website", label: "Website", icon: Globe, placeholder: "Enter website URL" },
+    { key: "facebookLink", label: "Facebook Link", icon: Globe, placeholder: "Enter Facebook URL" },
+    { key: "instagramLink", label: "Instagram Link", icon: Globe, placeholder: "Enter Instagram URL" },
   ];
 
   const getImageUrl = () => {
     if (previewUrl) return previewUrl;
     if (localProfile.profileImage) {
-      // Deriving base URL from API URL
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
       const baseUrl = apiUrl.split("/v1/api")[0];
       return `${baseUrl}/builder/${localProfile.profileImage}`;
+    }
+    return "";
+  };
+
+  const getLogoUrl = () => {
+    if (logoPreviewUrl) return logoPreviewUrl;
+    if (localProfile.logo) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+      const baseUrl = apiUrl.split("/v1/api")[0];
+      return `${baseUrl}/builder/${localProfile.logo}`;
     }
     return "";
   };
@@ -127,25 +174,48 @@ export default function ProfilePage() {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Profile Card</p>
 
           {/* Image */}
-          <div className="flex flex-col items-center mb-6">
-            <div className="relative">
-              <div className="h-24 w-24 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
-                {getImageUrl() ? (
-                  <img src={getImageUrl()} alt="Profile" className="h-full w-full object-cover" />
-                ) : (
-                  <User size={36} className="text-gray-300" />
-                )}
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="flex flex-col items-center">
+              <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Profile Image</p>
+              <div className="relative">
+                <div className="h-24 w-24 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                  {getImageUrl() ? (
+                    <img src={getImageUrl()} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    <User size={36} className="text-gray-300" />
+                  )}
+                </div>
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="absolute -bottom-2 -right-2 h-7 w-7 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors"
+                  disabled={loading}
+                >
+                  <Camera size={13} />
+                </button>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </div>
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-2 -right-2 h-7 w-7 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors"
-                disabled={loading}
-              >
-                <Camera size={13} />
-              </button>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
             </div>
-            <p className="text-xs text-gray-400 mt-3">{selectedFile ? "New file selected" : "Click camera to change photo"}</p>
+
+            <div className="flex flex-col items-center">
+              <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Company Logo</p>
+              <div className="relative">
+                <div className="h-24 w-24 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                  {getLogoUrl() ? (
+                    <img src={getLogoUrl()} alt="Logo" className="h-full w-full object-contain" />
+                  ) : (
+                    <Globe size={36} className="text-gray-300" />
+                  )}
+                </div>
+                <button
+                  onClick={() => logoRef.current?.click()}
+                  className="absolute -bottom-2 -right-2 h-7 w-7 bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"
+                  disabled={loading}
+                >
+                  <Camera size={13} />
+                </button>
+                <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+              </div>
+            </div>
           </div>
 
           {/* Fields */}

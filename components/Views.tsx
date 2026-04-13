@@ -65,6 +65,17 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
     return "/profile.png";
   };
 
+  const getLogoImage = () => {
+    if (builderData?.logo) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+      const baseUrl = apiUrl.split("/v1/api")[0];
+      return `${baseUrl}/builder/${builderData.logo}`;
+    }
+    return null;
+  };
+
+  const logoUrl = getLogoImage();
+
   return (
     <div className="flex flex-col items-center px-12 space-y-6 w-full h-full justify-center mt-4">
       <div className="relative w-44 h-44 rounded-full  shadow-lg mb-2 overflow-hidden bg-white">
@@ -100,15 +111,27 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
       <div 
         className="w-full bg-[#003B46] rounded-2xl p-5 flex flex-col items-center justify-center text-white cursor-pointer hover:opacity-95 transition-all shadow-xl border-2 border-white/30 h-28 mt-2"
       >
-        <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-[4px] h-5 bg-white rounded-full" />
-            <div className="relative w-4.5 h-4.5 bg-white rounded-sm flex items-center justify-center">
-               <div className="text-[#003B46] font-black text-[9px]">H</div>
-            </div>
+        {logoUrl ? (
+          <div className="relative w-full h-full">
+            <Image 
+              src={logoUrl} 
+              alt="Logo" 
+              fill 
+              className="object-contain" 
+              unoptimized
+            />
           </div>
-          <div className="text-2xl font-black tracking-[0.2em] leading-tight uppercase">MK GROUP</div>
-        </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-[4px] h-5 bg-white rounded-full" />
+              <div className="relative w-4.5 h-4.5 bg-white rounded-sm flex items-center justify-center">
+                 <div className="text-[#003B46] font-black text-[9px]">H</div>
+              </div>
+            </div>
+            <div className="text-2xl font-black tracking-[0.2em] leading-tight uppercase">MK GROUP</div>
+          </div>
+        )}
       </div>
 
       <div className="w-full flex justify-between items-center px-2 pt-4">
@@ -177,7 +200,21 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
   );
 };
 
-export const DashboardView = ({ setView }: ViewProps) => (
+export const DashboardView = ({ setView }: ViewProps) => {
+  const builderData = useContext(BuilderContext);
+  
+  const getLogoImage = () => {
+    if (builderData?.logo) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+      const baseUrl = apiUrl.split("/v1/api")[0];
+      return `${baseUrl}/builder/${builderData.logo}`;
+    }
+    return null;
+  };
+
+  const logoUrl = getLogoImage();
+
+  return (
   <div className="flex flex-col items-center px-4 space-y-4 pt-4">
     <div className="relative flex flex-col items-center w-full">
       <div className="absolute -top-2 z-20 flex items-center bg-[#E5ECEA] rounded-full border border-gray-300 shadow-sm pl-2 pr-1 py-1">
@@ -192,36 +229,88 @@ export const DashboardView = ({ setView }: ViewProps) => (
         </div>
         <div className="w-[1px] h-4 bg-[#E5ECEA] mr-2" /> 
         <div className="flex space-x-[1px]">
-          {['0', '0', '2', '3', '4', '5'].map((n, i) => (
+          {String(builderData?.viewCount || 0).padStart(6, '0').split('').map((n, i) => (
             <div key={i} className=" w-4 h-6 flex items-center justify-center font-mono font-bold text-sm text-gray-800">{n}</div>
           ))}
         </div>
       </div>
 
-<div className="w-full bg-[#002D35] rounded-[32px] p-8 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2">
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="mb-2">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 5L25 15L35 15L27 22L30 32L20 25L10 32L13 22L5 15L15 15L20 5Z" stroke="#FFD700" strokeWidth="2" strokeLinejoin="round" />
-              <circle cx="20" cy="20" r="5" stroke="#FFD700" strokeWidth="2" />
-            </svg>
-          </div>
-          <div className="text-3xl font-serif tracking-[0.4em] font-bold text-[#FFD700]">ANANTA</div>
-          <div className="text-sm tracking-[0.6em] font-bold text-[#FFD700] mt-1">HEIGHTS</div>
+      <div className="w-full bg-[#002D35] rounded-[32px] p-8 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2">
+        <div className="relative z-10 flex flex-col items-center w-full h-full">
+          {logoUrl ? (
+            <div className="relative w-40 h-24">
+              <Image 
+                src={logoUrl} 
+                alt="Logo" 
+                fill 
+                className="object-contain" 
+                unoptimized
+              />
+            </div>
+          ) : (
+            <>
+              <div className="mb-2">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 5L25 15L35 15L27 22L30 32L20 25L10 32L13 22L5 15L15 15L20 5Z" stroke="#FFD700" strokeWidth="2" strokeLinejoin="round" />
+                  <circle cx="20" cy="20" r="5" stroke="#FFD700" strokeWidth="2" />
+                </svg>
+              </div>
+              <div className="text-3xl font-serif tracking-[0.4em] font-bold text-[#FFD700]">ANANTA</div>
+              <div className="text-sm tracking-[0.6em] font-bold text-[#FFD700] mt-1">HEIGHTS</div>
+            </>
+          )}
         </div>
       </div>
     </div>
 
     <div className="grid grid-cols-6 gap-2 w-full px-2">
       {[
-        { img: '/icons/phone.png', color: 'bg-[#FF0000]' },
-        { img: '/icons/messageSquare.png', color: 'bg-[#25D366]' },
-        { img: '/icons/share3.png', color: 'bg-[#3B5998]' },
-        { img: '/icons/mail.png', color: 'bg-[#FFCC00]' },
-        { img: '/icons/insta.png', color: 'bg-[#E1306C]' },
-        { img: '/icons/globe.png', color: 'bg-[#00BFFF]' },
+        { 
+          img: '/icons/phone.png', 
+          color: 'bg-[#FF0000]', 
+          action: () => {
+            const num = builderData?.secondaryNumber || builderData?.number;
+            if (num) window.open(`tel:${num}`, '_self');
+          }
+        },
+        { 
+          img: '/icons/messageSquare.png', 
+          color: 'bg-[#25D366]', 
+          action: () => {
+            if (builderData?.whatsappNumber) window.open(`https://wa.me/${builderData.whatsappNumber}`, '_blank');
+          }
+        },
+        { 
+          img: '/icons/share3.png', 
+          color: 'bg-[#3B5998]',
+          action: () => {
+            if (builderData?.facebookLink) window.open(builderData.facebookLink, '_blank');
+          }
+        },
+        { 
+          img: '/icons/mail.png', 
+          color: 'bg-[#FFCC00]',
+          action: () => {
+            if (builderData?.messageNumber) window.open(`sms:${builderData.messageNumber}`, '_self');
+          }
+        },
+        { 
+          img: '/icons/insta.png', 
+          color: 'bg-[#E1306C]',
+          action: () => {
+            if (builderData?.instagramLink) window.open(builderData.instagramLink, '_blank');
+          }
+        },
+        { 
+          img: '/icons/globe.png', 
+          color: 'bg-[#00BFFF]',
+          action: () => {
+            const site = builderData?.website;
+            if (site) window.open(site.startsWith('http') ? site : `https://${site}`, '_blank');
+          }
+        },
       ].map((item, i) => (
-        <div key={i} >
+        <div key={i} onClick={item.action} className="cursor-pointer hover:scale-105 transition-transform">
           <Image 
             src={item.img} 
             alt="icon" 
@@ -232,7 +321,6 @@ export const DashboardView = ({ setView }: ViewProps) => (
         </div>
       ))}
     </div>
-
     <div className="grid grid-cols-4 gap-x-2 gap-y-4 w-full px-1 py-2">
       {[
         { id: 'contact-person', label: 'Person', img: '/icons/IconPerson-01.png' },
@@ -303,7 +391,8 @@ export const DashboardView = ({ setView }: ViewProps) => (
       ))}
     </div>
   </div>
-);
+  );
+};
 
 export const AboutUsView = () => (
   <div className="px-6 space-y-4 text-gray-800 pb-10 pt-4">
