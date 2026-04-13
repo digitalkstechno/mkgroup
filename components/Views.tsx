@@ -2,27 +2,27 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { 
-  Phone, MapPin, Clock, Globe, Share2, Edit, User, Info, Calendar, 
-  Image as ImageIcon, Video, HelpCircle, FileText, MessageSquare, 
-  Star, ThumbsUp, ThumbsDown, ChevronLeft, ChevronRight, Box, 
+import {
+  Phone, MapPin, Clock, Globe, Share2, Edit, User, Info, Calendar,
+  Image as ImageIcon, Video, HelpCircle, FileText, MessageSquare,
+  Star, ThumbsUp, ThumbsDown, ChevronLeft, ChevronRight, Box,
   Mail, Mic, Plus, Download, Bell, Eye, Send, Check
 } from 'lucide-react';
 import { useContext } from 'react';
 import { BuilderContext } from '@/app/page';
 
-type View = 
-  | 'home' 
-  | 'dashboard' 
-  | 'contact-person' 
-  | 'about-us' 
-  | 'appointment' 
-  | 'location' 
-  | 'photo-gallery' 
-  | 'video-gallery' 
-  | 'brochure' 
-  | 'inquiry' 
-  | 'dropbox' 
+type View =
+  | 'home'
+  | 'dashboard'
+  | 'contact-person'
+  | 'about-us'
+  | 'appointment'
+  | 'location'
+  | 'photo-gallery'
+  | 'video-gallery'
+  | 'brochure'
+  | 'inquiry'
+  | 'dropbox'
   | 'popup';
 
 interface ViewProps {
@@ -55,7 +55,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
   const location = builderData?.location || "B-86 Trikam Nagar Society, Near V-1 Bombay Market, L.H Road, Surat -395003";
   const timing = builderData?.timing || "10 am to 2 pm & 5 pm to 7 pm";
   const website = builderData?.website || "www.mkgroup.com";
-  
+
   const getProfileImage = () => {
     if (builderData?.profileImage) {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
@@ -80,9 +80,9 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
     <div className="flex flex-col items-center px-12 space-y-6 w-full h-full justify-center mt-4">
       <div className="relative w-44 h-44 rounded-full  shadow-lg mb-2 overflow-hidden bg-white">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 z-10" />
-        <Image 
-          src={getProfileImage()} 
-          alt={name} 
+        <Image
+          src={getProfileImage()}
+          alt={name}
           fill
           className="object-cover"
           priority
@@ -108,17 +108,17 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
         <ContactItem icon={Send} text={website} />
       </div>
 
-      <div 
+      <div
         className="w-full bg-[#003B46] rounded-2xl p-5 flex flex-col items-center justify-center text-white cursor-pointer hover:opacity-95 transition-all shadow-xl border-2 border-white/30 h-28 mt-2"
       >
         {logoUrl ? (
           <div className="flex flex-col items-center gap-2 w-full h-full">
             <div className="relative w-20 h-10">
-              <Image 
-                src={logoUrl} 
-                alt="Logo" 
-                fill 
-                className="object-contain" 
+              <Image
+                src={logoUrl}
+                alt="Logo"
+                fill
+                className="object-contain"
                 unoptimized
               />
             </div>
@@ -131,7 +131,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
             <div className="flex items-center gap-2 mb-1">
               <div className="w-[4px] h-5 bg-white rounded-full" />
               <div className="relative w-4.5 h-4.5 bg-white rounded-sm flex items-center justify-center">
-                 <div className="text-[#003B46] font-black text-[9px]">H</div>
+                <div className="text-[#003B46] font-black text-[9px]">H</div>
               </div>
             </div>
             <div className="text-2xl font-black tracking-[0.2em] leading-tight uppercase">
@@ -172,15 +172,13 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
             }}
             className="relative w-36 h-11 flex items-center group"
           >
-            <div 
-              className={`absolute inset-0 rounded-full transition-colors duration-300 border-[3.5px] border-white shadow-lg ${
-                startFromHome ? 'bg-[#32CD32]' : 'bg-red-600'
-              }`} 
+            <div
+              className={`absolute inset-0 rounded-full transition-colors duration-300 border-[3.5px] border-white shadow-lg ${startFromHome ? 'bg-[#32CD32]' : 'bg-red-600'
+                }`}
             />
             <div
-              className={`absolute w-[60px] h-8 bg-white rounded-full shadow-md border border-gray-100 transition-transform duration-300 z-10 ${
-                startFromHome ? 'translate-x-1.5' : 'translate-x-[68px]'
-              }`}
+              className={`absolute w-[60px] h-8 bg-white rounded-full shadow-md border border-gray-100 transition-transform duration-300 z-10 ${startFromHome ? 'translate-x-1.5' : 'translate-x-[68px]'
+                }`}
             />
             <div className="absolute inset-0 flex items-center justify-around px-4 z-0">
               <span className={`text-[10px] font-black transition-opacity duration-300 ${startFromHome ? 'opacity-0' : 'text-white opacity-100 ml-[-20px]'}`}>OFF</span>
@@ -209,7 +207,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
 
 export const DashboardView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
-  
+
   const getLogoImage = () => {
     if (builderData?.logo) {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
@@ -222,182 +220,199 @@ export const DashboardView = ({ setView }: ViewProps) => {
   const logoUrl = getLogoImage();
 
   return (
-  <div className="flex flex-col items-center px-4 space-y-4 pt-4">
-    <div className="relative flex flex-col items-center w-full">
-      <div className="absolute -top-2 z-20 flex items-center bg-[#E5ECEA] rounded-full border border-gray-300 shadow-sm pl-2 pr-1 py-1">
-        <div className="mr-2">
-          <Image 
-            src="/icons/eyes.png" 
-            alt="Eye" 
-            width={22} 
-            height={22} 
-            className="object-contain"
-          />
+    <div className="flex flex-col items-center px-4 space-y-4 pt-4">
+      <div className="relative flex flex-col items-center w-full">
+        <div className="absolute -top-2 z-20 flex items-center bg-[#E5ECEA] rounded-full border border-gray-300 shadow-sm pl-2 pr-1 py-1">
+          <div className="mr-2">
+            <Image
+              src="/icons/eyes.png"
+              alt="Eye"
+              width={22}
+              height={22}
+              className="object-contain"
+            />
+          </div>
+          <div className="w-[1px] h-4 bg-[#E5ECEA] mr-2" />
+          <div className="flex space-x-[1px]">
+            {String(builderData?.viewCount || 0).padStart(6, '0').split('').map((n, i) => (
+              <div key={i} className=" w-4 h-6 flex items-center justify-center font-mono font-bold text-sm text-gray-800">{n}</div>
+            ))}
+          </div>
         </div>
-        <div className="w-[1px] h-4 bg-[#E5ECEA] mr-2" /> 
-        <div className="flex space-x-[1px]">
-          {String(builderData?.viewCount || 0).padStart(6, '0').split('').map((n, i) => (
-            <div key={i} className=" w-4 h-6 flex items-center justify-center font-mono font-bold text-sm text-gray-800">{n}</div>
-          ))}
+
+        <div className="w-full bg-[#002D35] rounded-[32px] p-8 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2">
+          <div className="relative z-10 flex flex-col items-center w-full h-full">
+            {logoUrl ? (
+              <div className="relative w-40 h-24">
+                <Image
+                  src={logoUrl}
+                  alt="Logo"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <>
+                <div className="mb-2">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 5L25 15L35 15L27 22L30 32L20 25L10 32L13 22L5 15L15 15L20 5Z" stroke="#FFD700" strokeWidth="2" strokeLinejoin="round" />
+                    <circle cx="20" cy="20" r="5" stroke="#FFD700" strokeWidth="2" />
+                  </svg>
+                </div>
+                <div className="text-3xl font-serif tracking-[0.4em] font-bold text-[#FFD700]">ANANTA</div>
+                <div className="text-sm tracking-[0.6em] font-bold text-[#FFD700] mt-1">HEIGHTS</div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="w-full bg-[#002D35] rounded-[32px] p-8 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2">
-        <div className="relative z-10 flex flex-col items-center w-full h-full">
-          {logoUrl ? (
-            <div className="relative w-40 h-24">
-              <Image 
-                src={logoUrl} 
-                alt="Logo" 
-                fill 
-                className="object-contain" 
-                unoptimized
+      <div className="grid grid-cols-6 gap-2 w-full px-2">
+        {[
+          {
+            img: '/icons/phone.png',
+            color: 'bg-[#FF0000]',
+            action: () => {
+              const num = builderData?.secondaryNumber || builderData?.number;
+              if (num) window.open(`tel:${num}`, '_self');
+            }
+          },
+          {
+            img: '/icons/messageSquare.png',
+            color: 'bg-[#25D366]',
+            action: () => {
+              if (builderData?.whatsappNumber) window.open(`https://wa.me/${builderData.whatsappNumber}`, '_blank');
+            }
+          },
+          {
+            img: '/icons/share3.png',
+            color: 'bg-[#3B5998]',
+            action: () => {
+              if (builderData?.facebookLink) window.open(builderData.facebookLink, '_blank');
+            }
+          },
+          {
+            img: '/icons/mail.png',
+            color: 'bg-[#FFCC00]',
+            action: () => {
+              if (builderData?.messageNumber) window.open(`sms:${builderData.messageNumber}`, '_self');
+            }
+          },
+          {
+            img: '/icons/insta.png',
+            color: 'bg-[#E1306C]',
+            action: () => {
+              if (builderData?.instagramLink) window.open(builderData.instagramLink, '_blank');
+            }
+          },
+          {
+            img: '/icons/globe.png',
+            color: 'bg-[#00BFFF]',
+            action: () => {
+              const site = builderData?.website;
+              if (site) window.open(site.startsWith('http') ? site : `https://${site}`, '_blank');
+            }
+          },
+        ].map((item, i) => (
+          <div key={i} onClick={item.action} className="cursor-pointer hover:scale-105 transition-transform">
+            <Image
+              src={item.img}
+              alt="icon"
+              width={55}
+              height={55}
+              className="object-contain"
+            />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-4 gap-x-2 gap-y-4 w-full px-1 py-2">
+        {[
+          { id: 'contact-person', label: 'Person', img: '/icons/IconPerson-01.png' },
+          { id: 'about-us', label: 'About us', img: '/icons/IconAboutus.png' },
+          { id: 'appointment', label: 'Appointment', img: '/icons/appointment-01.png' },
+          { id: 'location', label: 'Location', img: '/icons/IconLocation.png' },
+          { id: 'photo-gallery', label: 'Photo', img: '/icons/IconPhoto-01.png' },
+          { id: 'video-gallery', label: 'Videos', img: '/icons/IconVideos-01.png' },
+          { id: 'inquiry', label: 'Inquiry', img: '/icons/IconInquiry.png' },
+          { id: 'brochure', label: 'Brochure', img: '/icons/brochure-01.png' },
+        ].map((item) => (
+          <button key={item.id} onClick={() => setView(item.id as View)} className="flex flex-col items-center group">
+            <div className="ounded-xl shadow-[0_2px_5px_rgba(0,0,0,0.1)] ">
+              <Image
+                src={item.img}
+                alt={item.label}
+                width={45}
+                height={45}
+                className="object-contain"
               />
             </div>
-          ) : (
-            <>
-              <div className="mb-2">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 5L25 15L35 15L27 22L30 32L20 25L10 32L13 22L5 15L15 15L20 5Z" stroke="#FFD700" strokeWidth="2" strokeLinejoin="round" />
-                  <circle cx="20" cy="20" r="5" stroke="#FFD700" strokeWidth="2" />
-                </svg>
-              </div>
-              <div className="text-3xl font-serif tracking-[0.4em] font-bold text-[#FFD700]">ANANTA</div>
-              <div className="text-sm tracking-[0.6em] font-bold text-[#FFD700] mt-1">HEIGHTS</div>
-            </>
-          )}
-        </div>
+            <span className="text-[11px] font-bold text-gray-700 mt-1.5">{item.label}</span>
+          </button>
+        ))}
       </div>
-    </div>
 
-    <div className="grid grid-cols-6 gap-2 w-full px-2">
-      {[
-        { 
-          img: '/icons/phone.png', 
-          color: 'bg-[#FF0000]', 
-          action: () => {
-            const num = builderData?.secondaryNumber || builderData?.number;
-            if (num) window.open(`tel:${num}`, '_self');
-          }
-        },
-        { 
-          img: '/icons/messageSquare.png', 
-          color: 'bg-[#25D366]', 
-          action: () => {
-            if (builderData?.whatsappNumber) window.open(`https://wa.me/${builderData.whatsappNumber}`, '_blank');
-          }
-        },
-        { 
-          img: '/icons/share3.png', 
-          color: 'bg-[#3B5998]',
-          action: () => {
-            if (builderData?.facebookLink) window.open(builderData.facebookLink, '_blank');
-          }
-        },
-        { 
-          img: '/icons/mail.png', 
-          color: 'bg-[#FFCC00]',
-          action: () => {
-            if (builderData?.messageNumber) window.open(`sms:${builderData.messageNumber}`, '_self');
-          }
-        },
-        { 
-          img: '/icons/insta.png', 
-          color: 'bg-[#E1306C]',
-          action: () => {
-            if (builderData?.instagramLink) window.open(builderData.instagramLink, '_blank');
-          }
-        },
-        { 
-          img: '/icons/globe.png', 
-          color: 'bg-[#00BFFF]',
-          action: () => {
-            const site = builderData?.website;
-            if (site) window.open(site.startsWith('http') ? site : `https://${site}`, '_blank');
-          }
-        },
-      ].map((item, i) => (
-        <div key={i} onClick={item.action} className="cursor-pointer hover:scale-105 transition-transform">
-          <Image 
-            src={item.img} 
-            alt="icon" 
-            width={55} 
-            height={55} 
+      <div className="flex space-x-2 w-full px-2">
+        <button
+          className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+        >
+          <Image
+            src="/select1.png"
+            alt="Select language"
+            width={180}
+            height={50}
             className="object-contain"
           />
-        </div>
-      ))}
-    </div>
-    <div className="grid grid-cols-4 gap-x-2 gap-y-4 w-full px-1 py-2">
-      {[
-        { id: 'contact-person', label: 'Person', img: '/icons/IconPerson-01.png' },
-        { id: 'about-us', label: 'About us', img: '/icons/IconAboutus.png' },
-        { id: 'appointment', label: 'Appointment', img: '/icons/appointment-01.png' },
-        { id: 'location', label: 'Location', img: '/icons/IconLocation.png' },
-        { id: 'photo-gallery', label: 'Photo', img: '/icons/IconPhoto-01.png' },
-        { id: 'video-gallery', label: 'Videos', img: '/icons/IconVideos-01.png' },
-        { id: 'inquiry', label: 'Inquiry', img: '/icons/IconInquiry.png' },
-        { id: 'brochure', label: 'Brochure', img: '/icons/brochure-01.png' },
-      ].map((item) => (
-        <button key={item.id} onClick={() => setView(item.id as View)} className="flex flex-col items-center group">
-          <div className="ounded-xl shadow-[0_2px_5px_rgba(0,0,0,0.1)] ">
-            <Image 
-              src={item.img} 
-              alt={item.label} 
-              width={45} 
-              height={45} 
-              className="object-contain"
-            />
-          </div>
-          <span className="text-[11px] font-bold text-gray-700 mt-1.5">{item.label}</span>
         </button>
-      ))}
-    </div>
+        <button
+          onClick={() => {
+            const n = builderData?.name || "MK GROUP";
+            const tel = builderData?.number || "";
+            const org = builderData?.companyName || "";
+            const vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nN:${n};;;;\nTEL;TYPE=CELL:${tel}\nORG:${org}\nEND:VCARD`;
+            const blob = new Blob([vcf], { type: "text/vcard" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `${n.replace(/\s+/g, "_")}.vcf`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105">
 
-    <div className="flex space-x-2 w-full px-2">
-      <button className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105">
-        <Image 
-          src="/select1.png" 
-          alt="Save Contact" 
-          width={180} 
-          height={50} 
-          className="object-contain"
-        />
-      </button>
-      <button className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105">
-        <Image 
-          src="/selete2.png" 
-          alt="Select Languages" 
-          width={180} 
-          height={50} 
-          className="object-contain"
-        />
-      </button>
-    </div>
-
-    <div className="grid grid-cols-5 gap-2 w-full pt-2 pb-4">
-      {[
-        { label: 'Testimonials', img: '/icons/t1.png' },
-        { label: 'Rating', img: '/icons/t2.png' },
-        { label: 'Popup', img: '/icons/t3.png', action: () => setView('popup') },
-        { label: 'Feedback', img: '/icons/t4.png' },
-        { label: 'Like', img: '/icons/t5.png' },
-      ].map((item, i) => (
-        <button key={i} onClick={item.action} className="flex flex-col items-center space-y-1.5">
-          <div>
-            <Image 
-              src={item.img} 
-              alt={item.label} 
-              width={45} 
-              height={45} 
-              className="object-contain"
-            />
-          </div>
-          <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">{item.label}</span>
+          <Image
+            src="/selete2.png"
+            alt="Save Contact"
+            width={180}
+            height={50}
+            className="object-contain"
+          />
         </button>
-      ))}
+      </div>
+
+      <div className="grid grid-cols-5 gap-2 w-full pt-2 pb-4">
+        {[
+          { label: 'Testimonials', img: '/icons/t1.png' },
+          { label: 'Rating', img: '/icons/t2.png' },
+          { label: 'Popup', img: '/icons/t3.png', action: () => setView('popup') },
+          { label: 'Feedback', img: '/icons/t4.png' },
+          { label: 'Like', img: '/icons/t5.png' },
+        ].map((item, i) => (
+          <button key={i} onClick={item.action} className="flex flex-col items-center space-y-1.5">
+            <div>
+              <Image
+                src={item.img}
+                alt={item.label}
+                width={45}
+                height={45}
+                className="object-contain"
+              />
+            </div>
+            <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">{item.label}</span>
+          </button>
+        ))}
+      </div>
     </div>
-  </div>
   );
 };
 
@@ -438,7 +453,7 @@ export const AboutUsView = () => {
       <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest">
         {builderData?.companyName || "M K GROUP"}
       </div>
-      
+
       {loading ? (
         <div className="flex justify-center py-10">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
@@ -450,20 +465,20 @@ export const AboutUsView = () => {
               <div className="border-b-2 border-gray-200 pb-1.5 flex items-center justify-between">
                 <h2 className="text-xl font-black text-[#333333] uppercase">{section.title}</h2>
               </div>
-              
+
               {section.image && (
                 <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
-                  <Image 
-                    src={getSectionImage(section.image)} 
-                    alt={section.title} 
-                    fill 
-                    className="object-cover" 
+                  <Image
+                    src={getSectionImage(section.image)}
+                    alt={section.title}
+                    fill
+                    className="object-cover"
                     unoptimized
                   />
                 </div>
               )}
-              
-              <div 
+
+              <div
                 className="text-sm font-medium leading-relaxed text-gray-700 text-left rich-content"
                 dangerouslySetInnerHTML={{ __html: section.content }}
               />
@@ -477,72 +492,113 @@ export const AboutUsView = () => {
   );
 };
 
-export const AppointmentView = () => (
-  <div className="px-6 space-y-4 pb-10 pt-4">
-    <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest">Make an appointment</div>
-    <div className="space-y-3.5 mt-4">
-      <div className="space-y-1">
-        <input type="text" placeholder="Name" className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
-      </div>
-      <div className="space-y-1">
-        <input type="text" placeholder="Mobile" className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
-      </div>
-      
-      <div className="space-y-1">
-        <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">Optional</label>
-        <div className="relative">
-          <select className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm appearance-none text-gray-500">
-            <option>Select Person</option>
-          </select>
-          <ChevronRight className="absolute right-5 top-3.5 text-blue-900 rotate-90" size={18} />
-        </div>
-      </div>
+export const AppointmentView = () => {
+  const builderData = useContext(BuilderContext);
+  const [form, setForm] = React.useState({ name: "", mobile: "", person: "", category: "", date: "", time: "", message: "" });
+  const [loading, setLoading] = React.useState(false);
+  const [submitted, setSubmitted] = React.useState(false);
 
-      <div className="space-y-1">
-        <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">Optional</label>
-        <div className="relative">
-          <select className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm appearance-none text-gray-500">
-            <option>Select category</option>
-          </select>
-          <ChevronRight className="absolute right-5 top-3.5 text-blue-900 rotate-90" size={18} />
-        </div>
-      </div>
+  const handleTimeSelect = (slot: string) => setForm((p) => ({ ...p, time: p.time === slot ? "" : slot }));
 
-      <div className="space-y-1">
-        <label className="text-[11px] font-black text-gray-500 ml-5 uppercase tracking-tighter">Date</label>
-        <div className="relative">
-          <input type="text" value="8 May, 2025" readOnly className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm text-gray-700" />
-          <Calendar className="absolute right-5 top-3 text-[#A855F7]" size={20} />
-        </div>
-      </div>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.mobile || !form.date) return;
+    try {
+      setLoading(true);
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointment/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, userId: builderData?._id }),
+      });
+      setSubmitted(true);
+      setForm({ name: "", mobile: "", person: "", category: "", date: "", time: "", message: "" });
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch (err) {
+      console.error("Appointment error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      <div className="space-y-2 pt-1">
-        <p className="text-[11px] font-black text-red-500 uppercase tracking-tighter">First Half Meeting Time Hours - <span className="text-gray-900">Select</span></p>
-        <div className="grid grid-cols-4 gap-2">
-          {['10:00 - 11:00', '11:00 - 12:00', '12:00 - 01:00', '01:00 - 02:00'].map((time) => (
-            <div key={time} className="bg-white text-[9px] font-bold py-2 text-center rounded-lg border border-gray-200 shadow-sm text-gray-700 hover:bg-blue-50 cursor-pointer transition-colors whitespace-nowrap">{time}</div>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-[11px] font-black text-red-500 uppercase tracking-tighter">Second Half Meeting Time Hours - <span className="text-gray-900">Select</span></p>
-        <div className="grid grid-cols-4 gap-2">
-          {['04:00 - 05:00', '05:00 - 06:00', '06:00 - 07:00', '07:00 - 08:00'].map((time) => (
-            <div key={time} className="bg-white text-[9px] font-bold py-2 text-center rounded-lg border border-gray-200 shadow-sm text-gray-700 hover:bg-blue-50 cursor-pointer transition-colors whitespace-nowrap">{time}</div>
-          ))}
-        </div>
-      </div>
-
-      <textarea placeholder="Text Massage if any" className="w-full bg-white rounded-2xl py-4 px-6 text-sm font-bold border border-gray-200 outline-none h-28 resize-none shadow-sm placeholder:text-gray-400" />
-      
-      <div className="flex flex-col items-center gap-4 pt-2">
-        <p className="text-sm font-black text-[#333333]">Wait for confirmation of appointment</p>
-        <button className="w-1/3 bg-[#e8f0f7] py-2.5 rounded-lg font-black text-[#333333] shadow-md border border-gray-300 hover:bg-white transition-all uppercase tracking-widest text-sm">Submit</button>
-      </div>
+  if (submitted) return (
+    <div className="px-6 pt-4 pb-10 flex flex-col items-center justify-center h-full gap-4">
+      <div className="text-center text-emerald-600 font-black text-sm">✓ Appointment submitted!<br /><span className="text-gray-500 font-bold text-xs">Wait for confirmation of appointment</span></div>
     </div>
-  </div>
-);
+  );
+
+  return (
+    <div className="px-6 space-y-4 pb-10 pt-4">
+      <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest">Make an appointment</div>
+      <form onSubmit={handleSubmit} className="space-y-3.5 mt-4">
+        <div className="space-y-1">
+          <input type="text" placeholder="Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
+        </div>
+        <div className="space-y-1">
+          <input type="text" placeholder="Mobile" required value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">Optional</label>
+          <div className="relative">
+            <select value={form.person} onChange={(e) => setForm({ ...form, person: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm appearance-none text-gray-500">
+              <option value="">Select Person</option>
+            </select>
+            <ChevronRight className="absolute right-5 top-3.5 text-blue-900 rotate-90" size={18} />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">Optional</label>
+          <div className="relative">
+            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm appearance-none text-gray-500">
+              <option value="">Select category</option>
+              {/* <option>Consultation</option>
+              <option>Follow-up</option>
+              <option>Emergency</option>
+              <option>Routine Checkup</option> */}
+            </select>
+            <ChevronRight className="absolute right-5 top-3.5 text-blue-900 rotate-90" size={18} />
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[11px] font-black text-gray-500 ml-5 uppercase tracking-tighter">Date</label>
+          <div className="relative">
+            <input type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm text-gray-700" />
+            <Calendar className="absolute right-5 top-3 text-[#A855F7] pointer-events-none" size={20} />
+          </div>
+        </div>
+
+        <div className="space-y-2 pt-1">
+          <p className="text-[11px] font-black text-red-500 uppercase tracking-tighter">First Half Meeting Time Hours - <span className="text-gray-900">Select</span></p>
+          <div className="grid grid-cols-4 gap-2">
+            {['10:00 - 11:00', '11:00 - 12:00', '12:00 - 01:00', '01:00 - 02:00'].map((slot) => (
+              <div key={slot} onClick={() => handleTimeSelect(slot)} className={`text-[9px] font-bold py-2 text-center rounded-lg border shadow-sm cursor-pointer transition-colors whitespace-nowrap ${form.time === slot ? 'bg-[#003B46] text-white border-[#003B46]' : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50'}`}>{slot}</div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-[11px] font-black text-red-500 uppercase tracking-tighter">Second Half Meeting Time Hours - <span className="text-gray-900">Select</span></p>
+          <div className="grid grid-cols-4 gap-2">
+            {['04:00 - 05:00', '05:00 - 06:00', '06:00 - 07:00', '07:00 - 08:00'].map((slot) => (
+              <div key={slot} onClick={() => handleTimeSelect(slot)} className={`text-[9px] font-bold py-2 text-center rounded-lg border shadow-sm cursor-pointer transition-colors whitespace-nowrap ${form.time === slot ? 'bg-[#003B46] text-white border-[#003B46]' : 'bg-white text-gray-700 border-gray-200 hover:bg-blue-50'}`}>{slot}</div>
+            ))}
+          </div>
+        </div>
+
+        <textarea placeholder="Text Massage if any" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className="w-full bg-white rounded-2xl py-4 px-6 text-sm font-bold border border-gray-200 outline-none h-28 resize-none shadow-sm placeholder:text-gray-400" />
+
+        <div className="flex flex-col items-center gap-4 pt-2">
+          <p className="text-sm font-black text-[#333333]">Wait for confirmation of appointment</p>
+          <button type="submit" disabled={loading} className="w-1/3 bg-[#e8f0f7] py-2.5 rounded-lg font-black text-[#333333] shadow-md border border-gray-300 hover:bg-white transition-all uppercase tracking-widest text-sm">
+            {loading ? <div className="h-4 w-4 border-2 border-gray-600 border-t-transparent animate-spin rounded-full mx-auto" /> : "Submit"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
 export const PhotoGalleryView = () => {
   const builderData = useContext(BuilderContext);
@@ -604,20 +660,20 @@ export const PhotoGalleryView = () => {
             </div>
           ) : currentPhoto ? (
             <>
-              <Image 
-                src={getImageUrl(currentPhoto.image)} 
-                alt="Gallery" 
-                fill 
-                className="object-cover" 
+              <Image
+                src={getImageUrl(currentPhoto.image)}
+                alt="Gallery"
+                fill
+                className="object-cover"
                 unoptimized
               />
-              
+
               {/* Dots / Pager */}
               {filteredPhotos.length > 1 && (
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 px-4 z-10">
                   {filteredPhotos.slice(0, 5).map((_, idx) => (
-                    <button 
-                      key={idx} 
+                    <button
+                      key={idx}
                       onClick={() => setCurrentIndex(idx)}
                       className={`h-1.5 rounded-full transition-all ${currentIndex === idx ? "w-6 bg-white shadow-sm" : "w-1.5 bg-white/40"}`}
                     />
@@ -636,13 +692,13 @@ export const PhotoGalleryView = () => {
         {/* Navigation Arrows Outside */}
         {filteredPhotos.length > 1 && (
           <>
-            <button 
+            <button
               onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : filteredPhotos.length - 1))}
               className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
             >
               <ChevronLeft size={28} />
             </button>
-            <button 
+            <button
               onClick={() => setCurrentIndex((prev) => (prev < filteredPhotos.length - 1 ? prev + 1 : 0))}
               className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
             >
@@ -653,13 +709,13 @@ export const PhotoGalleryView = () => {
       </div>
 
       <div className="flex justify-center space-x-4">
-        <button 
+        <button
           onClick={() => handleTabChange("General")}
           className={`px-8 py-2 rounded-xl text-xs font-black shadow-md border transition-all ${activeTab === 'General' ? 'bg-[#003B46] text-white border-[#003B46]' : 'bg-white text-gray-600 border-gray-200'}`}
         >
           General
         </button>
-        <button 
+        <button
           onClick={() => handleTabChange("Awarded")}
           className={`px-8 py-2 rounded-xl text-xs font-black shadow-md border transition-all ${activeTab === 'Awarded' ? 'bg-[#003B46] text-white border-[#003B46]' : 'bg-white text-gray-600 border-gray-200'}`}
         >
@@ -674,7 +730,7 @@ export const ContactPersonView = () => {
   const builderData = useContext(BuilderContext);
   const [persons, setPersons] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  
+
   React.useEffect(() => {
     const fetchPersons = async () => {
       if (!builderData?._id) return;
@@ -703,38 +759,38 @@ export const ContactPersonView = () => {
   };
 
   return (
-  <div className="px-6 space-y-4 pb-10 pt-4">
-    <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest mb-4">
-      {builderData?.companyName || "M K GROUP"}
-    </div>
-    
-    {loading ? (
-      <div className="flex justify-center py-10">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
+    <div className="px-6 space-y-4 pb-10 pt-4">
+      <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest mb-4">
+        {builderData?.companyName || "M K GROUP"}
       </div>
-    ) : persons.length > 0 ? (
-      persons.map((person) => (
-        <div key={person._id} className="bg-white/40 rounded-2xl p-3 flex space-x-4 border border-white/60 shadow-sm backdrop-blur-sm group hover:bg-white/60 transition-all">
-          <div className="relative w-28 h-28 rounded-xl overflow-hidden flex-shrink-0 border-2 border-black/80 shadow-md">
-            <Image 
-              src={getPersonImage(person.image)} 
-              alt={person.name} 
-              fill 
-              className="object-cover" 
-              unoptimized
-            />
-          </div>
-          <div className="flex flex-col justify-center space-y-1">
-            <h3 className="font-black text-[#333333] text-lg leading-tight tracking-tight">{person.name}</h3>
-            <p className="text-xs font-bold text-gray-600">{person.designation}</p>
-            <p className="text-xs font-bold text-gray-600">{person.role}</p>
-          </div>
+
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
         </div>
-      ))
-    ) : (
-      <div className="text-center py-10 text-gray-500 font-bold">No contact persons added yet</div>
-    )}
-  </div>
+      ) : persons.length > 0 ? (
+        persons.map((person) => (
+          <div key={person._id} className="bg-white/40 rounded-2xl p-3 flex space-x-4 border border-white/60 shadow-sm backdrop-blur-sm group hover:bg-white/60 transition-all">
+            <div className="relative w-28 h-28 rounded-xl overflow-hidden flex-shrink-0 border-2 border-black/80 shadow-md">
+              <Image
+                src={getPersonImage(person.image)}
+                alt={person.name}
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+            <div className="flex flex-col justify-center space-y-1">
+              <h3 className="font-black text-[#333333] text-lg leading-tight tracking-tight">{person.name}</h3>
+              <p className="text-xs font-bold text-gray-600">{person.designation}</p>
+              <p className="text-xs font-bold text-gray-600">{person.role}</p>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="text-center py-10 text-gray-500 font-bold">No contact persons added yet</div>
+      )}
+    </div>
   );
 };
 
@@ -764,7 +820,7 @@ export const LocationView = () => {
   return (
     <div className="px-4 space-y-6 pt-4 pb-10">
       <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">Location and Address</div>
-      
+
       {loading ? (
         <div className="flex justify-center py-10">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
@@ -797,20 +853,20 @@ export const LocationView = () => {
                 </div>
               )}
             </div>
-            
+
             {loc.googleMapLink && (
-              <a 
-                href={loc.googleMapLink} 
-                target="_blank" 
+              <a
+                href={loc.googleMapLink}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full h-32 bg-gray-200 rounded-xl overflow-hidden relative border border-gray-300 mt-2 hover:opacity-90 transition-opacity"
               >
-                <Image 
-                   src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=400&h=200&auto=format&fit=crop" 
-                   alt="Map" 
-                   fill 
-                   className="object-cover" 
-                   unoptimized 
+                <Image
+                  src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=400&h=200&auto=format&fit=crop"
+                  alt="Map"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                   <div className="bg-white px-4 py-1.5 rounded-full flex items-center space-x-2 shadow-lg">
@@ -874,10 +930,10 @@ export const VideoGalleryView = () => {
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
             </div>
           ) : currentVideo ? (
-            <video 
+            <video
               key={currentVideo._id}
-              src={getVideoUrl(currentVideo.video)} 
-              controls 
+              src={getVideoUrl(currentVideo.video)}
+              controls
               className="w-full h-full object-cover"
               autoPlay={false}
             />
@@ -892,13 +948,13 @@ export const VideoGalleryView = () => {
         {/* Navigation Arrows Outside */}
         {videos.length > 1 && (
           <>
-            <button 
+            <button
               onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : videos.length - 1))}
               className="absolute left-[-10px] top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
             >
               <ChevronLeft size={36} />
             </button>
-            <button 
+            <button
               onClick={() => setCurrentIndex((prev) => (prev < videos.length - 1 ? prev + 1 : 0))}
               className="absolute right-[-10px] top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
             >
@@ -910,9 +966,9 @@ export const VideoGalleryView = () => {
 
       {videos.length > 0 && (
         <div className="text-center">
-           <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
-             Video {currentIndex + 1} of {videos.length}
-           </p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+            Video {currentIndex + 1} of {videos.length}
+          </p>
         </div>
       )}
     </div>
@@ -967,7 +1023,7 @@ export const BrochureView = () => {
                 <div className="text-[8px] tracking-[0.3em] uppercase">{builderData?.companyName || "MK GROUP"}</div>
               </div>
               <div className="relative w-12 h-12 rounded-md overflow-hidden bg-white/10 flex items-center justify-center">
-                 <FileText className="text-white/50" />
+                <FileText className="text-white/50" />
               </div>
             </div>
             <div className="p-4 flex items-center space-x-4">
@@ -978,7 +1034,7 @@ export const BrochureView = () => {
                 <p className="text-[11px] font-bold text-gray-800 truncate">{item.title}</p>
                 <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase">PDF • {item.fileSize}</p>
               </div>
-              <button 
+              <button
                 onClick={() => window.open(getFileUrl(item.file), '_blank')}
                 className="bg-gray-100 p-2.5 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
               >
@@ -989,8 +1045,8 @@ export const BrochureView = () => {
         ))
       ) : (
         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-           <FileText className="mx-auto text-gray-300 mb-2" size={40} />
-           <p className="text-gray-400 font-bold text-xs uppercase">No Brochures Available</p>
+          <FileText className="mx-auto text-gray-300 mb-2" size={40} />
+          <p className="text-gray-400 font-bold text-xs uppercase">No Brochures Available</p>
         </div>
       )}
 
@@ -1039,8 +1095,8 @@ export const InquiryView = () => {
         alert(result.message || "Failed to submit inquiry");
       }
     } catch (error) {
-       console.error("Inquiry error:", error);
-       alert("Something went wrong. Please try again.");
+      console.error("Inquiry error:", error);
+      alert("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -1051,49 +1107,49 @@ export const InquiryView = () => {
       <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20 uppercase tracking-widest">
         INQUIRY
       </div>
-      
+
       {submitted ? (
         <div className="bg-emerald-50 border border-emerald-100 p-8 rounded-3xl text-center space-y-3 animate-in fade-in zoom-in duration-300">
-           <div className="h-16 w-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
-              <Check size={32} />
-           </div>
-           <h3 className="text-emerald-900 font-black uppercase text-sm">Thank You!</h3>
-           <p className="text-emerald-600 text-[10px] font-bold">Your inquiry has been submitted successfully. Our team will contact you soon.</p>
+          <div className="h-16 w-16 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
+            <Check size={32} />
+          </div>
+          <h3 className="text-emerald-900 font-black uppercase text-sm">Thank You!</h3>
+          <p className="text-emerald-600 text-[10px] font-bold">Your inquiry has been submitted successfully. Our team will contact you soon.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">
-          <input 
-            type="text" 
-            placeholder="Name" 
+          <input
+            type="text"
+            placeholder="Name"
             required
             value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold"
           />
-          <input 
-            type="text" 
-            placeholder="Mobile" 
+          <input
+            type="text"
+            placeholder="Mobile"
             required
             value={formData.mobile}
-            onChange={(e) => setFormData({...formData, mobile: e.target.value})}
-            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold"
           />
-          <input 
-            type="email" 
-            placeholder="Email (Optional)" 
+          <input
+            type="email"
+            placeholder="Email (Optional)"
             value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold"
           />
-          <textarea 
-            placeholder="Inquiry Details" 
+          <textarea
+            placeholder="Inquiry Details"
             required
             value={formData.message}
-            onChange={(e) => setFormData({...formData, message: e.target.value})}
-            className="w-full bg-white rounded-2xl py-3 px-4 text-sm border border-gray-200 outline-none h-32 resize-none shadow-sm focus:ring-2 focus:ring-blue-500/10 transition-all font-bold" 
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            className="w-full bg-white rounded-2xl py-3 px-4 text-sm border border-gray-200 outline-none h-32 resize-none shadow-sm focus:ring-2 focus:ring-blue-500/10 transition-all font-bold"
           />
-          
-          <button 
+
+          <button
             type="submit"
             disabled={loading}
             className="w-full bg-[#003B46] py-3.5 rounded-full font-black text-white shadow-xl shadow-[#003B46]/20 flex items-center justify-center gap-2 transition-all active:scale-95 uppercase tracking-widest text-xs"
@@ -1152,9 +1208,9 @@ export const PopupView = () => (
   <div className="px-6 space-y-4 pt-4 pb-10">
     <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">Popup</div>
     <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/5]">
-      <Image 
-        src="https://picsum.photos/seed/diwali/600/800" 
-        alt="Diwali" 
+      <Image
+        src="https://picsum.photos/seed/diwali/600/800"
+        alt="Diwali"
         fill
         className="object-cover"
         referrerPolicy="no-referrer"
