@@ -49,6 +49,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
   const [isLocalhostBooting, setIsLocalhostBooting] = useState<boolean>(true);
   const [builderData, setBuilderData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (builderId) {
@@ -136,7 +137,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
             builderData={builderData}
           />
         );
-      case 'dashboard': return <DashboardView setView={setView} />;
+      case 'dashboard': return <DashboardView setView={setView} openPopup={() => setIsPopupOpen(true)} />;
       case 'contact-person': return <ContactPersonView />;
       case 'about-us': return <AboutUsView />;
       case 'appointment': return <AppointmentView />;
@@ -213,6 +214,29 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
         </motion.div>
       </AnimatePresence>
       </MobileFrame>
+
+      {/* Popup Modal Overlay */}
+      <AnimatePresence>
+        {isPopupOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm"
+            >
+              <PopupView onClose={() => setIsPopupOpen(false)} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
     </BuilderContext.Provider>
   );
