@@ -205,31 +205,58 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
               isolation: 'isolate',
               position: 'relative',
               height: '42px',
-              width: '84px',
+              width: '110px',
               borderRadius: '21px',
               overflow: 'hidden',
               boxShadow: '-8px -4px 8px 0px #ffffff, 8px 4px 12px 0px #d1d9e6, 4px 4px 4px 0px #d1d9e6 inset, -4px -4px 4px 0px #ffffff inset',
             }}>
+              {/* Sliding indicator */}
               <div style={{
                 height: '100%',
                 width: '200%',
-                background: startFromHome ? '#32CD32' : '#ecf0f3',
+                background: startFromHome ? '#32CD32' : '#e53e3e',
                 borderRadius: '21px',
                 transform: startFromHome ? 'translate3d(25%, 0, 0)' : 'translate3d(-75%, 0, 0)',
                 transition: 'transform 0.4s cubic-bezier(0.85, 0.05, 0.18, 1.35), background 0.3s',
                 boxShadow: '-8px -4px 8px 0px #ffffff, 8px 4px 12px 0px #d1d9e6',
               }} />
+              {/* ON label - left side, visible when ON */}
+              <span style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#fff',
+                letterSpacing: '0.05em',
+                opacity: startFromHome ? 1 : 0,
+                transition: 'opacity 0.3s',
+                pointerEvents: 'none',
+                userSelect: 'none',
+              }}>ON</span>
+              {/* OFF label - right side, visible when OFF */}
+              <span style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#fff',
+                letterSpacing: '0.05em',
+                opacity: startFromHome ? 0 : 1,
+                transition: 'opacity 0.3s',
+                pointerEvents: 'none',
+                userSelect: 'none',
+              }}>OFF</span>
               {isCheckingStatus && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
           </label>
-          <div className="flex w-[84px] justify-between px-1">
-            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 ${startFromHome ? 'text-green-600' : 'text-gray-300'}`}>ON</span>
-            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-300 ${!startFromHome ? 'text-red-500' : 'text-gray-300'}`}>OFF</span>
-          </div>
         </div>
 
         <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
@@ -287,7 +314,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
 
         <div 
           onClick={() => setView('advertisement')}
-          className="w-full bg-[#002D35] rounded-[32px] p-8 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2 cursor-pointer hover:shadow-2xl transition-all"
+          className="w-full bg-[#002D35] rounded-[32px] p-4 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2 cursor-pointer hover:shadow-2xl transition-all"
         >
           <div className="relative z-10 flex flex-col items-center w-full h-full">
             {logoUrl ? (
