@@ -6,7 +6,7 @@ import {
   Phone, MapPin, Clock, Globe, Share2, Edit, User, Info, Calendar,
   Image as ImageIcon, Video, HelpCircle, FileText, MessageSquare,
   Star, ThumbsUp, ThumbsDown, ChevronLeft, ChevronRight, Box,
-  Mail, Mic, Plus, Download, Bell, Eye, Send, Check
+  Mail, Mic, Plus, Download, Bell, Eye, Send, Check, X
 } from 'lucide-react';
 import { useContext } from 'react';
 import { BuilderContext } from '@/app/page';
@@ -167,9 +167,9 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
               const next = !startFromHome;
               setStartFromHome(next);
               if (next) {
-                // Delay the navigation to dashboard to let the "ON" state be visible
+                // Delay the navigation to popup to let the "ON" state be visible
                 setTimeout(() => {
-                  setView('dashboard');
+                  setView('popup');
                 }, 500);
               }
             }}
@@ -1211,30 +1211,85 @@ export const DropboxView = () => (
   </div>
 );
 
-export const PopupView = () => (
-  <div className="px-6 space-y-4 pt-4 pb-10">
-    <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">Popup</div>
-    <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/5]">
-      <Image
-        src="https://picsum.photos/seed/diwali/600/800"
-        alt="Diwali"
-        fill
-        className="object-cover"
-        referrerPolicy="no-referrer"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-pink-900/40 flex flex-col items-center justify-center p-6 text-center">
-        <div className="text-white space-y-2">
-          <div className="text-sm font-bold tracking-widest">HAPPY</div>
-          <div className="text-4xl font-serif font-bold text-yellow-400">Diwali</div>
-        </div>
+export const PopupView = ({ setView }: ViewProps) => {
+  const builderData = useContext(BuilderContext);
+  const [popup, setPopup] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchActivePopup = async () => {
+      if (!builderData?._id) return;
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/popup/active/${builderData._id}`);
+        const result = await response.json();
+        if (result.status === "Success") {
+          setPopup(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch active popup:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchActivePopup();
+  }, [builderData?._id]);
+
+  const getImageUrl = (imageName: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+    const baseUrl = apiUrl.split("/v1/api")[0];
+    return `${baseUrl}/builder/${imageName}`;
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" /></div>;
+  }
+
+  if (!popup) {
+    // If no active popup, skip directly to dashboard
+    setView('dashboard');
+    return null;
+  }
+
+  return (
+    <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+      <div className="bg-white rounded-[40px] w-full max-w-[340px] relative shadow-2xl overflow-hidden border-4 border-white animate-in zoom-in-95 duration-300">
+        <button 
+          onClick={(e) => { e.stopPropagation(); setView('dashboard'); }}
+          className="absolute top-4 right-4 p-2 bg-black/10 backdrop-blur-md rounded-full text-white hover:bg-black/20 transition-all z-50"
+        >
+          <X size={18} strokeWidth={3} />
+        </button>
+
+        {popup.type === 'image' ? (
+          <div className="relative aspect-[4/5] w-full h-[400px]">
+            <Image
+              src={getImageUrl(popup.image)}
+              alt="Promotion"
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="p-10 space-y-6 flex flex-col items-center text-center">
+             <div className="h-16 w-16 bg-blue-50 rounded-3xl flex items-center justify-center text-blue-600 mb-2">
+                <Bell size={32} />
+             </div>
+             <p className="text-lg font-black text-gray-800 leading-tight">
+               {popup.content}
+             </p>
+             <button 
+              onClick={() => setView('dashboard')}
+              className="mt-4 bg-[#003B46] text-white w-full py-4 rounded-2xl font-black shadow-lg hover:scale-[1.02] transition-all text-[11px] tracking-widest uppercase"
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
     </div>
-    <div className="bg-white rounded-2xl p-4 space-y-2 shadow-md border border-gray-100">
-      <h4 className="text-xs font-bold text-gray-800">Important Message</h4>
-      <p className="text-[10px] text-gray-600 leading-relaxed">Dear office is closed 12/11/2025 to 22/11/2025 during deepawali vocation.</p>
-    </div>
-  </div>
-);
+  );
+};
 
 export const AdvertisementView = () => {
   const builderData = useContext(BuilderContext);

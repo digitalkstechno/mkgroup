@@ -147,7 +147,15 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
       case 'inquiry': return <InquiryView />;
       case 'dropbox': return <DropboxView />;
       case 'advertisement': return <AdvertisementView />;
-      case 'popup': return <PopupView />;
+      case 'popup': 
+        return (
+          <div className="relative h-full w-full overflow-hidden">
+            <DashboardView setView={setView} />
+            <div className="absolute inset-0 z-[60] bg-black/40 backdrop-blur-[2px]">
+               <PopupView setView={setView} />
+            </div>
+          </div>
+        );
       default:
         return (
           <HomeView

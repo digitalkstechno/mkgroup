@@ -42,7 +42,8 @@ const VIEW_LABELS: Record<string, string> = {
 export const MobileFrame = ({ children, currentView, setView }: MobileFrameProps) => {
   const isHome = currentView === 'home';
   const isDashboard = currentView === 'dashboard';
-  const isSubView = !isHome && !isDashboard;
+  const isPopup = currentView === 'popup';
+  const isSubView = !isHome && !isDashboard && !isPopup;
   const isMobile = useIsMobile();
 
   return (
@@ -74,7 +75,7 @@ export const MobileFrame = ({ children, currentView, setView }: MobileFrameProps
           </div>
 
           {/* Bottom Nav — Dashboard */}
-          {isDashboard && (
+          {isDashboard && !isPopup && (
             <div className={`flex-shrink-0 bg-[#004A7C] border-t border-white/10 shadow-[0_-4px_10px_rgba(0,0,0,0.1)] ${isMobile ? 'fixed bottom-0 w-full left-0 right-4  overflow-hidden z-40' : ''}`}>
               <div className="flex items-center justify-around py-3 px-2">
                 {[
