@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MobileFrame } from '@/components/MobileFrame';
 import Link from 'next/link';
 import { ShieldCheck, User } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   HomeView, 
   DashboardView, 
@@ -42,6 +43,7 @@ type MKGroupAppProps = {
 export const BuilderContext = React.createContext<any>(null);
 
 export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGroupAppProps) {
+  const isMobile = useIsMobile();
   const [isLocalhostBooting, setIsLocalhostBooting] = useState<boolean>(true);
   const [builderData, setBuilderData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
@@ -168,7 +170,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
 
   return (
     <BuilderContext.Provider value={builderData}>
-    <div className="relative min-h-screen bg-gray-50 flex items-center justify-center py-10">
+    <div className={`relative min-h-screen ${isMobile ? 'bg-white' : 'bg-gray-50 flex items-center justify-center py-10'}`}>
       {showAccessPanel && (
         <div className="fixed top-8 left-8 z-50 flex flex-col gap-4">
           <div className="bg-white/80 backdrop-blur-md p-2 rounded-2xl border border-white/50 shadow-xl flex flex-col gap-2">
