@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useContext } from 'react';
 import { BuilderContext } from '@/app/page';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type View =
   | 'home'
@@ -51,6 +52,7 @@ const ContactItem = ({ icon: Icon, text, isName = false, isAddress = false }: { 
 
 export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewProps) => {
   const builderData = useContext(BuilderContext);
+  const isMobile = useIsMobile();
   const name = builderData?.name || "HIRENBHAI K. PATEL";
   const number = builderData?.number || "9825222223";
   const location = builderData?.location || "B-86 Trikam Nagar Society, Near V-1 Bombay Market, L.H Road, Surat -395003";
@@ -78,8 +80,8 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
   const logoUrl = getLogoImage();
 
   return (
-    <div className="flex flex-col items-center px-12 space-y-6 w-full h-full justify-center mt-4">
-      <div className="relative w-44 h-44 rounded-full  shadow-lg mb-2 overflow-hidden bg-white">
+    <div className={`flex flex-col items-center w-full h-full justify-center ${isMobile ? 'px-4 space-y-3 mt-0' : 'px-6 sm:px-12 space-y-6 mt-4'}`}>
+      <div className={`relative rounded-full shadow-lg mb-2 overflow-hidden bg-white ${isMobile ? 'w-32 h-32' : 'w-36 h-36 sm:w-44 sm:h-44'}`}>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 z-10" />
         <Image
           src={getProfileImage()}
@@ -208,6 +210,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
 
 export const DashboardView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const isMobile = useIsMobile();
 
   const getLogoImage = () => {
     if (builderData?.logo) {
@@ -221,7 +224,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
   const logoUrl = getLogoImage();
 
   return (
-    <div className="flex flex-col items-center px-4 space-y-4 pt-4">
+    <div className={`flex flex-col items-center px-4 pt-4 ${isMobile ? 'space-y-4 pb-24 h-full justify-center' : 'space-y-4'}`}>
       <div className="relative flex flex-col items-center w-full">
         <div className="absolute -top-2 z-20 flex items-center bg-[#E5ECEA] rounded-full border border-gray-300 shadow-sm pl-2 pr-1 py-1">
           <div className="mr-2">
@@ -272,7 +275,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-2 w-full px-2">
+      <div className="grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2">
         {[
           {
             img: '/icons/phone.png',
@@ -304,7 +307,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
             }
           },
           {
-            img: '/icons/insta.png',
+            img: '/icons/instaa.png',
             color: 'bg-[#E1306C]',
             action: () => {
               if (builderData?.instagramLink) window.open(builderData.instagramLink, '_blank');
@@ -319,7 +322,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
             }
           },
         ].map((item, i) => (
-          <div key={i} onClick={item.action} className="cursor-pointer hover:scale-105 transition-transform">
+          <div key={i} onClick={item.action} className="flex justify-center cursor-pointer hover:scale-105 transition-transform">
             <Image
               src={item.img}
               alt="icon"
@@ -342,7 +345,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
           { id: 'brochure', label: 'Brochure', img: '/icons/brochure-01.png' },
         ].map((item) => (
           <button key={item.id} onClick={() => setView(item.id as View)} className="flex flex-col items-center group">
-            <div className="ounded-xl shadow-[0_2px_5px_rgba(0,0,0,0.1)] ">
+            <div className="rounded-xl shadow-[0_2px_5px_rgba(0,0,0,0.1)] ">
               <Image
                 src={item.img}
                 alt={item.label}
