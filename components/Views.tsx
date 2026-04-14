@@ -208,7 +208,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
               width: '110px',
               borderRadius: '21px',
               overflow: 'hidden',
-              boxShadow: '-8px -4px 8px 0px #ffffff, 8px 4px 12px 0px #d1d9e6, 4px 4px 4px 0px #d1d9e6 inset, -4px -4px 4px 0px #ffffff inset',
+              boxShadow: '-1px -1px 4px #e2e8f0, 3px 3px 6px #cbd5e0, inset 1px 1px 3px #cbd5e0, inset -1px -1px 3px #ffffff'
             }}>
               {/* Sliding indicator */}
               <div style={{
@@ -218,27 +218,12 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
                 borderRadius: '21px',
                 transform: startFromHome ? 'translate3d(25%, 0, 0)' : 'translate3d(-75%, 0, 0)',
                 transition: 'transform 0.4s cubic-bezier(0.85, 0.05, 0.18, 1.35), background 0.3s',
-                boxShadow: '-8px -4px 8px 0px #ffffff, 8px 4px 12px 0px #d1d9e6',
+                boxShadow: '-4px -4px 8px 0px #a0aec0, 8px 8px 16px 0px #4a5568',
               }} />
-              {/* ON label - left side, visible when ON */}
+              {/* OFF label - left side, visible when OFF */}
               <span style={{
                 position: 'absolute',
                 left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                fontSize: '11px',
-                fontWeight: 900,
-                color: '#fff',
-                letterSpacing: '0.05em',
-                opacity: startFromHome ? 1 : 0,
-                transition: 'opacity 0.3s',
-                pointerEvents: 'none',
-                userSelect: 'none',
-              }}>ON</span>
-              {/* OFF label - right side, visible when OFF */}
-              <span style={{
-                position: 'absolute',
-                right: '12px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 fontSize: '11px',
@@ -250,6 +235,21 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
                 pointerEvents: 'none',
                 userSelect: 'none',
               }}>OFF</span>
+              {/* ON label - right side, visible when ON */}
+              <span style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#fff',
+                letterSpacing: '0.05em',
+                opacity: startFromHome ? 1 : 0,
+                transition: 'opacity 0.3s',
+                pointerEvents: 'none',
+                userSelect: 'none',
+              }}>ON</span>
               {isCheckingStatus && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
