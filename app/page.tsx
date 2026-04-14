@@ -44,12 +44,98 @@ type MKGroupAppProps = {
 
 export const BuilderContext = React.createContext<any>(null);
 
+// Google Translate Component to inject the scripts
+const GoogleTranslate = () => {
+  useEffect(() => {
+    // Correctly define the init function on windows
+    (window as any).googleTranslateElementInit = () => {
+      new (window as any).google.translate.TranslateElement(
+        {
+          pageLanguage: 'en',
+          // Only include languages user requested
+          includedLanguages: 'en,hi,gu',
+          // Use a layout that's easy to hide if we want custom UI
+          layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false,
+        },
+        'google_translate_element'
+      );
+    };
+
+    // Load Google Translate script if not already there
+    if (!document.getElementById('google-translate-script')) {
+      const addScript = document.createElement('script');
+      addScript.setAttribute('src', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit');
+      addScript.setAttribute('id', 'google-translate-script');
+      document.body.appendChild(addScript);
+    }
+  }, []);
+
+  return (
+    <>
+      <div id="google_translate_element" style={{ display: 'none' }}></div>
+      <style jsx global>{`
+        .goog-te-banner-frame.skiptranslate {
+          display: none !important;
+        }
+        body {
+          top: 0px !important;
+        }
+        .goog-te-gadget-icon {
+          display: none !important;
+        }
+        .goog-te-gadget-simple {
+          background-color: transparent !important;
+          border: none !important;
+        }
+        .goog-te-menu-value span {
+          display: none !important;
+        }
+        #goog-gt-tt {
+          display: none !important;
+        }
+        .goog-tooltip {
+          display: none !important;
+        }
+        .goog-tooltip:hover {
+          display: none !important;
+        }
+        .goog-text-highlight {
+          background-color: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+      `}</style>
+    </>
+  );
+};
+
 export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGroupAppProps) {
   const isMobile = useIsMobile();
   const [isLocalhostBooting, setIsLocalhostBooting] = useState<boolean>(true);
   const [builderData, setBuilderData] = useState<any>(null);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
   const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+
+  // Helper to change language using cookies (Google Translate standard approach)
+  const changeLanguage = (langCode: string) => {
+    // Reset toggle to OFF and force Home view when changing language
+    try {
+      localStorage.setItem('mkgroup:startFromHome', '0');
+      localStorage.setItem('mkgroup:lastView', 'home');
+    } catch (e) {}
+
+    // Cookie format: /source_lang/target_lang
+    const cookieValue = `/en/${langCode}`;
+    
+    // Set for current domain and subdomains
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=${cookieValue}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=${cookieValue}; path=/;`;
+    
+    // Refresh to apply Google Translate changes
+    window.location.reload();
+  };
 
   useEffect(() => {
     if (builderId) {
@@ -137,7 +223,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
             builderData={builderData}
           />
         );
-      case 'dashboard': return <DashboardView setView={setView} openPopup={() => setIsPopupOpen(true)} />;
+      case 'dashboard': return <DashboardView setView={setView} openPopup={() => setIsPopupOpen(true)} changeLanguage={changeLanguage} />;
       case 'contact-person': return <ContactPersonView />;
       case 'about-us': return <AboutUsView />;
       case 'appointment': return <AppointmentView />;
@@ -151,7 +237,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
       case 'popup': 
         return (
           <div className="relative h-full w-full overflow-hidden">
-            <DashboardView setView={setView} />
+            <DashboardView setView={setView} changeLanguage={changeLanguage} />
             <div className="absolute inset-0 z-[60] bg-black/40 backdrop-blur-[2px]">
                <PopupView setView={setView} />
             </div>
@@ -182,6 +268,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
 
   return (
     <BuilderContext.Provider value={builderData}>
+    <GoogleTranslate />
     <div className={`relative min-h-screen ${isMobile ? 'bg-white' : 'bg-gray-50 flex items-center justify-center py-10'}`}>
       {showAccessPanel && (
         <div className="fixed top-8 left-8 z-50 flex flex-col gap-4">

@@ -8,7 +8,7 @@ import {
   Star, ThumbsUp, ThumbsDown, ChevronLeft, ChevronRight, Box,
   Mail, Mic, Plus, Download, Bell, Eye, Send, Check, X
 } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { BuilderContext } from '@/app/page';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
@@ -30,6 +30,11 @@ type View =
 
 interface ViewProps {
   setView: (v: View) => void;
+  changeLanguage?: (lang: string) => void;
+}
+
+interface DashboardViewProps extends ViewProps {
+  openPopup?: () => void;
 }
 
 interface HomeViewProps extends ViewProps {
@@ -233,7 +238,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
   );
 };
 
-export const DashboardView = ({ setView }: ViewProps) => {
+export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) => {
   const builderData = useContext(BuilderContext);
 
   const getLogoImage = () => {
@@ -384,17 +389,7 @@ export const DashboardView = ({ setView }: ViewProps) => {
       </div>
 
       <div className="flex space-x-2 w-full px-2">
-        <button
-          className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
-        >
-          <Image
-            src="/select1.png"
-            alt="Select language"
-            width={180}
-            height={50}
-            className="object-contain"
-          />
-        </button>
+        {/* Save Contact - Now on Left */}
         <button
           onClick={() => {
             const n = builderData?.name || "MK GROUP";
@@ -409,16 +404,39 @@ export const DashboardView = ({ setView }: ViewProps) => {
             a.click();
             URL.revokeObjectURL(url);
           }}
-          className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105">
-
+          className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+        >
           <Image
-            src="/selete2.png"
+            src="/selete2.png" // This should be the save contact image
             alt="Save Contact"
             width={180}
             height={50}
             className="object-contain"
           />
         </button>
+
+        {/* Select Language - Now on Right, using Native Select Overlay */}
+        <div className="flex-1 relative group">
+          <select 
+            onChange={(e) => changeLanguage && changeLanguage(e.target.value)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 appearance-none"
+            defaultValue=""
+          >
+            <option value="" disabled>Select Language</option>
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="gu">Gujarati</option>
+          </select>
+          <div className="flex items-center justify-center transition-transform group-hover:scale-105 active:scale-95">
+            <Image
+              src="/select1.png"
+              alt="Select language"
+              width={180}
+              height={50}
+              className="object-contain"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-5 gap-2 w-full pt-2 pb-4">
