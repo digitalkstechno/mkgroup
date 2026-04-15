@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Camera, Phone, MapPin, Clock, Globe, User, Pencil, Check, X, Loader2 } from "lucide-react";
+import { Camera, Phone, MapPin, Clock, Globe, User, Pencil, Check, X, Loader2, Mail } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { fetchProfile, updateProfile } from "@/lib/redux/slices/authSlice";
@@ -23,7 +23,7 @@ export default function ProfilePage() {
     whatsappNumber: "",
     facebookLink: "",
     instagramLink: "",
-    messageNumber: "",
+    email: "",
     logo: "",
     companyName: "",
   });
@@ -54,7 +54,7 @@ export default function ProfilePage() {
         whatsappNumber: user.whatsappNumber || "",
         facebookLink: user.facebookLink || "",
         instagramLink: user.instagramLink || "",
-        messageNumber: user.messageNumber || "",
+        email: user.email || "",
         logo: user.logo || "",
         companyName: user.companyName || "",
       });
@@ -104,7 +104,7 @@ export default function ProfilePage() {
     formData.append("whatsappNumber", localProfile.whatsappNumber);
     formData.append("facebookLink", localProfile.facebookLink);
     formData.append("instagramLink", localProfile.instagramLink);
-    formData.append("messageNumber", localProfile.messageNumber);
+    formData.append("email", localProfile.email);
     formData.append("companyName", localProfile.companyName);
 
     if (selectedFile) {
@@ -131,7 +131,7 @@ export default function ProfilePage() {
     { key: "number", label: "Phone Number", icon: Phone, placeholder: "Enter phone number" },
     { key: "secondaryNumber", label: "Secondary Number", icon: Phone, placeholder: "Enter secondary number" },
     { key: "whatsappNumber", label: "WhatsApp Number", icon: Phone, placeholder: "Enter WhatsApp number" },
-    { key: "messageNumber", label: "Message (SMS) Number", icon: Phone, placeholder: "Enter SMS number" },
+    { key: "email", label: "Email Address", icon: Mail, placeholder: "Enter email address" },
     { key: "location", label: "Address", icon: MapPin, placeholder: "Enter address" },
     { key: "timing", label: "Timing", icon: Clock, placeholder: "e.g. Mon-Sat: 9AM - 6PM" },
     { key: "website", label: "Website", icon: Globe, placeholder: "Enter website URL" },

@@ -1,13 +1,14 @@
 "use client";
 
 import DashboardLayout from "@/components/DashboardLayout";
-import { Plus, CreditCard, BarChart3, Users, Clock4, Eye, EyeOff, UserPlus } from "lucide-react";
+import { Plus, CreditCard, BarChart3, Users, Clock4, Eye, EyeOff, UserPlus, Pencil, Trash2, X, Check } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, createUserAdmin, toggleUserStatus, clearError } from "@/lib/redux/slices/authSlice";
 import { RootState, AppDispatch } from "@/lib/redux/store";
 import CommonTable from "@/components/CommonTable";
 import { toast } from "sonner";
+import api from "@/lib/axios";
 
 const inputCls = "w-full border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-800 focus:border-gray-800 transition-all rounded-md";
 const labelCls = "text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1";
@@ -18,6 +19,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ name: "", email: "", number: "" });
   const [formData, setFormData] = useState({ name: "", email: "", number: "", password: "", refer: "", role: "user" });
 
   useEffect(() => {
@@ -43,6 +46,38 @@ export default function AdminPage() {
     const result = await dispatch(toggleUserStatus({ userId, status: newStatus }));
     if (toggleUserStatus.fulfilled.match(result)) toast.success(`User status updated to ${newStatus}`);
     setIsUpdatingStatus(null);
+  };
+
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+    setEditForm({ name: user.name || "", email: user.email || "", number: user.number || "" });
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await api.put(`/user/update/${editingUser._id}`, editForm);
+      if (response.data.status === "Success") {
+        toast.success("User updated successfully");
+        setEditingUser(null);
+        dispatch(fetchUsers({ page: currentPage, search: searchQuery }));
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update user");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const response = await api.delete(`/user/delete/${userId}`);
+      if (response.data.status === "Success") {
+        toast.success("User deleted successfully");
+        dispatch(fetchUsers({ page: currentPage, search: searchQuery }));
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to delete user");
+    }
   };
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -83,11 +118,60 @@ export default function AdminPage() {
         return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
       }
     },
+    {
+      header: "Actions", accessor: "_id",
+      render: (row: any) => (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleEditUser(row)}
+            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+          >
+            <Pencil size={15} />
+          </button>
+          <button
+            onClick={() => handleDeleteUser(row._id)}
+            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      )
+    },
   ];
 
   return (
     <DashboardLayout type="admin">
       <div className="space-y-5">
+
+        {/* Edit User Modal */}
+        {editingUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">Edit User</h3>
+                <button onClick={() => setEditingUser(null)} className="p-1 text-gray-400 hover:text-gray-700"><X size={18} /></button>
+              </div>
+              <form onSubmit={handleUpdateUser} className="space-y-3">
+                <div>
+                  <label className={labelCls}>Full Name</label>
+                  <input required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className={inputCls} placeholder="Full Name" />
+                </div>
+                <div>
+                  <label className={labelCls}>Email</label>
+                  <input type="email" required value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className={inputCls} placeholder="Email" />
+                </div>
+                <div>
+                  <label className={labelCls}>Mobile Number</label>
+                  <input required value={editForm.number} onChange={(e) => setEditForm({ ...editForm, number: e.target.value })} className={inputCls} placeholder="Mobile Number" />
+                </div>
+                <div className="flex gap-2 justify-end pt-1">
+                  <button type="button" onClick={() => setEditingUser(null)} className="px-4 py-2 text-sm font-semibold text-gray-500 border border-gray-300 hover:bg-gray-50 rounded-lg">Cancel</button>
+                  <button type="submit" className="px-5 py-2 text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 rounded-lg">Update</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

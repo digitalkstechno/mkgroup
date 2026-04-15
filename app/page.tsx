@@ -224,16 +224,16 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
           />
         );
       case 'dashboard': return <DashboardView setView={setView} openPopup={() => setIsPopupOpen(true)} changeLanguage={changeLanguage} />;
-      case 'contact-person': return <ContactPersonView />;
-      case 'about-us': return <AboutUsView />;
-      case 'appointment': return <AppointmentView />;
-      case 'location': return <LocationView />;
-      case 'photo-gallery': return <PhotoGalleryView />;
-      case 'video-gallery': return <VideoGalleryView />;
-      case 'brochure': return <BrochureView />;
-      case 'inquiry': return <InquiryView />;
-      case 'dropbox': return <DropboxView />;
-      case 'advertisement': return <AdvertisementView />;
+      case 'contact-person': return <ContactPersonView setView={setView} />;
+      case 'about-us': return <AboutUsView setView={setView} />;
+      case 'appointment': return <AppointmentView setView={setView} />;
+      case 'location': return <LocationView setView={setView} />;
+      case 'photo-gallery': return <PhotoGalleryView setView={setView} />;
+      case 'video-gallery': return <VideoGalleryView setView={setView} />;
+      case 'brochure': return <BrochureView setView={setView} />;
+      case 'inquiry': return <InquiryView setView={setView} />;
+      case 'dropbox': return <DropboxView setView={setView} />;
+      case 'advertisement': return null; // handled via render prop in MobileFrame
       case 'popup': 
         return (
           <div className="relative h-full w-full overflow-hidden">
@@ -296,18 +296,20 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
       )}
 
       <MobileFrame currentView={view} setView={setView} setStartFromHome={setStartFromHome}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={view}
-          initial={false}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.2 }}
-          className="h-full w-full"
-        >
-          {renderView()}
-        </motion.div>
-      </AnimatePresence>
+        {(adTab) => (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={view}
+              initial={false}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="h-full w-full"
+            >
+              {view === 'advertisement' ? <AdvertisementView setView={setView} adTab={adTab} /> : renderView()}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </MobileFrame>
 
       {/* Popup Modal Overlay */}
@@ -327,7 +329,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-sm"
             >
-              <PopupView onClose={() => setIsPopupOpen(false)} />
+        <PopupView setView={() => setIsPopupOpen(false)} />
             </motion.div>
           </motion.div>
         )}

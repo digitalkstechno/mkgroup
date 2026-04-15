@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Home, Box, Share2, ChevronLeft, FileText } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { BuilderContext } from '@/app/page';
 
 type View =
   | 'home'
@@ -20,7 +21,7 @@ type View =
   | 'popup';
 
 interface MobileFrameProps {
-  children: React.ReactNode;
+  children: (adTab?: 'Upcoming' | 'Running' | 'Completed') => React.ReactNode;
   currentView: View;
   setView: (v: View) => void;
   setStartFromHome?: (v: boolean) => void;
@@ -44,8 +45,56 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome }
   const isHome = currentView === 'home';
   const isDashboard = currentView === 'dashboard';
   const isPopup = currentView === 'popup';
+  const isAdvertisement = currentView === 'advertisement';
   const isSubView = !isHome && !isDashboard && !isPopup;
   const isMobile = useIsMobile();
+  const [adTab, setAdTab] = React.useState<'Upcoming' | 'Running' | 'Completed'>('Upcoming');
+  const builderData = useContext(BuilderContext);
+
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+
+    const profileUrl = builderData?.website
+      ? builderData.website.startsWith('http')
+        ? builderData.website
+        : `https://${builderData.website}`
+      : window.location.href;
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api';
+    const baseUrl = apiUrl.split('/v1/api')[0];
+    const imageUrl = builderData?.profileImage
+      ? `${baseUrl}/builder/${builderData.profileImage}`
+      : builderData?.logo
+        ? `${baseUrl}/builder/${builderData.logo}`
+        : '';
+
+    const shareLines = [
+      builderData?.companyName || 'MK GROUP',
+      builderData?.name,
+      builderData?.location,
+      builderData?.timing ? `Timing: ${builderData.timing}` : undefined,
+      imageUrl ? `Image: ${imageUrl}` : undefined,
+      `Profile: ${profileUrl}`,
+      'Open this profile now!'
+    ].filter(Boolean);
+
+    const shareText = shareLines.join('\n');
+    const shareData = {
+      title: builderData?.companyName || 'MK GROUP',
+      text: shareText,
+      url: profileUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData as ShareData);
+      } catch {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+      }
+    } else {
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+  };
 
   return (
     <div className={`min-h-screen ${isMobile ? 'bg-white' : 'bg-gray-50 flex items-center justify-center p-4'} font-sans`}>
@@ -57,22 +106,10 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome }
           style={isMobile ? {} : { height: '820px', minHeight: '820px', maxHeight: '820px' }}
         >
 
-          {/* Header for Subviews */}
-          {isSubView && (
-            <div className={`flex items-center gap-3 px-6 pt-6 pb-4 bg-[#6B849E] text-white flex-shrink-0 shadow-md ${isMobile ? 'rounded-b-[20px]' : ''}`}>
-               <button
-                onClick={() => setView('dashboard')}
-                className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors shadow-sm"
-              >
-                <ChevronLeft size={20} strokeWidth={2.5} />
-              </button>
-              <span className="font-black text-sm tracking-widest uppercase">{VIEW_LABELS[currentView] ?? currentView}</span>
-            </div>
-          )}
-
+       
           {/* Scrollable Content */}
-          <div className={`flex-1 overflow-y-auto scrollbar-hide flex flex-col ${isHome ? 'justify-center py-4' : ''}`}>
-            {children}
+          <div className={`flex-1 overflow-y-auto scrollbar-hide mt-6 flex flex-col ${isHome ? 'justify-center py-4' : ''}`}>
+            {children(isAdvertisement ? adTab : undefined)}
           </div>
 
           {/* Bottom Nav — Dashboard */}
@@ -85,8 +122,8 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome }
                     if (setStartFromHome) setStartFromHome(false);
                   } },
                   { icon: Box, label: 'dropbox', action: () => setView('dropbox') },
-                  { icon: FileText, label: 'correction', action: () => setView('brochure') },
-                  { icon: Share2, label: 'share', action: () => {} },
+                  { icon: FileText, label: 'correction', action: () => window.open('/user/login', '_blank') },
+                  { icon: Share2, label: 'share', action: handleShare },
                 ].map(({ icon: Icon, label, action }) => (
                   <button key={label} onClick={action} className="flex flex-col items-center gap-1 py-1 px-3 text-white/90 hover:text-white transition-all group">
                     <Icon size={22} strokeWidth={1.5} className="group-hover:scale-110 transition-transform" />
@@ -97,23 +134,37 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome }
             </div>
           )}
           
-          {/* Bottom Nav — Subviews (just back button or similar) */}
+          {/* Bottom Nav — Subviews */}
           {isSubView && (
-            <div className={`flex-shrink-0 bg-[#6B849E] py-1.5 flex items-center justify-around shadow-[0_-8px_20px_rgba(0,0,0,0.15)] ${isMobile ? 'fixed bottom-0 left-0 right-0  z-40' : 'rounded-b-[48px]'}`}>
-               <button
-                onClick={() => setView('dashboard')}
-                className="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors shadow-inner"
-              >
-                <ChevronLeft size={24} strokeWidth={3} />
-              </button>
+            <div className={`flex-shrink-0 bg-[#6B849E] py-2 px-4 flex items-center shadow-[0_-8px_20px_rgba(0,0,0,0.15)] ${isMobile ? 'fixed bottom-0 left-0 right-0 z-40' : 'rounded-b-[48px]'} min-h-[56px] relative`}>
               <button
-                onClick={() => {}}
-                className="bg-white/10 px-6 rounded-lg py-1 border-2 border-white/30 shadow-lg backdrop-blur-sm active:scale-95 transition-all"
+                onClick={() => setView('dashboard')}
+                className="flex-shrink-0 text-white hover:opacity-80 transition-opacity z-10"
               >
-                <span className="text-white text-xs font-black  tracking-[0.2em] drop-shadow-sm">
-                  {VIEW_LABELS[currentView] ? VIEW_LABELS[currentView].toUpperCase() : currentView.toUpperCase()}
-                </span>
+                <ChevronLeft size={32} strokeWidth={4} />
               </button>
+
+              {!isAdvertisement ? (
+                <div className="absolute inset-0 flex items-center justify-center font-bold text-white text-lg tracking-wide pointer-events-none">
+                  {VIEW_LABELS[currentView] || 'Important Message'}
+                </div>
+              ) : (
+                <div className="flex flex-1 justify-around ml-2 z-10">
+                  {(['Upcoming', 'Running', 'Completed'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setAdTab(tab)}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${
+                        adTab === tab
+                          ? 'bg-white text-[#003B46]'
+                          : 'text-white/70 hover:text-white'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

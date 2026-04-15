@@ -40,6 +40,7 @@ interface DashboardViewProps extends ViewProps {
 interface HomeViewProps extends ViewProps {
   startFromHome: boolean;
   setStartFromHome: (v: boolean) => void;
+  builderData?: any;
 }
 
 const ContactItem = ({ icon: Icon, text, isName = false, isAddress = false }: { icon: any, text: string | React.ReactNode, isName?: boolean, isAddress?: boolean }) => (
@@ -60,12 +61,16 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
   const builderData = useContext(BuilderContext);
   const isMobile = useIsMobile();
   const [isCheckingStatus, setIsCheckingStatus] = React.useState(false);
+  const [showInactiveDialog, setShowInactiveDialog] = React.useState(false);
+  const [dialogMessage, setDialogMessage] = React.useState('');
+  const [statusError, setStatusError] = React.useState<string | null>(null);
 
-  const name = builderData?.name || "HIRENBHAI K. PATEL";
-  const number = builderData?.number || "9825222223";
-  const location = builderData?.location || "B-86 Trikam Nagar Society, Near V-1 Bombay Market, L.H Road, Surat -395003";
-  const timing = builderData?.timing || "10 am to 2 pm & 5 pm to 7 pm";
-  const website = builderData?.website || "www.mkgroup.com";
+  const name = builderData?.name || "-";
+  const number = builderData?.number || "-";
+  const email = builderData?.email || "-";
+  const location = builderData?.location || "-";
+  const timing = builderData?.timing || "-";
+  const website = builderData?.website || "-";
 
   const getProfileImage = () => {
     if (builderData?.profileImage) {
@@ -142,7 +147,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
               />
             </div>
             <div className="text-xl font-black tracking-[0.2em] leading-tight uppercase truncate max-w-full">
-              {builderData?.companyName || "MK GROUP"}
+              {builderData?.companyName || "-"}
             </div>
           </div>
         ) : (
@@ -154,7 +159,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
               </div>
             </div>
             <div className="text-2xl font-black tracking-[0.2em] leading-tight uppercase">
-              {builderData?.companyName || "MK GROUP"}
+              {builderData?.companyName || "-"}
             </div>
           </div>
         )}
@@ -197,10 +202,12 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
                   setStartFromHome(true);
                   setTimeout(() => { setView('popup'); }, 500);
                 } else {
-                  toast.error("This profile is currently inactive. Please contact admin.");
+                  setDialogMessage("This profile is currently inactive. Please contact admin.");
+                  setShowInactiveDialog(true);
                 }
               } catch (error) {
-                toast.error("Unable to verify profile status. Please try again.");
+                setDialogMessage("Unable to verify profile status. Please try again.");
+                setShowInactiveDialog(true);
               } finally {
                 setIsCheckingStatus(false);
               }
@@ -278,6 +285,42 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
           <span className="text-xs font-black text-gray-700">Edit</span>
         </div>
       </div>
+
+      {/* Inactive Dialog */}
+      {showInactiveDialog && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center px-6">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowInactiveDialog(false)}
+          />
+          {/* Dialog */}
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-[300px] overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Top accent */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-red-400 to-red-600" />
+            <div className="p-6 flex flex-col items-center text-center gap-4">
+              {/* Icon */}
+              <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="#ef4444" strokeWidth="2"/>
+                  <path d="M12 7v5" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round"/>
+                  <circle cx="12" cy="16" r="1.2" fill="#ef4444"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-black text-gray-900 mb-1">Profile Inactive</p>
+                <p className="text-xs font-medium text-gray-500 leading-relaxed">{dialogMessage}</p>
+              </div>
+              <button
+                onClick={() => setShowInactiveDialog(false)}
+                className="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-colors"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -319,7 +362,14 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
 
         <div 
           onClick={() => setView('advertisement')}
-          className="w-full bg-[#002D35] rounded-[32px] p-4 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] shadow-xl min-h-[160px] mt-2 cursor-pointer hover:shadow-2xl transition-all"
+          className="w-full bg-[#002D35] rounded-[32px] p-4 flex flex-col items-center justify-center text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] min-h-[160px] mt-2 cursor-pointer transition-all"
+          style={{
+            boxShadow: '0 10px 0px #001a1f, 0 14px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+            transform: 'perspective(600px) rotateX(2deg)',
+            transformOrigin: 'top center',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.transform = 'perspective(600px) rotateX(0deg)')}
+          onMouseLeave={e => (e.currentTarget.style.transform = 'perspective(600px) rotateX(2deg)')}
         >
           <div className="relative z-10 flex flex-col items-center w-full h-full">
             {logoUrl ? (
@@ -348,7 +398,7 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
         </div>
       </div>
 
-      <div className="grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2">
+      <div className="grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2 mt-4">
         {[
           {
             img: '/icons/phone.png',
@@ -376,7 +426,7 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
             img: '/icons/mail.png',
             color: 'bg-[#FFCC00]',
             action: () => {
-              if (builderData?.messageNumber) window.open(`sms:${builderData.messageNumber}`, '_self');
+              if (builderData?.email) window.open(`mailto:${builderData.email}`, '_self');
             }
           },
           {
@@ -519,7 +569,7 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
   );
 };
 
-export const AboutUsView = () => {
+export const AboutUsView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [sections, setSections] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -553,8 +603,12 @@ export const AboutUsView = () => {
 
   return (
     <div className="px-6 space-y-4 text-gray-800 pb-10 pt-4">
-      <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest">
-        {builderData?.companyName || "M K GROUP"}
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">About Us</span>
+        <div className="w-6" />
       </div>
 
       {loading ? (
@@ -595,7 +649,7 @@ export const AboutUsView = () => {
   );
 };
 
-export const AppointmentView = () => {
+export const AppointmentView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [form, setForm] = React.useState({ name: "", mobile: "", person: "", category: "", date: "", time: "", message: "" });
   const [loading, setLoading] = React.useState(false);
@@ -631,7 +685,13 @@ export const AppointmentView = () => {
 
   return (
     <div className="px-6 space-y-4 pb-10 pt-4">
-      <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest">Make an appointment</div>
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Appointment</span>
+        <div className="w-6" />
+      </div>
       <form onSubmit={handleSubmit} className="space-y-3.5 mt-4">
         <div className="space-y-1">
           <input type="text" placeholder="Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
@@ -703,7 +763,7 @@ export const AppointmentView = () => {
   );
 };
 
-export const PhotoGalleryView = () => {
+export const PhotoGalleryView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [photos, setPhotos] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -744,8 +804,12 @@ export const PhotoGalleryView = () => {
 
   return (
     <div className="px-4 space-y-4 pt-4 pb-10">
-      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">
-        Photo Gallery
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Photos</span>
+        <div className="w-6" />
       </div>
 
       <div className="relative px-8">
@@ -829,7 +893,7 @@ export const PhotoGalleryView = () => {
   );
 };
 
-export const ContactPersonView = () => {
+export const ContactPersonView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [persons, setPersons] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -863,8 +927,12 @@ export const ContactPersonView = () => {
 
   return (
     <div className="px-6 space-y-4 pb-10 pt-4">
-      <div className="bg-[#6B849E] text-white py-2.5 px-4 rounded-xl text-center font-black text-sm shadow-md border border-white/20 uppercase tracking-widest mb-4">
-        {builderData?.companyName || "M K GROUP"}
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20 mb-4">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Contact Person</span>
+        <div className="w-6" />
       </div>
 
       {loading ? (
@@ -897,7 +965,7 @@ export const ContactPersonView = () => {
   );
 };
 
-export const LocationView = () => {
+export const LocationView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [locations, setLocations] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -922,7 +990,13 @@ export const LocationView = () => {
 
   return (
     <div className="px-4 space-y-6 pt-4 pb-10">
-      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">Location and Address</div>
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Select for location</span>
+        <div className="w-6" />
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-10">
@@ -988,7 +1062,7 @@ export const LocationView = () => {
   );
 };
 
-export const VideoGalleryView = () => {
+export const VideoGalleryView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [videos, setVideos] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -1022,8 +1096,12 @@ export const VideoGalleryView = () => {
 
   return (
     <div className="px-4 space-y-4 pt-4 pb-10">
-      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20 uppercase tracking-widest">
-        Video Gallery
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Videos</span>
+        <div className="w-6" />
       </div>
 
       <div className="relative px-6">
@@ -1078,7 +1156,7 @@ export const VideoGalleryView = () => {
   );
 };
 
-export const BrochureView = () => {
+export const BrochureView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [brochures, setBrochures] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -1109,8 +1187,12 @@ export const BrochureView = () => {
 
   return (
     <div className="px-6 space-y-6 pt-4 pb-10">
-      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20 uppercase tracking-widest">
-        Brochures PDF File
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Brochures</span>
+        <div className="w-6" />
       </div>
 
       {loading ? (
@@ -1123,7 +1205,7 @@ export const BrochureView = () => {
             <div className="bg-[#003B46] p-4 flex items-center justify-between">
               <div className="text-white">
                 <div className="text-xs font-serif tracking-widest uppercase truncate max-w-[150px]">{item.title}</div>
-                <div className="text-[8px] tracking-[0.3em] uppercase">{builderData?.companyName || "MK GROUP"}</div>
+                <div className="text-[8px] tracking-[0.3em] uppercase">{builderData?.companyName || "-"}</div>
               </div>
               <div className="relative w-12 h-12 rounded-md overflow-hidden bg-white/10 flex items-center justify-center">
                 <FileText className="text-white/50" />
@@ -1163,7 +1245,7 @@ export const BrochureView = () => {
   );
 };
 
-export const InquiryView = () => {
+export const InquiryView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
   const [formData, setFormData] = React.useState({
     name: "",
@@ -1207,8 +1289,12 @@ export const InquiryView = () => {
 
   return (
     <div className="px-6 space-y-4 pt-4 pb-10">
-      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20 uppercase tracking-widest">
-        INQUIRY
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">Inquiry</span>
+        <div className="w-6" />
       </div>
 
       {submitted ? (
@@ -1265,9 +1351,15 @@ export const InquiryView = () => {
   );
 };
 
-export const DropboxView = () => (
+export const DropboxView = ({ setView }: ViewProps) => (
   <div className="px-6 space-y-4 pt-4 pb-10">
-    <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">Dropbox for correction</div>
+    <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+      <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+        <ChevronLeft size={24} />
+      </button>
+      <span className="flex-1 text-center text-white font-black text-sm">Dropbox</span>
+      <div className="w-6" />
+    </div>
     <div className="space-y-3">
       <div className="flex items-center space-x-2">
         <span className="text-xs font-bold text-gray-700 whitespace-nowrap">Name :</span>
@@ -1279,7 +1371,7 @@ export const DropboxView = () => (
       </div>
       <div className="space-y-1">
         <label className="text-xs font-bold text-gray-700 ml-1">Company Name</label>
-        <input type="text" className="w-full bg-white rounded-xl py-2 px-4 text-sm border border-gray-200 outline-none" />
+        <input type="text" classNam ="w-full bg-white rounded-xl py-2 px-4 text-sm border border-gray-200 outline-none" />
       </div>
       <div className="space-y-1">
         <label className="text-xs font-bold text-gray-700 ml-1">Mention Changes</label>
@@ -1387,12 +1479,15 @@ export const PopupView = ({ setView }: ViewProps) => {
   );
 };
 
-export const AdvertisementView = () => {
+export const AdvertisementView = ({ setView, adTab = 'Upcoming' }: { setView: (v: View) => void; adTab?: 'Upcoming' | 'Running' | 'Completed' }) => {
   const builderData = useContext(BuilderContext);
   const [ads, setAds] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [activeTab, setActiveTab] = React.useState<"Upcoming" | "Running" | "Completed">("Upcoming");
   const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    setCurrentIndex(0);
+  }, [adTab]);
 
   React.useEffect(() => {
     const fetchAds = async () => {
@@ -1418,94 +1513,78 @@ export const AdvertisementView = () => {
     return `${baseUrl}/builder/${imageName}`;
   };
 
-  const filteredAds = ads.filter((a) => a.type === activeTab);
+  const filteredAds = ads.filter((a) => a.type === adTab);
   const currentAd = filteredAds[currentIndex];
 
-  const handleTabChange = (tab: "Upcoming" | "Running" | "Completed") => {
-    setActiveTab(tab);
-    setCurrentIndex(0);
-  };
-
   return (
-    <div className="px-4 space-y-4 pt-4 pb-10">
-      <div className="bg-[#6B849E] text-white py-2 px-4 rounded-md text-center font-bold text-sm shadow-sm border border-white/20">
-        Advertisements
-      </div>
-
-      <div className="relative px-8">
-        {currentAd?.note && (
-          <div className="mb-3 flex justify-start">
-            <span className="bg-white px-5 py-2 rounded-xl text-[12px] font-bold text-[#003B46] shadow-sm border border-gray-100/50">
-              {currentAd.note}
-            </span>
-          </div>
-        )}
-        <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/4] bg-gray-100 border border-gray-200">
-          {loading ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
-            </div>
-          ) : currentAd ? (
-            <>
-              <Image
-                src={getImageUrl(currentAd.image)}
-                alt="Advertisement"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-              
-              {/* Dots / Pager */}
-              {filteredAds.length > 1 && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 px-4 z-10">
-                  {filteredAds.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentIndex(idx)}
-                      className={`h-1.5 rounded-full transition-all ${currentIndex === idx ? "w-6 bg-white shadow-sm" : "w-1.5 bg-white/40"}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
-              <ImageIcon size={48} />
-              <p className="text-xs font-bold mt-2 uppercase">No {activeTab} Projects</p>
-            </div>
-          )}
+    <div className="px-4 space-y-4 pt-4 pb-6">
+        <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+          <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+            <ChevronLeft size={24} />
+          </button>
+          <span className="flex-1 text-center text-white font-black text-sm">Advertisements</span>
+          <div className="w-6" />
         </div>
 
-        {/* Navigation Arrows Outside */}
-        {filteredAds.length > 1 && (
-          <>
-            <button
-              onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : filteredAds.length - 1))}
-              className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
-            >
-              <ChevronLeft size={28} />
-            </button>
-            <button
-              onClick={() => setCurrentIndex((prev) => (prev < filteredAds.length - 1 ? prev + 1 : 0))}
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
-            >
-              <ChevronRight size={28} />
-            </button>
-          </>
-        )}
-      </div>
+        <div className="relative px-8">
+          {currentAd?.note && (
+            <div className="mb-3 flex justify-start">
+              <span className="bg-white px-5 py-2 rounded-xl text-[12px] font-bold text-[#003B46] shadow-sm border border-gray-100/50">
+                {currentAd.note}
+              </span>
+            </div>
+          )}
+          <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/4] bg-gray-100 border border-gray-200">
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
+              </div>
+            ) : currentAd ? (
+              <>
+                <Image
+                  src={getImageUrl(currentAd.image)}
+                  alt="Advertisement"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+                {filteredAds.length > 1 && (
+                  <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 px-4 z-10">
+                    {filteredAds.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`h-1.5 rounded-full transition-all ${currentIndex === idx ? "w-6 bg-white shadow-sm" : "w-1.5 bg-white/40"}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                <ImageIcon size={48} />
+                <p className="text-xs font-bold mt-2 uppercase">No {adTab} Projects</p>
+              </div>
+            )}
+          </div>
 
-      <div className="flex justify-center flex-wrap gap-2">
-        {["Upcoming", "Running", "Completed"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabChange(tab as any)}
-            className={`px-4 py-2 rounded-xl text-[10px] font-black shadow-md border transition-all uppercase tracking-wider ${activeTab === tab ? 'bg-[#003B46] text-white border-[#003B46]' : 'bg-white text-gray-600 border-gray-200'}`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+          {filteredAds.length > 1 && (
+            <>
+              <button
+                onClick={() => setCurrentIndex((prev) => (prev > 0 ? prev - 1 : filteredAds.length - 1))}
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+              >
+                <ChevronLeft size={28} />
+              </button>
+              <button
+                onClick={() => setCurrentIndex((prev) => (prev < filteredAds.length - 1 ? prev + 1 : 0))}
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+              >
+                <ChevronRight size={28} />
+              </button>
+            </>
+          )}
+        </div>
     </div>
-  );
+   );
 };
