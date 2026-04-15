@@ -22,8 +22,8 @@ import { Toaster } from 'sonner';
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} overflow-hidden`}>
-      <body suppressHydrationWarning className="font-sans overflow-hidden">
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body suppressHydrationWarning className="font-sans">
         <ReduxProvider>
           {children}
         </ReduxProvider>
