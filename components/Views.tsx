@@ -1502,12 +1502,12 @@ export const PopupView = ({ setView }: ViewProps) => {
         </button>
 
         {popup.image && (
-          <div className={`relative w-full shrink-0 ${popup.content ? 'h-[220px]' : 'h-[350px]'}`}>
+          <div className={`relative w-full shrink-0 overflow-hidden rounded-b-[40px] ${popup.content ? 'h-[280px]' : 'h-[360px]'}`}>
             <Image
               src={getImageUrl(popup.image)}
               alt="Promotion"
               fill
-              className="object-cover"
+              className="object-contain bg-gray-100"
               unoptimized
             />
           </div>
