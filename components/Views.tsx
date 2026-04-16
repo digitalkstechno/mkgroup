@@ -656,6 +656,7 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
 
 export const AboutUsView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [sections, setSections] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -689,7 +690,7 @@ export const AboutUsView = ({ setView }: ViewProps) => {
   return (
     <div className="px-6 space-y-4 text-gray-800 pb-10 pt-4">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">About Us</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       {loading ? (
@@ -732,6 +733,7 @@ export const AboutUsView = ({ setView }: ViewProps) => {
 
 export const AppointmentView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [form, setForm] = React.useState({ name: "", mobile: "", person: "", category: "", date: "", time: "", message: "" });
   const [loading, setLoading] = React.useState(false);
   const [submitted, setSubmitted] = React.useState(false);
@@ -767,7 +769,7 @@ export const AppointmentView = ({ setView }: ViewProps) => {
   return (
     <div className="px-6 space-y-4 pb-10 pt-4">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Appointment</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
       <form onSubmit={handleSubmit} className="space-y-3.5 mt-4">
         <div className="space-y-1">
@@ -842,6 +844,7 @@ export const AppointmentView = ({ setView }: ViewProps) => {
 
 export const PhotoGalleryView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [photos, setPhotos] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState<"General" | "Awarded">("General");
@@ -882,7 +885,7 @@ export const PhotoGalleryView = ({ setView }: ViewProps) => {
   return (
     <div className="px-4 space-y-4 pt-4 pb-10">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Photos</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       <div className="relative">
@@ -968,6 +971,7 @@ export const PhotoGalleryView = ({ setView }: ViewProps) => {
 
 export const ContactPersonView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [persons, setPersons] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -1001,7 +1005,7 @@ export const ContactPersonView = ({ setView }: ViewProps) => {
   return (
     <div className="px-6 space-y-4 pb-10 pt-4">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Contact Person</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       {loading ? (
@@ -1036,6 +1040,7 @@ export const ContactPersonView = ({ setView }: ViewProps) => {
 
 export const LocationView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [locations, setLocations] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -1060,7 +1065,7 @@ export const LocationView = ({ setView }: ViewProps) => {
   return (
     <div className="px-4 space-y-6 pt-4 pb-10">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Select for location</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       {loading ? (
@@ -1129,6 +1134,7 @@ export const LocationView = ({ setView }: ViewProps) => {
 
 export const VideoGalleryView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [videos, setVideos] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -1162,7 +1168,7 @@ export const VideoGalleryView = ({ setView }: ViewProps) => {
   return (
     <div className="px-4 space-y-4 pt-4 pb-10">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Videos</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       <div className="relative">
@@ -1219,6 +1225,7 @@ export const VideoGalleryView = ({ setView }: ViewProps) => {
 
 export const BrochureView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [brochures, setBrochures] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -1249,7 +1256,7 @@ export const BrochureView = ({ setView }: ViewProps) => {
   return (
     <div className="px-6 space-y-6 pt-4 pb-10">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Brochures</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       {loading ? (
@@ -1294,7 +1301,7 @@ export const BrochureView = ({ setView }: ViewProps) => {
 
       {brochures.length > 0 && (
         <div className="space-y-4">
-          <textarea placeholder="Text Message if any" className="w-full bg-white rounded-2xl py-3 px-4 text-sm border border-gray-200 outline-none h-24 resize-none shadow-sm" />
+         
           <button className="w-full bg-[#003B46] py-3 rounded-md font-bold text-white shadow-lg uppercase tracking-widest text-sm">Send Inquiry</button>
         </div>
       )}
@@ -1304,6 +1311,7 @@ export const BrochureView = ({ setView }: ViewProps) => {
 
 export const InquiryView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [formData, setFormData] = React.useState({
     name: "",
     mobile: "",
@@ -1347,7 +1355,7 @@ export const InquiryView = ({ setView }: ViewProps) => {
   return (
     <div className="px-6 space-y-4 pt-4 pb-10">
       <div className="flex items-center justify-center bg-[#6B849E] py-3 px-4 rounded-t-xl rounded-b-none font-black shadow-md border border-white/20 border-b-0 mb-4">
-        <span className="text-white font-black text-sm">Inquiry</span>
+        <span className="text-white font-black text-sm">{companyName}</span>
       </div>
 
       {submitted ? (
@@ -1404,15 +1412,18 @@ export const InquiryView = ({ setView }: ViewProps) => {
   );
 };
 
-export const DropboxView = ({ setView }: ViewProps) => (
-  <div className="px-6 space-y-4 pt-4 pb-10">
-    <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
-      <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
-        <ChevronLeft size={24} />
-      </button>
-      <span className="flex-1 text-center text-white font-black text-sm">Dropbox</span>
-      <div className="w-6" />
-    </div>
+export const DropboxView = ({ setView }: ViewProps) => {
+  const builderData = useContext(BuilderContext);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
+  return (
+    <div className="px-6 space-y-4 pt-4 pb-10">
+      <div className="flex items-center justify-between bg-[#6B849E] py-2.5 px-4 rounded-xl font-black shadow-md border border-white/20">
+        <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
+          <ChevronLeft size={24} />
+        </button>
+        <span className="flex-1 text-center text-white font-black text-sm">{companyName}</span>
+        <div className="w-6" />
+      </div>
     <div className="space-y-3">
       <div className="flex items-center space-x-2">
         <span className="text-xs font-bold text-gray-700 whitespace-nowrap">Name :</span>
@@ -1424,7 +1435,7 @@ export const DropboxView = ({ setView }: ViewProps) => (
       </div>
       <div className="space-y-1">
         <label className="text-xs font-bold text-gray-700 ml-1">Company Name</label>
-        <input type="text" classNam ="w-full bg-white rounded-xl py-2 px-4 text-sm border border-gray-200 outline-none" />
+        <input type="text" className="w-full bg-white rounded-xl py-2 px-4 text-sm border border-gray-200 outline-none" />
       </div>
       <div className="space-y-1">
         <label className="text-xs font-bold text-gray-700 ml-1">Mention Changes</label>
@@ -1450,7 +1461,8 @@ export const DropboxView = ({ setView }: ViewProps) => (
       <button className="w-full bg-white py-2 rounded-md font-bold text-gray-800 shadow-sm border border-gray-200">Submit</button>
     </div>
   </div>
-);
+  );
+};
 
 export const PopupView = ({ setView }: ViewProps) => {
   const builderData = useContext(BuilderContext);
@@ -1544,6 +1556,7 @@ export const AdvertisementView = ({ setView, adTab = 'Upcoming' }: { setView: (v
   const [ads, setAds] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "MK GROUP";
 
   React.useEffect(() => {
     setCurrentIndex(0);
@@ -1583,7 +1596,7 @@ export const AdvertisementView = ({ setView, adTab = 'Upcoming' }: { setView: (v
           <button onClick={() => setView('dashboard')} className="flex-shrink-0 text-white hover:opacity-80 transition-opacity">
             <ChevronLeft size={24} />
           </button>
-          <span className="flex-1 text-center text-white font-black text-sm">Advertisements</span>
+          <span className="flex-1 text-center text-white font-black text-sm">{companyName}</span>
           <div className="w-6" />
         </div>
 

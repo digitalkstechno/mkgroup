@@ -2,9 +2,10 @@
 
 import DashboardLayout from "@/components/DashboardLayout";
 import { Plus, CreditCard, BarChart3, Users, Clock4, Eye, EyeOff, UserPlus, Pencil, Trash2, X, Check } from "lucide-react";
-import { useEffect, useState, useMemo } from "react";
+import { FormEvent, useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, createUserAdmin, toggleUserStatus, clearError } from "@/lib/redux/slices/authSlice";
+import { fetchUsers, createUserAdmin, toggleUserStatus, fetchCurrentUser, clearError } from "@/lib/redux/slices/authSlice";
 import { RootState, AppDispatch } from "@/lib/redux/store";
 import CommonTable from "@/components/CommonTable";
 import { toast } from "sonner";
@@ -15,22 +16,58 @@ const labelCls = "text-xs font-semibold text-gray-500 uppercase tracking-wider b
 
 export default function AdminPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { users, totalRecords, currentPage, loading, error } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
+  const { users, totalRecords, currentPage, loading, error, admin } = useSelector((state: RootState) => state.auth);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
+  const [checkedAdmin, setCheckedAdmin] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", email: "", number: "" });
-  const [formData, setFormData] = useState({ name: "", email: "", number: "", password: "", refer: "", role: "user" });
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+  const [plainPasswords, setPlainPasswords] = useState<Record<string, string>>({});
+  const [lastCreatedPassword, setLastCreatedPassword] = useState("");
+
+  const togglePasswordVisibility = (userId: string) => {
+    setVisiblePasswords(prev => {
+      const next = new Set(prev);
+      next.has(userId) ? next.delete(userId) : next.add(userId);
+      return next;
+    });
+  };
+
+  const generatePasswordString = () => Array.from({ length: 8 }, () => Math.floor(Math.random() * 10)).join("");
+  const [formData, setFormData] = useState({ name: "", email: "", number: "", password: generatePasswordString(), refer: "", role: "user" });
 
   useEffect(() => {
     if (error) { toast.error(error); dispatch(clearError()); }
   }, [error, dispatch]);
 
   useEffect(() => {
-    const timer = setTimeout(() => { dispatch(fetchUsers({ page: 1, search: searchQuery })); }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery, dispatch]);
+    if (admin) {
+      const timer = setTimeout(() => { dispatch(fetchUsers({ page: 1, search: searchQuery })); }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, dispatch, admin]);
+
+  useEffect(() => {
+    if (!admin) {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('mkgroup_token') : null;
+      if (token) {
+        dispatch(fetchCurrentUser()).finally(() => setCheckedAdmin(true));
+      } else {
+        setCheckedAdmin(true);
+      }
+    } else {
+      setCheckedAdmin(true);
+    }
+  }, [admin, dispatch]);
+
+  useEffect(() => {
+    if (checkedAdmin && !admin) {
+      router.push('/admin/login');
+    }
+  }, [checkedAdmin, admin, router]);
 
   const overview = useMemo(() => [
     { label: "Total Cards", value: totalRecords.toString(), icon: CreditCard },
@@ -53,7 +90,7 @@ export default function AdminPage() {
     setEditForm({ name: user.name || "", email: user.email || "", number: user.number || "" });
   };
 
-  const handleUpdateUser = async (e: React.FormEvent) => {
+  const handleUpdateUser = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const response = await api.put(`/user/update/${editingUser._id}`, editForm);
@@ -80,11 +117,23 @@ export default function AdminPage() {
     }
   };
 
-  const handleCreateUser = async (e: React.FormEvent) => {
+  const generatePassword = () => {
+    const digits = Array.from({ length: 8 }, () => Math.floor(Math.random() * 10)).join("");
+    setFormData((prev) => ({ ...prev, password: digits }));
+    setShowPassword(true);
+  };
+
+  const handleCreateUser = async (e: FormEvent) => {
     e.preventDefault();
+    const plainPwd = formData.password;
     const result = await dispatch(createUserAdmin(formData));
     if (createUserAdmin.fulfilled.match(result)) {
-      setFormData({ name: "", email: "", number: "", password: "", refer: "", role: "user" });
+      const newUserId = (result.payload as any)?.data?._id;
+      if (newUserId && plainPwd) {
+        setPlainPasswords(prev => ({ ...prev, [newUserId]: plainPwd }));
+      }
+      setLastCreatedPassword(plainPwd);
+      setFormData({ name: "", email: "", number: "", password: generatePasswordString(), refer: "", role: "user" });
       toast.success("User and Card created successfully!");
     }
   };
@@ -96,6 +145,28 @@ export default function AdminPage() {
     },
     { header: "Email", accessor: "email" },
     { header: "Phone", accessor: "number" },
+    {
+      header: "Password", accessor: "password",
+      render: (row: any) => {
+        const plain = row.password || plainPasswords[row._id];
+        const isVisible = visiblePasswords.has(row._id);
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-mono text-gray-700 min-w-[80px]">
+              {plain ? (isVisible ? plain : "••••••••") : "••••••••"}
+            </span>
+            {plain && (
+              <button
+                onClick={() => togglePasswordVisibility(row._id)}
+                className="p-1 text-gray-400 hover:text-gray-700 transition-colors"
+              >
+                {isVisible ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            )}
+          </div>
+        );
+      }
+    },
     {
       header: "Status", accessor: "status",
       render: (row: any) => (
@@ -222,10 +293,22 @@ export default function AdminPage() {
               <div>
                 <label className={labelCls}>Password</label>
                 <div className="relative">
-                  <input type={showPassword ? "text" : "password"} required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className={inputCls + " pr-10"} placeholder="••••••••" />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
+                  <input type={showPassword ? "text" : "password"} required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className={inputCls + " pr-28"} placeholder="Enter password or generate" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
+                  <button type="button" onClick={generatePassword} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg bg-gray-100 px-2 py-1 text-[10px] uppercase font-black tracking-[0.16em] text-gray-600 hover:bg-gray-200 transition-all">
+                    Generate
+                  </button>
+                </div>
+                <div className="mt-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <Eye size={12} />
+                    <span>Generated password is shown below.</span>
+                  </div>
+                  <div className="mt-1 rounded-md bg-gray-100 px-3 py-2 font-mono text-sm text-gray-900">
+                    {formData.password}
+                  </div>
                 </div>
               </div>
               <div>
@@ -238,6 +321,12 @@ export default function AdminPage() {
                 </button>
               </div>
             </div>
+            {lastCreatedPassword && (
+              <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-100 px-4 py-3 text-sm text-emerald-900">
+                <div className="font-semibold">Last created password:</div>
+                <div className="font-mono mt-1">{lastCreatedPassword}</div>
+              </div>
+            )}
             {error && <p className="mt-3 text-xs font-semibold text-red-500">{error}</p>}
           </form>
         </div>
