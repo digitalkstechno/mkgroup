@@ -68,10 +68,10 @@ const SkeuomorphicToggle = ({ checked, onChange, disabled, isLoading }: { checke
 
   const getPos = () => {
     if (isDragging) {
-      let pos = (checked ? 0 : maxDrag) + currentX - startX;
+      let pos = (checked ? maxDrag : 0) + currentX - startX;
       return Math.max(0, Math.min(maxDrag, pos));
     }
-    return checked ? 0 : maxDrag;
+    return checked ? maxDrag : 0;
   };
 
   const handleStart = (clientX: number) => {
@@ -139,14 +139,14 @@ const SkeuomorphicToggle = ({ checked, onChange, disabled, isLoading }: { checke
         width: '100%',
         height: '100%',
         borderRadius: '27px',
-        background: checked ? '#3CAF4E' : '#ed1c24',
+        background: checked ? '#3CAF4E' : '#3CAF4E',
         boxShadow: 'inset 0 3px 6px rgba(0,0,0,0.4)',
         transition: isDragging ? 'none' : 'background 0.3s',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div style={{
-          position: 'absolute', right: '16px', top: 0, bottom: 0,
+          position: 'absolute', right: '20px', top: 0, bottom: 0,
           display: 'flex', alignItems: 'center', color: '#fff',
           fontWeight: '500', fontSize: '14px', letterSpacing: '0.5px',
           fontFamily: 'sans-serif',
@@ -155,13 +155,13 @@ const SkeuomorphicToggle = ({ checked, onChange, disabled, isLoading }: { checke
         }}>ON</div>
 
         <div style={{
-          position: 'absolute', left: '16px', top: 0, bottom: 0,
+          position: 'absolute', left: '20px', top: 0, bottom: 0,
           display: 'flex', alignItems: 'center', color: '#fff',
           fontWeight: '500', fontSize: '14px', letterSpacing: '0.5px',
           fontFamily: 'sans-serif',
           opacity: checked ? 0 : 1, transition: 'opacity 0.2s',
           pointerEvents: 'none'
-        }}>OFF</div>
+        }}></div>
       </div>
 
       <div
@@ -242,34 +242,34 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
 
   return (
     <div className="flex flex-col items-center px-6 sm:px-8 space-y-6 w-full h-full justify-start pt-8 pb-8">
-<div className="w-38 h-38 sm:w-38 sm:h-38 min-w-[9.5rem] min-h-[9.5rem] sm:min-w-[9.5rem] sm:min-h-[9.5rem] aspect-square rounded-full overflow-hidden bg-gradient-to-tr from-gray-300 to-gray-100 p-2 shadow-xl mb-6">
+      <div className="w-40 h-40 sm:w-40 sm:h-40 min-w-[10rem] min-h-[10rem] sm:min-w-[10rem] sm:min-h-[10rem] aspect-square rounded-full overflow-hidden bg-gradient-to-tr from-gray-300 to-gray-100 p-2 shadow-xl mb-6">
 
-  <div className="relative w-full h-full rounded-full overflow-hidden bg-white">
+        <div className="relative w-full h-full rounded-full overflow-hidden bg-white">
 
-    {/* Overlay */}
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 z-10 rounded-full" />
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 z-10 rounded-full" />
 
-    {/* Image */}
-    <Image
-      src={getProfileImage()}
-      alt={name}
-      fill
-      className="object-cover rounded-full"
-      priority
-      unoptimized
-    />
+          {/* Image */}
+          <Image
+            src={getProfileImage()}
+            alt={name}
+            fill
+            className="object-cover rounded-full"
+            priority
+            unoptimized
+          />
 
-  </div>
-</div>
+        </div>
+      </div>
 
-      <div className="w-full space-y-2.5">
+      <div className="w-full space-y-2">
         <ContactItem icon={User} text={name} isName />
         <ContactItem icon={Phone} text={number} />
         <div className="bg-white rounded-2xl flex items-stretch shadow-sm border border-gray-200 overflow-hidden h-16 sm:h-20 w-full">
           <div className="w-10 sm:w-12 flex items-center justify-center text-gray-700 flex-shrink-0">
             <MapPin size={18} strokeWidth={2.5} />
           </div>
-          <div className="w-[1.5px] bg-gray-200 my-2" />
+          <div className="w-[1.5px] bg-gray-200 mt-2" />
           <div className="flex-1 flex items-center px-4 py-1">
             <span className="font-bold text-gray-800 text-[11px] sm:text-xs leading-snug tracking-tight">
               {location}
@@ -280,14 +280,14 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
         <ContactItem icon={Send} text={website} />
       </div>
 
-      <div className="w-full text-center mt-2 px-4">
-        <h1 className="text-[20px] sm:text-[26px] font-black tracking-[0.1em] leading-tight uppercase text-gray-900 break-words">
-          {companyName}
-        </h1>
-      </div>
-
+<div className='w-full'>
+    <div className="w-full text-center px-4 ">
+          <h1 className="text-[16px] sm:text-[18px] font-medium tracking-[0.1em] leading-tight uppercase text-gray-900 break-words">
+            {companyName}
+          </h1>
+        </div>
       <div
-        className="w-full bg-[#003B46] rounded-2xl p-4 flex flex-col items-center justify-center text-white cursor-pointer hover:opacity-95 transition-all shadow-xl border-2 border-white/30 h-32 sm:h-40 mt-1"
+        className="w-full bg-[#003B46] rounded-2xl flex flex-col items-center justify-center text-white cursor-pointer hover:opacity-95 transition-all shadow-xl border-2 border-white/30 h-32 sm:h-40 px-4"
       >
         {logoUrl ? (
           <div className="relative w-full h-full">
@@ -310,9 +310,46 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome }: HomeViewP
           </div>
         )}
       </div>
+  </div>
 
-      <div className="w-full flex justify-between items-center px-2 pt-4">
-        <div className="flex flex-col items-center gap-1.5 group cursor-pointer">
+      <div className="w-full flex justify-between items-center px-2 ">
+        <div className="flex flex-col items-center gap-1.5 group cursor-pointer" onClick={() => {
+          if (typeof window === 'undefined') return;
+          const profileUrl = builderData?.website
+            ? builderData.website.startsWith('http')
+              ? builderData.website
+              : `https://${builderData.website}`
+            : window.location.href;
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api';
+          const baseUrl = apiUrl.split('/v1/api')[0];
+          const imageUrl = builderData?.profileImage
+            ? `${baseUrl}/builder/${builderData.profileImage}`
+            : builderData?.logo
+              ? `${baseUrl}/builder/${builderData.logo}`
+              : '';
+          const shareLines = [
+            builderData?.companyName || 'MK GROUP',
+            builderData?.name,
+            builderData?.location,
+            builderData?.timing ? `Timing: ${builderData.timing}` : undefined,
+            imageUrl ? `Image: ${imageUrl}` : undefined,
+            `Profile: ${profileUrl}`,
+            'Open this profile now!'
+          ].filter(Boolean);
+          const shareText = shareLines.join('\n');
+          const shareData = {
+            title: builderData?.companyName || 'MK GROUP',
+            text: shareText,
+            url: profileUrl,
+          };
+          if (navigator.share) {
+            navigator.share(shareData as ShareData).catch(() => {
+              window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+            });
+          } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+          }
+        }}>
           <div>
             <Image
               src="/icons/share1.png"
@@ -483,64 +520,69 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
         </div>
       </div>
 
-      <div className="grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2 mt-4">
-        {[
-          {
-            img: '/icons/phone.png',
-            color: 'bg-[#FF0000]',
-            action: () => {
-              const num = builderData?.secondaryNumber || builderData?.number;
-              if (num) window.open(`tel:${num}`, '_self');
-            }
-          },
-          {
-            img: '/icons/messageSquare.png',
-            color: 'bg-[#25D366]',
-            action: () => {
-              if (builderData?.whatsappNumber) window.open(`https://wa.me/${builderData.whatsappNumber}`, '_blank');
-            }
-          },
-          {
-            img: '/icons/share3.png',
-            color: 'bg-[#3B5998]',
-            action: () => {
-              if (builderData?.facebookLink) window.open(builderData.facebookLink, '_blank');
-            }
-          },
-          {
-            img: '/icons/mail.png',
-            color: 'bg-[#FFCC00]',
-            action: () => {
-              if (builderData?.email) window.open(`mailto:${builderData.email}`, '_self');
-            }
-          },
-          {
-            img: '/icons/instaa.png',
-            color: 'bg-[#E1306C]',
-            action: () => {
-              if (builderData?.instagramLink) window.open(builderData.instagramLink, '_blank');
-            }
-          },
-          {
-            img: '/icons/globe.png',
-            color: 'bg-[#00BFFF]',
-            action: () => {
-              const site = builderData?.website;
-              if (site) window.open(site.startsWith('http') ? site : `https://${site}`, '_blank');
-            }
-          },
-        ].map((item, i) => (
-          <div key={i} onClick={item.action} className="flex justify-center cursor-pointer hover:translate-y-0.5 hover:drop-shadow-none transition-all">
-            <Image
-              src={item.img}
-              alt="icon"
-              width={55}
-              height={55}
-              className="object-contain drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)]"
-            />
-          </div>
-        ))}
-      </div>
+     <div className="grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2 mt-4">
+  {[
+    {
+      img: '/icons/phone.png',
+      color: 'bg-[#FF0000]',
+      action: () => {
+        const num = builderData?.secondaryNumber || builderData?.number;
+        if (num) window.open(`tel:${num}`, '_self');
+      }
+    },
+    {
+      img: '/icons/messageSquare.png',
+      color: 'bg-[#25D366]',
+      action: () => {
+        if (builderData?.whatsappNumber) window.open(`https://wa.me/${builderData.whatsappNumber}`, '_blank');
+      }
+    },
+    {
+      img: '/icons/share3.png',
+      color: 'bg-[#3B5998]',
+      action: () => {
+        if (builderData?.facebookLink) window.open(builderData.facebookLink, '_blank');
+      }
+    },
+    {
+      img: '/icons/mail.png',
+      color: 'bg-[#FFCC00]',
+      action: () => {
+        if (builderData?.email) window.open(`mailto:${builderData.email}`, '_self');
+      }
+    },
+    {
+      img: '/icons/instaa.png',
+      color: 'bg-[#E1306C]',
+      customClass: 'h-[55px]',
+      action: () => {
+        if (builderData?.instagramLink) window.open(builderData.instagramLink, '_blank');
+      }
+    },
+    {
+      img: '/icons/globe.png',
+      color: 'bg-[#00BFFF]',
+      action: () => {
+        const site = builderData?.website;
+        if (site) window.open(site.startsWith('http') ? site : `https://${site}`, '_blank');
+      }
+    },
+  ].map((item, i) => (
+    <div
+      key={i}
+      onClick={item.action}
+      className="flex justify-center items-center w-[45px] h-[45px] mx-auto cursor-pointer hover:translate-y-0.5 hover:drop-shadow-none transition-all"
+    >
+      <Image
+        src={item.img}
+        alt="icon"
+        width={45}
+        height={45}
+        className={`object-contain w-full ${item.customClass || 'h-full'} drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)]`}
+      />
+    </div>
+  ))}
+</div>
       <div className="grid grid-cols-4 gap-x-2 gap-y-4 w-full px-1 py-2">
         {[
           { id: 'contact-person', label: 'Person', img: '/icons/IconPerson-01.png' },
@@ -568,18 +610,18 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
       </div>
 
       <div className="flex space-x-2 w-full px-2 mt-2">
-        <button
+        {/* <button
           className="flex-1 flex items-center justify-center cursor-pointer hover:translate-y-0.5 transition-all drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] hover:drop-shadow-none"
-        >
-          <Image
+        > */}
+          {/* <Image
             src="/selete2.png"
             alt="Select language"
             width={180}
             height={50}
             className="object-contain"
           />
-        </button>
-        {/* <button
+        </button> */}
+        <button
           onClick={() => {
             const n = builderData?.name || "MK GROUP";
             const tel = builderData?.number || "";
@@ -596,13 +638,13 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
           className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
         >
           <Image
-            src="/select1.png"
+            src="/selete2.png"
             alt="Save Contact"
             width={180}
             height={50}
             className="object-contain"
           />
-        </button> */}
+        </button>
 
         {/* Select Language - Now on Right, using Native Select Overlay */}
         <div className="flex-1 relative group hover:translate-y-0.5 transition-all drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] hover:drop-shadow-none">
@@ -775,12 +817,12 @@ export const AppointmentView = ({ setView }: ViewProps) => {
         <div className="space-y-1">
           <input type="text" placeholder="Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-2">
           <input type="text" placeholder="Mobile" required value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm focus:border-blue-300 transition-colors" />
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">Optional</label>
+          <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">*</label>
           <div className="relative">
             <select value={form.person} onChange={(e) => setForm({ ...form, person: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm appearance-none text-gray-500">
               <option value="">Select Person</option>
@@ -790,7 +832,7 @@ export const AppointmentView = ({ setView }: ViewProps) => {
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">Optional</label>
+          <label className="text-[11px] font-black text-red-500 ml-5 uppercase tracking-tighter">*</label>
           <div className="relative">
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-white rounded-full py-3 px-6 text-sm font-bold border border-gray-200 outline-none shadow-sm appearance-none text-gray-500">
               <option value="">Select category</option>
@@ -1228,6 +1270,7 @@ export const BrochureView = ({ setView }: ViewProps) => {
   const companyName = builderData?.companyName?.trim() ? builderData.companyName.trim() : "-";
   const [brochures, setBrochures] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [selectedBrochure, setSelectedBrochure] = React.useState<any>(null);
 
   React.useEffect(() => {
     const fetchBrochures = async () => {
@@ -1284,6 +1327,12 @@ export const BrochureView = ({ setView }: ViewProps) => {
                 <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase">PDF • {item.fileSize}</p>
               </div>
               <button
+                onClick={() => setSelectedBrochure(item)}
+                className="bg-blue-50 p-2.5 rounded-full text-blue-600 hover:bg-blue-100 transition-colors"
+              >
+                <Eye size={20} />
+              </button>
+              <button
                 onClick={() => window.open(getFileUrl(item.file), '_blank')}
                 className="bg-gray-100 p-2.5 rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
               >
@@ -1299,10 +1348,34 @@ export const BrochureView = ({ setView }: ViewProps) => {
         </div>
       )}
 
-      {brochures.length > 0 && (
-        <div className="space-y-4">
-
-          <button className="w-full bg-[#003B46] py-3 rounded-md font-bold text-white shadow-lg uppercase tracking-widest text-sm">Send Inquiry</button>
+      {selectedBrochure && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80">
+          <div className="relative w-full h-full flex flex-col">
+            <div className="flex items-center justify-between bg-[#003B46] px-4 py-3">
+              <span className="text-white font-bold text-sm truncate">{selectedBrochure.title}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.open(getFileUrl(selectedBrochure.file), '_blank')}
+                  className="bg-white/20 p-2 rounded-full text-white hover:bg-white/30 transition-colors"
+                >
+                  <Download size={18} />
+                </button>
+                <button
+                  onClick={() => setSelectedBrochure(null)}
+                  className="bg-white/20 p-2 rounded-full text-white hover:bg-white/30 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <iframe
+                src={getFileUrl(selectedBrochure.file)}
+                className="w-full h-full"
+                title={selectedBrochure.title}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -1382,7 +1455,7 @@ export const InquiryView = ({ setView }: ViewProps) => {
             required
             value={formData.mobile}
             onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-            className="w-full bg-white rounded-full py-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold"
+            className="w-full bg-white rounded-full pt-2.5 px-4 text-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500/10 transition-all font-bold"
           />
           <input
             type="email"

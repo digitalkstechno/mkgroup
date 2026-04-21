@@ -185,9 +185,6 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
 
   const [view, setView] = useState<View>(() => {
     try {
-      const storedStart = localStorage.getItem('mkgroup:startFromHome');
-      const nextStartFromHome = storedStart == null ? false : storedStart === '1';
-      if (nextStartFromHome) return 'home';
       const lastView = localStorage.getItem('mkgroup:lastView') as View | null;
       return lastView ?? 'home';
     } catch {
@@ -199,18 +196,15 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
     try {
       localStorage.setItem('mkgroup:startFromHome', startFromHome ? '1' : '0');
     } catch {
-      // ignore storage issues
     }
   }, [startFromHome]);
 
   useEffect(() => {
-    if (startFromHome) return;
     try {
       localStorage.setItem('mkgroup:lastView', view);
     } catch {
-      // ignore storage issues
     }
-  }, [view, startFromHome]);
+  }, [view]);
 
   const renderView = () => {
     switch (view) {
