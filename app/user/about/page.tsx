@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Plus, Pencil, Trash2, Camera, Loader2, Save } from "lucide-react";
+import { Plus, Pencil, Trash2, Camera, Loader2, Save, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { toast } from "sonner";
@@ -44,9 +44,18 @@ export default function AboutPage() {
   const [editContent, setEditContent] = useState("");
   const [selectedEditFile, setSelectedEditFile] = useState<File | null>(null);
   const [editPreview, setEditPreview] = useState("");
+  const [imageRemoved, setImageRemoved] = useState(false);
 
   const newFileRef = useRef<HTMLInputElement>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
+
+  // Quill Formats - excluding background and color to prevent saving unwanted styles from paste
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike', 'blockquote',
+    'list', 'indent',
+    'link', 'image'
+  ];
 
   // Quill Modules Configuration
   const modules = useMemo(() => ({
@@ -56,6 +65,9 @@ export default function AboutPage() {
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['clean']
     ],
+    clipboard: {
+      matchVisual: false,
+    }
   }), []);
 
   useEffect(() => {
@@ -103,11 +115,11 @@ export default function AboutPage() {
       if (response.data.status === "Success") {
         toast.success("Section added successfully");
         setSections([...sections, response.data.data]);
+        setShowAddForm(false);
         setNewTitle("");
         setNewContent("");
         setNewPreview("");
         setSelectedNewFile(null);
-        setShowAddForm(false);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to add section");
@@ -122,6 +134,7 @@ export default function AboutPage() {
     setEditContent(section.content);
     setEditPreview(getSectionImage(section.image));
     setSelectedEditFile(null);
+    setImageRemoved(false);
   };
 
   const saveEdit = async () => {
@@ -139,6 +152,8 @@ export default function AboutPage() {
     formData.append("content", editContent);
     if (selectedEditFile) {
       formData.append("image", selectedEditFile);
+    } else if (imageRemoved) {
+      formData.append("removeImage", "true");
     }
 
     try {
@@ -181,10 +196,24 @@ export default function AboutPage() {
       if (isEdit) {
         setSelectedEditFile(file);
         setEditPreview(URL.createObjectURL(file));
+        setImageRemoved(false);
       } else {
         setSelectedNewFile(file);
         setNewPreview(URL.createObjectURL(file));
       }
+    }
+  };
+
+  const removeSelectedImage = (isEdit: boolean) => {
+    if (isEdit) {
+      setSelectedEditFile(null);
+      setEditPreview("");
+      setImageRemoved(true);
+      if (editFileRef.current) editFileRef.current.value = "";
+    } else {
+      setSelectedNewFile(null);
+      setNewPreview("");
+      if (newFileRef.current) newFileRef.current.value = "";
     }
   };
 
@@ -220,6 +249,9 @@ export default function AboutPage() {
                   <div className="h-28 w-28 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl overflow-hidden flex items-center justify-center">
                     {newPreview ? <img src={newPreview} className="h-full w-full object-cover" alt="" /> : <Camera size={32} className="text-gray-300" />}
                   </div>
+                  {newPreview && (
+                    <button onClick={() => removeSelectedImage(false)} className="absolute -top-2 -right-2 h-7 w-7 bg-red-500 text-white flex items-center justify-center hover:bg-red-600 rounded-full shadow-lg border-2 border-white z-10"><X size={16} /></button>
+                  )}
                   <button onClick={() => newFileRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 rounded-full shadow-lg border-2 border-white"><Plus size={20} /></button>
                   <input ref={newFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageChange(e, false)} />
                 </div>
@@ -240,6 +272,7 @@ export default function AboutPage() {
                     value={newContent} 
                     onChange={setNewContent} 
                     modules={modules}
+                    formats={formats}
                     placeholder="Write detailed information here..."
                   />
                 </div>
@@ -285,6 +318,9 @@ export default function AboutPage() {
                         <div className="h-24 w-24 bg-gray-50 border border-gray-200 rounded-xl overflow-hidden flex items-center justify-center">
                           {editPreview ? <img src={editPreview} className="h-full w-full object-cover" alt="" /> : <Camera size={28} className="text-gray-300" />}
                         </div>
+                        {editPreview && (
+                          <button onClick={() => removeSelectedImage(true)} className="absolute -top-2 -right-2 h-7 w-7 bg-red-500 text-white flex items-center justify-center hover:bg-red-600 rounded-full shadow-lg border-2 border-white z-10"><X size={16} /></button>
+                        )}
                         <button onClick={() => editFileRef.current?.click()} className="absolute -bottom-2 -right-2 h-8 w-8 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 rounded-full border-2 border-white shadow-lg"><Camera size={14} /></button>
                         <input ref={editFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageChange(e, true)} />
                       </div>
@@ -297,7 +333,8 @@ export default function AboutPage() {
                     <div className="space-y-1">
                         <label className="text-xs font-bold text-gray-500 uppercase ml-1 block mb-1">Content Description</label>
                         <div className="bg-white rounded-xl overflow-hidden border border-blue-200">
-                          <ReactQuill theme="snow" value={editContent} onChange={setEditContent} modules={modules} />
+                          <ReactQuill theme="snow" value={editContent} onChange={setEditContent} modules={modules} formats={formats} />
+
                         </div>
                     </div>
                     <div className="flex justify-end gap-3 pt-2">

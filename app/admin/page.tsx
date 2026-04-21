@@ -52,7 +52,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!admin) {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('mkgroup_token') : null;
+      const token = typeof window !== 'undefined' ? localStorage.getItem('mkgroup_admin_token') : null;
+
       if (token) {
         dispatch(fetchCurrentUser()).finally(() => setCheckedAdmin(true));
       } else {

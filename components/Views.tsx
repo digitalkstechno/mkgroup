@@ -424,10 +424,21 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
     return null;
   };
 
+  const getAdImage = () => {
+    if (builderData?.adImage) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+      const baseUrl = apiUrl.split("/v1/api")[0];
+      return `${baseUrl}/builder/${builderData.adImage}`;
+    }
+    return null;
+  };
+
   const logoUrl = getLogoImage();
+  const adImageUrl = getAdImage();
 
   return (
     <div className="flex flex-col items-center px-4 space-y-4 pt-4">
+      {/* Advertisement Image below view count */}
       <div className="relative flex flex-col items-center w-full mt-12">
         <div className="absolute -top-2 z-20 flex items-center bg-[#E5ECEA] rounded-full border border-gray-300 shadow-sm pl-2  pr-1 py-1">
           <div className="mr-2">
@@ -447,40 +458,16 @@ export const DashboardView = ({ setView, changeLanguage }: DashboardViewProps) =
           </div>
         </div>
 
-        <div
-          onClick={() => setView('advertisement')}
-          className={`w-full bg-[#002D35] rounded-[32px] text-white relative overflow-hidden border-[6px] border-[#E5ECEA] border-t-[20px] min-h-[160px] mt-2 cursor-pointer transition-all ${logoUrl ? 'p-0' : 'p-4 flex flex-col items-center justify-center'}`}
-          style={{
-            boxShadow: '0 4px 0px #001a1f, 0 6px 10px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)',
-            transform: 'perspective(600px) rotateX(2deg)',
-            transformOrigin: 'top center',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.transform = 'perspective(600px) rotateX(0deg)')}
-          onMouseLeave={e => (e.currentTarget.style.transform = 'perspective(600px) rotateX(2deg)')}
-        >
-          {logoUrl ? (
-            <div className="relative w-full h-full min-h-[160px]">
-              <Image
-                src={logoUrl}
-                alt="Logo"
-                fill
-                className="object-contain"
-                unoptimized
-              />
-            </div>
-          ) : (
-            <>
-              <div className="mb-2">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 5L25 15L35 15L27 22L30 32L20 25L10 32L13 22L5 15L15 15L20 5Z" stroke="#FFD700" strokeWidth="2" strokeLinejoin="round" />
-                  <circle cx="20" cy="20" r="5" stroke="#FFD700" strokeWidth="2" />
-                </svg>
-              </div>
-              <div className="text-3xl font-serif tracking-[0.4em] font-bold text-[#FFD700]">ANANTA</div>
-              <div className="text-sm tracking-[0.6em] font-bold text-[#FFD700] mt-1">HEIGHTS</div>
-            </>
-          )}
-        </div>
+        {adImageUrl && (
+          <div 
+            onClick={() => setView('advertisement')}
+            className="w-full mt-4 px-1 pb-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+             <div className="relative w-full aspect-[21/9] rounded-[24px] overflow-hidden border-2 border-[#E5ECEA] shadow-lg">
+                <Image src={adImageUrl} alt="Advertisement" fill className="object-cover" unoptimized />
+             </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2 mt-4">
