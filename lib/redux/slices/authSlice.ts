@@ -74,7 +74,7 @@ export const loginUser = createAsyncThunk(
         throw new Error('Access denied. Please use the Admin login portal.');
       }
       
-      localStorage.setItem('mkgroup_token', token);
+      localStorage.setItem('mkgroup_user_token', token);
       cookieCutter.set('mkgroup_user_auth', 'true', { path: '/' });
       
       return { token, user };
@@ -96,7 +96,7 @@ export const loginAdmin = createAsyncThunk(
         throw new Error('Access denied. Administrator privileges required.');
       }
       
-      localStorage.setItem('mkgroup_token', token);
+      localStorage.setItem('mkgroup_admin_token', token);
       cookieCutter.set('mkgroup_admin_auth', 'true', { path: '/' });
       
       return { token, admin };
@@ -155,7 +155,8 @@ const authSlice = createSlice({
       state.user = null;
       state.admin = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('mkgroup_token');
+      localStorage.removeItem('mkgroup_user_token');
+      localStorage.removeItem('mkgroup_admin_token');
       cookieCutter.set('mkgroup_user_auth', 'false', { path: '/', expires: new Date(0) });
       cookieCutter.set('mkgroup_admin_auth', 'false', { path: '/', expires: new Date(0) });
     },
@@ -201,8 +202,10 @@ const authSlice = createSlice({
         state.loading = false;
         if (action.payload.role === 'admin') {
           state.admin = action.payload;
-          state.isAuthenticated = true;
+        } else {
+          state.user = action.payload;
         }
+        state.isAuthenticated = true;
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;

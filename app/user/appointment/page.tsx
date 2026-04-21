@@ -24,7 +24,8 @@ export default function AppointmentPage() {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const token = localStorage.getItem("mkgroup_token");
+        const token = localStorage.getItem("mkgroup_user_token");
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointment/user`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -43,7 +44,8 @@ export default function AppointmentPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      const token = localStorage.getItem("mkgroup_token");
+      const token = localStorage.getItem("mkgroup_user_token");
+
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointment/delete/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

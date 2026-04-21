@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import Sidebar from "./Sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
-import { fetchProfile } from "@/lib/redux/slices/authSlice";
+import { fetchProfile, logout } from "@/lib/redux/slices/authSlice";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -25,30 +25,35 @@ export default function DashboardLayout({ children, type, title }: DashboardLayo
 
   useEffect(() => {
     const authKey = type === 'admin' ? 'mkgroup_admin_auth' : 'mkgroup_user_auth';
+    const tokenKey = type === 'admin' ? 'mkgroup_admin_token' : 'mkgroup_user_token';
     const loginPath = type === 'admin' ? '/admin/login' : '/user/login';
-    const token = localStorage.getItem('mkgroup_token');
-    const hasLocalAuth = localStorage.getItem(authKey) === 'true';
-    const hasCookieAuth = document.cookie.split('; ').some((item) => item.startsWith(`${authKey}=true`));
-    const isAuth = (hasLocalAuth || hasCookieAuth) && token;
+    
+    const token = localStorage.getItem(tokenKey);
+    const hasCookieAuth = document.cookie.split('; ').some((item) => item.trim().startsWith(`${authKey}=true`));
+    
+    // Check if we are authorized for THIS specific type of dashboard
+    const isAuth = !!(token && hasCookieAuth);
 
     if (!isAuth && !pathname.includes('/login')) {
+      // Clear any partial auth state if we're not fully authorized
+      dispatch(logout());
       router.push(loginPath);
     } else if (isAuth) {
       setIsAuthorized(true);
-      // If we have auth but NO user data in redux (after refresh), fetch it
+      // Fetch user data if missing
       if (type === 'user' && !user) {
         dispatch(fetchProfile());
+      } else if (type === 'admin' && !admin) {
+        // You might want to fetch admin data here too
+        dispatch(fetchProfile()); 
       }
-      // For admin, if admin object is missing but we have token, we might need a fetchAdminProfile 
-      // but since everything is builder-centric right now, fetchProfile works for the builder dashboard.
     }
   }, [type, pathname, router, dispatch, user, admin]);
 
   const handleLogout = () => {
-    const authKey = type === 'admin' ? 'mkgroup_admin_auth' : 'mkgroup_user_auth';
-    localStorage.removeItem(authKey);
-    document.cookie = `${authKey}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax`;
-    router.push(type === 'admin' ? '/admin/login' : '/user/login');
+    dispatch(logout());
+    // Use window.location.href to fully reload and clear all states
+    window.location.href = type === 'admin' ? '/admin/login' : '/user/login';
   };
 
   if (pathname.includes('/login')) return <>{children}</>;

@@ -19,21 +19,17 @@ export default function ProfilePage() {
     timing: "",
     website: "",
     profileImage: "",
-    secondaryNumber: "",
-    whatsappNumber: "",
-    facebookLink: "",
-    instagramLink: "",
-    email: "",
     logo: "",
-    companyName: "",
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string>("");
+  
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState<string>("");
+  
   const fileRef = useRef<HTMLInputElement>(null);
   const logoRef = useRef<HTMLInputElement>(null);
 
@@ -50,13 +46,7 @@ export default function ProfilePage() {
         timing: user.timing || "",
         website: user.website || "",
         profileImage: user.profileImage || "",
-        secondaryNumber: user.secondaryNumber || "",
-        whatsappNumber: user.whatsappNumber || "",
-        facebookLink: user.facebookLink || "",
-        instagramLink: user.instagramLink || "",
-        email: user.email || "",
         logo: user.logo || "",
-        companyName: user.companyName || "",
       });
     }
   }, [user]);
@@ -100,19 +90,9 @@ export default function ProfilePage() {
     formData.append("location", localProfile.location);
     formData.append("timing", localProfile.timing);
     formData.append("website", localProfile.website);
-    formData.append("secondaryNumber", localProfile.secondaryNumber);
-    formData.append("whatsappNumber", localProfile.whatsappNumber);
-    formData.append("facebookLink", localProfile.facebookLink);
-    formData.append("instagramLink", localProfile.instagramLink);
-    formData.append("email", localProfile.email);
-    formData.append("companyName", localProfile.companyName);
 
-    if (selectedFile) {
-      formData.append("profileImage", selectedFile);
-    }
-    if (selectedLogo) {
-      formData.append("logo", selectedLogo);
-    }
+    if (selectedFile) formData.append("profileImage", selectedFile);
+    if (selectedLogo) formData.append("logo", selectedLogo);
 
     try {
       await dispatch(updateProfile(formData)).unwrap();
@@ -129,15 +109,9 @@ export default function ProfilePage() {
   const fields = [
     { key: "name", label: "Full Name", icon: User, placeholder: "Enter full name" },
     { key: "number", label: "Phone Number", icon: Phone, placeholder: "Enter phone number" },
-    { key: "secondaryNumber", label: "Secondary Number", icon: Phone, placeholder: "Enter secondary number" },
-    { key: "whatsappNumber", label: "WhatsApp Number", icon: Phone, placeholder: "Enter WhatsApp number" },
-    { key: "email", label: "Email Address", icon: Mail, placeholder: "Enter email address" },
     { key: "location", label: "Address", icon: MapPin, placeholder: "Enter address" },
     { key: "timing", label: "Timing", icon: Clock, placeholder: "e.g. Mon-Sat: 9AM - 6PM" },
     { key: "website", label: "Website", icon: Globe, placeholder: "Enter website URL" },
-    { key: "companyName", label: "Company Name", icon: Globe, placeholder: "Enter company name" },
-    { key: "facebookLink", label: "Facebook Link", icon: Globe, placeholder: "Enter Facebook URL" },
-    { key: "instagramLink", label: "Instagram Link", icon: Globe, placeholder: "Enter Instagram URL" },
   ];
 
   const getImageUrl = () => {
@@ -172,30 +146,21 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout type="user">
-      <div className=" mx-auto space-y-8">
-        {/* Profile Card Preview */}
-        <div className="bg-white border border-gray-200 p-6">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Profile Card</p>
-
-          {/* Image */}
-          <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="mx-auto space-y-6">
+        <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
+           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">Profile Settings</p>
+           <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="flex flex-col items-center">
               <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Profile Image</p>
               <div className="relative">
-                <div className="h-24 w-24 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                <div className="h-28 w-28 bg-gray-50 border border-gray-200 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
                   {getImageUrl() ? (
                     <img src={getImageUrl()} alt="Profile" className="h-full w-full object-cover" />
                   ) : (
                     <User size={36} className="text-gray-300" />
                   )}
                 </div>
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="absolute -bottom-2 -right-2 h-7 w-7 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors"
-                  disabled={loading}
-                >
-                  <Camera size={13} />
-                </button>
+                <button onClick={() => fileRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors rounded-full border-2 border-white shadow-lg"><Camera size={16} /></button>
                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </div>
             </div>
@@ -203,33 +168,29 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center">
               <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Company Logo</p>
               <div className="relative">
-                <div className="h-24 w-24 bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                <div className="h-28 w-28 bg-gray-50 border border-gray-200 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
                   {getLogoUrl() ? (
-                    <img src={getLogoUrl()} alt="Logo" className="h-full w-full object-contain" />
+                    <img src={getLogoUrl()} alt="Logo" className="h-full w-full object-contain p-2" />
                   ) : (
                     <Globe size={36} className="text-gray-300" />
                   )}
                 </div>
-                <button
-                  onClick={() => logoRef.current?.click()}
-                  className="absolute -bottom-2 -right-2 h-7 w-7 bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors"
-                  disabled={loading}
-                >
-                  <Camera size={13} />
-                </button>
+                <button onClick={() => logoRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors rounded-full border-2 border-white shadow-lg"><Camera size={16} /></button>
                 <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
               </div>
             </div>
           </div>
 
           {/* Fields */}
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-50">
             {fields.map(({ key, label, icon: Icon, placeholder }) => (
-              <div key={key} className="flex items-start justify-between py-3 gap-3">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <Icon size={15} className="text-gray-400 mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-400 font-medium mb-0.5">{label}</p>
+              <div key={key} className="flex items-start justify-between py-4 gap-4 group">
+                <div className="flex items-start gap-4 flex-1 min-w-0">
+                  <div className="h-9 w-9 bg-gray-50 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-blue-50 transition-colors">
+                    <Icon size={16} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
+                  </div>
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">{label}</p>
                     {editingField === key ? (
                       <input
                         autoFocus
@@ -237,30 +198,30 @@ export default function ProfilePage() {
                         onChange={(e) => setTempValue(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && saveField()}
                         placeholder={placeholder}
-                        className="w-full border border-blue-500 bg-blue-50 px-2 py-1 text-sm focus:outline-none"
+                        className="w-full border-b-2 border-blue-600 bg-blue-50/50 px-2 py-1 text-sm font-semibold focus:outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {(localProfile as any)[key] || <span className="text-gray-300 italic">Not set</span>}
+                      <p className="text-sm font-bold text-gray-900 truncate">
+                        {(localProfile as any)[key] || <span className="text-gray-300 italic font-normal">Not set</span>}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex items-center gap-1 shrink-0 pt-1">
                   {editingField === key ? (
                     <>
-                      <button onClick={saveField} className="p-1.5 text-emerald-600 hover:bg-emerald-50 transition-colors">
-                        <Check size={14} />
+                      <button onClick={saveField} className="h-8 w-8 text-emerald-600 hover:bg-emerald-50 transition-all rounded-lg flex items-center justify-center">
+                        <Check size={18} />
                       </button>
-                      <button onClick={cancelEdit} className="p-1.5 text-red-500 hover:bg-red-50 transition-colors">
-                        <X size={14} />
+                      <button onClick={cancelEdit} className="h-8 w-8 text-red-500 hover:bg-red-50 transition-all rounded-lg flex items-center justify-center">
+                        <X size={18} />
                       </button>
                     </>
                   ) : (
                     <button
                       onClick={() => startEdit(key, (localProfile as any)[key])}
-                      className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-lg flex items-center justify-center"
                     >
                       <Pencil size={14} />
                     </button>
@@ -270,14 +231,13 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          {/* Save Button */}
           <button
             onClick={handleSaveProfile}
             disabled={loading}
-            className="w-full mt-5 bg-blue-600 text-white py-2.5 text-sm font-semibold hover:bg-blue-700 active:bg-blue-800 transition-colors flex items-center justify-center gap-2 rounded-lg"
+            className="w-full mt-8 bg-blue-600 text-white py-4 text-sm font-black uppercase tracking-widest hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 rounded-2xl shadow-xl shadow-blue-500/25 disabled:opacity-50"
           >
-            {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? "Saving..." : "Save Profile"}
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+            {loading ? "Saving Changes..." : "Save Profile Changes"}
           </button>
         </div>
       </div>

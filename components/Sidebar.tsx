@@ -18,8 +18,11 @@ import {
   Calendar,
   MapPin,
   MessageSquare,
-  Megaphone
+  Megaphone,
+  Monitor
 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { logout } from "@/lib/redux/slices/authSlice";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
@@ -29,12 +32,11 @@ interface SidebarProps {
 export default function Sidebar({ type }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    const authKey = type === 'admin' ? 'mkgroup_admin_auth' : 'mkgroup_user_auth';
-    localStorage.removeItem(authKey);
-    document.cookie = `${authKey}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax`;
-    router.push(type === 'admin' ? '/admin/login' : '/user/login');
+    dispatch(logout());
+    window.location.href = type === 'admin' ? '/admin/login' : '/user/login';
   };
 
   const adminLinks = [
@@ -46,6 +48,7 @@ export default function Sidebar({ type }: SidebarProps) {
   const userLinks = [
     { label: "Dashboard", href: "/user", icon: LayoutDashboard },
     { label: "Profile Card", href: "/user/profile", icon: User },
+    { label: "Screen", href: "/user/screen", icon: Monitor },
     { label: "About", href: "/user/about", icon: Info },
     { label: "Contact", href: "/user/contact", icon: Mail },
     { label: "Location", href: "/user/location", icon: MapPin },
