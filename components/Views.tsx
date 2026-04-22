@@ -419,12 +419,12 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome, builderData
     />
 
     {/* Popup Box */}
-    <div className="relative w-40 h-40 animate-in zoom-in-95 duration-200">
+    <div className="relative w-80 h-80 animate-in zoom-in-95 duration-200">
       
       {/* Close Button */}
       <button
         onClick={() => setShowInactiveDialog(false)}
-        className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-700 hover:bg-red-500 hover:text-white transition"
+        className="absolute top-[60px] right-3 z-10 w-8 h-8 rounded-full bg-red-500 shadow-lg flex items-center justify-center text-white   transition"
       >
         ✕
       </button>
