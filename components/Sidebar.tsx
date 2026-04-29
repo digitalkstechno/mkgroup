@@ -12,6 +12,7 @@ import {
   Video,
   CreditCard,
   User,
+  Users,
   ShieldCheck,
   Database,
   QrCode,
@@ -19,11 +20,13 @@ import {
   MapPin,
   MessageSquare,
   Megaphone,
-  Monitor
+  Monitor,
+  ChevronDown
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logout } from "@/lib/redux/slices/authSlice";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface SidebarProps {
   type: "user" | "admin";
@@ -33,6 +36,7 @@ export default function Sidebar({ type }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
+  const [sebaOpen, setSebaOpen] = useState(true);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -42,6 +46,16 @@ export default function Sidebar({ type }: SidebarProps) {
   const adminLinks = [
     { label: "Card Maker", href: "/admin", icon: CreditCard },
     { label: "Dropbox", href: "/admin/dropbox", icon: Database },
+    { 
+      label: "SEBA Directory", 
+      icon: Users,
+      isOpen: sebaOpen,
+      toggle: () => setSebaOpen(!sebaOpen),
+      subLinks: [
+        { label: "Seba Associated", href: "/admin/seba-associated" },
+        { label: "Seba Members", href: "/admin/seba-members" },
+      ]
+    },
     { label: "Logout", action: handleLogout, icon: LogOut, color: "text-red-500 hover:bg-red-50" },
   ];
 
@@ -90,8 +104,49 @@ export default function Sidebar({ type }: SidebarProps) {
 
       <div className="flex-1 overflow-y-auto py-4 px-3">
         <div className="space-y-0.5">
-          {links.map((link) => {
+          {links.map((link: any) => {
             const isActive = pathname === link.href && link.label !== "Logout";
+
+            // If link has sublinks, render as dropdown
+            if (link.subLinks) {
+              return (
+                <div key={link.label} className="space-y-0.5">
+                  <button
+                    onClick={link.toggle}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors",
+                      type === 'admin' ? "text-gray-400 hover:bg-white/5 hover:text-white" : "text-gray-600 hover:bg-gray-50"
+                    )}
+                  >
+                    <link.icon className="h-4 w-4 shrink-0 text-gray-400" />
+                    <span className="flex-1 text-left">{link.label}</span>
+                    <ChevronDown size={14} className={cn("transition-transform", link.isOpen ? "rotate-180" : "")} />
+                  </button>
+                  
+                  {link.isOpen && (
+                    <div className="pl-8 space-y-0.5">
+                      {link.subLinks.map((sub: any) => {
+                        const isSubActive = pathname === sub.href;
+                        return (
+                          <Link
+                            key={sub.label}
+                            href={sub.href}
+                            className={cn(
+                              "flex items-center gap-3 px-3 py-2 text-xs font-medium transition-colors rounded-md",
+                              type === 'admin'
+                                ? isSubActive ? "bg-white/10 text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
+                                : isSubActive ? "bg-blue-50 text-blue-700" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                            )}
+                          >
+                            {sub.label}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            }
 
             const content = (
               <>
@@ -101,7 +156,7 @@ export default function Sidebar({ type }: SidebarProps) {
                     ? isActive ? "text-white" : "text-gray-400"
                     : isActive ? "text-blue-600" : "text-gray-400"
                 )} />
-                <span className="flex-1">{link.label}</span>
+                <span className="flex-1 text-left">{link.label}</span>
                 {isActive && <div className={cn("h-1.5 w-1.5 rounded-full", type === 'admin' ? "bg-white" : "bg-blue-600")} />}
               </>
             );
