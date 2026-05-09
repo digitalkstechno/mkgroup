@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearError } from "@/lib/redux/slices/authSlice";
 import { RootState, AppDispatch } from "@/lib/redux/store";
 import { toast } from "sonner";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
 
 export default function UserLoginPage() {
   const [formData, setFormData] = useState({ identifier: "", password: "" });
@@ -31,7 +32,12 @@ export default function UserLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginUser(formData));
+    const isEmail = formData.identifier.includes('@') || /[a-zA-Z]/.test(formData.identifier);
+    const credentials = {
+      ...formData,
+      identifier: isEmail ? formData.identifier : cleanPhoneNumber(formData.identifier)
+    };
+    dispatch(loginUser(credentials));
   };
 
   return (
@@ -100,7 +106,16 @@ export default function UserLoginPage() {
                   type="text" 
                   required
                   value={formData.identifier}
-                  onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    // If it contains @ or letters, it's likely an email
+                    if (val.includes('@') || /[a-zA-Z]/.test(val)) {
+                      setFormData({ ...formData, identifier: val });
+                    } else {
+                      // Otherwise, treat as phone if it's all digits (after cleaning)
+                      setFormData({ ...formData, identifier: formatPhoneNumber(val) });
+                    }
+                  }}
                   placeholder="name@example.com or 9999999999"
                   className="w-full bg-white border border-gray-100 rounded-[20px] px-14 py-4 text-sm font-bold shadow-sm focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 outline-none transition-all"
                 />

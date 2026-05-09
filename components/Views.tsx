@@ -12,6 +12,7 @@ import { useContext, useState } from 'react';
 import { BuilderContext } from '@/components/MKGroupApp';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { formatPhoneNumber, cleanPhoneNumber } from '@/lib/phoneUtils';
 
 type View =
   | 'home'
@@ -199,7 +200,7 @@ const SkeuomorphicToggle = ({ checked, onChange, disabled, isLoading }: { checke
 
 const NFCCard = () => {
   const [isForm, setIsForm] = useState(false);
-  const [form, setForm] = useState({ name: '', mobile: '', companyName: '' });
+  const [form, setForm] = useState({ name: '', mobile: formatPhoneNumber(''), companyName: '' });
   const [loading, setLoading] = useState(false);
   const builderData = useContext(BuilderContext);
 
@@ -214,13 +215,13 @@ const NFCCard = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nfc/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, userId: builderData?._id }),
+        body: JSON.stringify({ ...form, mobile: cleanPhoneNumber(form.mobile), userId: builderData?._id }),
       });
       const result = await response.json();
       if (result.status === "Success") {
         toast.success("NFC Request submitted!");
         setIsForm(false);
-        setForm({ name: '', mobile: '', companyName: '' });
+        setForm({ name: '', mobile: formatPhoneNumber(''), companyName: '' });
       } else {
         toast.error(result.message || "Failed to submit");
       }
@@ -275,7 +276,7 @@ const NFCCard = () => {
             type="text" 
             className="w-full bg-white rounded-full pl-16 pr-4 py-1.5 text-sm outline-none shadow-inner font-bold border border-gray-300/50"
             value={form.mobile}
-            onChange={(e) => setForm({...form, mobile: e.target.value})}
+            onChange={(e) => setForm({...form, mobile: formatPhoneNumber(e.target.value)})}
             required
           />
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[11px] font-black text-amber-900/70">Mobile :</span>
@@ -365,7 +366,7 @@ export const HomeView = ({ setView, startFromHome, setStartFromHome, builderData
 
       <div className="w-full space-y-2">
         <ContactItem icon={User} text={name} isName />
-        <ContactItem icon={Phone} text={number} />
+        <ContactItem icon={Phone} text={formatPhoneNumber(number)} />
         <div className="bg-white rounded-2xl flex items-stretch shadow-sm border border-gray-200 overflow-hidden h-16 sm:h-20 w-full">
           <div className="w-10 sm:w-12 flex items-center justify-center text-gray-700 flex-shrink-0">
             <MapPin size={18} strokeWidth={2.5} />

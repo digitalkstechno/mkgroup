@@ -10,6 +10,7 @@ import { RootState, AppDispatch } from "@/lib/redux/store";
 import CommonTable from "@/components/CommonTable";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
 
 const inputCls = "w-full border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-800 focus:border-gray-800 transition-all rounded-md";
 const labelCls = "text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1";
@@ -23,7 +24,7 @@ export default function AdminPage() {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [checkedAdmin, setCheckedAdmin] = useState(false);
-  const [editForm, setEditForm] = useState({ name: "", email: "", number: "" });
+  const [editForm, setEditForm] = useState({ name: "", email: "", number: formatPhoneNumber("") });
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [plainPasswords, setPlainPasswords] = useState<Record<string, string>>({});
   const [lastCreatedPassword, setLastCreatedPassword] = useState("");
@@ -37,7 +38,7 @@ export default function AdminPage() {
   };
 
   const generatePasswordString = () => Array.from({ length: 8 }, () => Math.floor(Math.random() * 10)).join("");
-  const [formData, setFormData] = useState({ name: "", email: "", number: "", password: generatePasswordString(), refer: "", role: "user" });
+  const [formData, setFormData] = useState({ name: "", email: "", number: formatPhoneNumber(""), password: generatePasswordString(), refer: "", role: "user" });
 
   useEffect(() => {
     if (error) { toast.error(error); dispatch(clearError()); }
@@ -88,13 +89,14 @@ export default function AdminPage() {
 
   const handleEditUser = (user: any) => {
     setEditingUser(user);
-    setEditForm({ name: user.name || "", email: user.email || "", number: user.number || "" });
+    setEditForm({ name: user.name || "", email: user.email || "", number: formatPhoneNumber(user.number || "") });
   };
 
   const handleUpdateUser = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.put(`/user/update/${editingUser._id}`, editForm);
+      const dataToUpdate = { ...editForm, number: cleanPhoneNumber(editForm.number) };
+      const response = await api.put(`/user/update/${editingUser._id}`, dataToUpdate);
       if (response.data.status === "Success") {
         toast.success("User updated successfully");
         setEditingUser(null);
@@ -127,14 +129,15 @@ export default function AdminPage() {
   const handleCreateUser = async (e: FormEvent) => {
     e.preventDefault();
     const plainPwd = formData.password;
-    const result = await dispatch(createUserAdmin(formData));
+    const dataToSubmit = { ...formData, number: cleanPhoneNumber(formData.number) };
+    const result = await dispatch(createUserAdmin(dataToSubmit));
     if (createUserAdmin.fulfilled.match(result)) {
       const newUserId = (result.payload as any)?.data?._id;
       if (newUserId && plainPwd) {
         setPlainPasswords(prev => ({ ...prev, [newUserId]: plainPwd }));
       }
       setLastCreatedPassword(plainPwd);
-      setFormData({ name: "", email: "", number: "", password: generatePasswordString(), refer: "", role: "user" });
+      setFormData({ name: "", email: "", number: formatPhoneNumber(""), password: generatePasswordString(), refer: "", role: "user" });
       toast.success("User and Card created successfully!");
     }
   };
@@ -145,7 +148,7 @@ export default function AdminPage() {
       render: (row: any) => <p className="font-semibold text-gray-900">{row.name}</p>
     },
     { header: "Email", accessor: "email" },
-    { header: "Phone", accessor: "number" },
+    { header: "Phone", accessor: "number", render: (row: any) => <p className="text-gray-600">{formatPhoneNumber(row.number)}</p> },
     {
       header: "Password", accessor: "password",
       render: (row: any) => {
@@ -234,7 +237,7 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <label className={labelCls}>Mobile Number</label>
-                  <input required value={editForm.number} onChange={(e) => setEditForm({ ...editForm, number: e.target.value })} className={inputCls} placeholder="Mobile Number" />
+                  <input required value={editForm.number} onChange={(e) => setEditForm({ ...editForm, number: formatPhoneNumber(e.target.value) })} className={inputCls} placeholder="Mobile Number" />
                 </div>
                 <div className="flex gap-2 justify-end pt-1">
                   <button type="button" onClick={() => setEditingUser(null)} className="px-4 py-2 text-sm font-semibold text-gray-500 border border-gray-300 hover:bg-gray-50 rounded-lg">Cancel</button>
@@ -289,7 +292,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <label className={labelCls}>Mobile Number</label>
-                <input required value={formData.number} onChange={(e) => setFormData({ ...formData, number: e.target.value })} className={inputCls} placeholder="9876543210" />
+                <input required value={formData.number} onChange={(e) => setFormData({ ...formData, number: formatPhoneNumber(e.target.value) })} className={inputCls} placeholder="9876543210" />
               </div>
               <div>
                 <label className={labelCls}>Password</label>

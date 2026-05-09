@@ -6,6 +6,7 @@ import { Plus, Users, Trash2, X, Phone } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
 
 const inputCls = "w-full border border-gray-200 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5";
@@ -18,7 +19,7 @@ export default function SebaUsersPage() {
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [formData, setFormData] = useState({ name: "", mobile: "" });
+  const [formData, setFormData] = useState({ name: "", mobile: formatPhoneNumber("") });
   
   const fetchUsers = async (page = 1, search = "") => {
     setLoading(true);
@@ -45,10 +46,11 @@ export default function SebaUsersPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await api.post('/seba/user', formData);
+      const dataToSubmit = { ...formData, mobile: cleanPhoneNumber(formData.mobile) };
+      const response = await api.post('/seba/user', dataToSubmit);
       if (response.data.status === "Success") {
         toast.success("SEBA User created successfully!");
-        setFormData({ name: "", mobile: "" });
+        setFormData({ name: "", mobile: formatPhoneNumber("") });
         setIsDrawerOpen(false);
         fetchUsers(1, searchQuery);
       }
@@ -89,7 +91,7 @@ export default function SebaUsersPage() {
       render: (row: any) => (
         <p className="flex items-center gap-1.5 text-xs font-medium text-gray-700">
           <Phone size={13} className="text-gray-400" />
-          {row.mobile}
+          {formatPhoneNumber(row.mobile)}
         </p>
       )
     },
@@ -169,7 +171,7 @@ export default function SebaUsersPage() {
                   </div>
                   <div>
                     <label className={labelCls}>Mobile Number *</label>
-                    <input required value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className={inputCls} placeholder="10-digit number" />
+                    <input required value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: formatPhoneNumber(e.target.value) })} className={inputCls} placeholder="10-digit number" />
                   </div>
                 </div>
 

@@ -6,6 +6,7 @@ import { Trash2, Phone, Building2, User, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import { formatPhoneNumber } from "@/lib/phoneUtils";
 
 export default function NfcInquiryPage() {
   const [inquiries, setInquiries] = useState([]);
@@ -70,7 +71,7 @@ export default function NfcInquiryPage() {
             <User size={14} className="text-gray-400" /> {row.name}
           </p>
           <p className="text-xs font-bold text-gray-500 flex items-center gap-2">
-            <Phone size={14} className="text-gray-400" /> {row.mobile}
+            <Phone size={14} className="text-gray-400" /> {formatPhoneNumber(row.mobile)}
           </p>
         </div>
       )

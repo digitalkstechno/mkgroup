@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { fetchProfile, updateProfile } from "@/lib/redux/slices/authSlice";
 import { toast } from "sonner";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
 
 export default function ProfilePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,7 +42,7 @@ export default function ProfilePage() {
     if (user) {
       setLocalProfile({
         name: user.name || "",
-        number: user.number || "",
+        number: formatPhoneNumber(user.number || ""),
         location: user.location || "",
         timing: user.timing || "",
         website: user.website || "",
@@ -53,12 +54,13 @@ export default function ProfilePage() {
 
   const startEdit = (field: string, value: string) => {
     setEditingField(field);
-    setTempValue(value);
+    setTempValue(field === 'number' ? formatPhoneNumber(value) : value);
   };
 
   const saveField = () => {
     if (editingField) {
-      setLocalProfile((prev) => ({ ...prev, [editingField]: tempValue }));
+      const finalValue = editingField === 'number' ? formatPhoneNumber(tempValue) : tempValue;
+      setLocalProfile((prev) => ({ ...prev, [editingField]: finalValue }));
       setEditingField(null);
     }
   };
@@ -86,7 +88,7 @@ export default function ProfilePage() {
   const handleSaveProfile = async () => {
     const formData = new FormData();
     formData.append("name", localProfile.name);
-    formData.append("number", localProfile.number);
+    formData.append("number", cleanPhoneNumber(localProfile.number));
     formData.append("location", localProfile.location);
     formData.append("timing", localProfile.timing);
     formData.append("website", localProfile.website);
@@ -195,7 +197,7 @@ export default function ProfilePage() {
                       <input
                         autoFocus
                         value={tempValue}
-                        onChange={(e) => setTempValue(e.target.value)}
+                        onChange={(e) => setTempValue(key === 'number' ? formatPhoneNumber(e.target.value) : e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && saveField()}
                         placeholder={placeholder}
                         className="w-full border-b-2 border-blue-600 bg-blue-50/50 px-2 py-1 text-sm font-semibold focus:outline-none transition-all"
