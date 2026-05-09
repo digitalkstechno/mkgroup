@@ -471,14 +471,16 @@ const getProfileImage = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 z-10 rounded-full" />
 
           {/* Image */}
-          <Image
-            src={getProfileImage()}
-            alt={name}
-            fill
-            className="object-cover rounded-full"
-            priority
-            unoptimized
-          />
+          {getProfileImage() && (
+            <Image
+              src={getProfileImage()!}
+              alt={name}
+              fill
+              className="object-cover rounded-full"
+              priority
+              unoptimized
+            />
+          )}
         </div>
       </div>
 
