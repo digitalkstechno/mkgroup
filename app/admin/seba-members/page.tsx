@@ -238,24 +238,54 @@ export default function SebaMembersPage() {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
+    // Helper to load image as base64
+    const getImageData = (url: string): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          } else {
+            reject("Could not get canvas context");
+          }
+        };
+        img.onerror = () => reject("Could not load image");
+        img.src = url;
+      });
+    };
+
     // 1. Decorative Sidebar
     doc.setFillColor(11, 75, 75); 
     doc.rect(0, 0, 15, pageHeight, 'F');
     
-    // 2. Header
+    // 2. Header with Logo
+    try {
+      // Since this is in admin, we use the Nfc.png from public folder
+      const logoData = await getImageData("/Nfc.png");
+      doc.addImage(logoData, 'PNG', 20, 15, 20, 20);
+    } catch (e) {
+      console.error("Logo failed to load for PDF", e);
+    }
+
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(28);
+    doc.setFontSize(22);
     doc.setTextColor(11, 75, 75);
-    doc.text("SEBA", 25, 25);
+    doc.text("SEBA", 45, 27);
     
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.setFont("helvetica", "italic");
-    doc.text("Surat East Builder Association", 25, 32);
+    doc.text("Surat East Builder Association", 45, 33);
     
     doc.setDrawColor(11, 75, 75);
     doc.setLineWidth(0.5);
-    doc.line(25, 38, 190, 38);
+    doc.line(20, 40, 190, 40);
 
     // 3. Document Title
     doc.setFont("helvetica", "bold");
@@ -263,23 +293,59 @@ export default function SebaMembersPage() {
     doc.setTextColor(50, 50, 50);
     doc.text("MEMBER PROFILE SUMMARY", 25, 52);
 
-    // 4. Member Photo
+    // 5. Member Details Section
+    const fields = [
+      { label: "FULL NAME", value: member.name },
+      { label: "COMPANY NAME", value: member.company },
+      { label: "DESIGNATION", value: member.position || "Member" },
+      { label: "BUSINESS CATEGORY", value: member.category },
+      { label: "PRIMARY MOBILE", value: member.mobile },
+      { label: "OFFICE NUMBER", value: member.officeNo },
+      { label: "OPERATIONAL AREA", value: member.area },
+      { label: "OFFICE ADDRESS", value: member.address },
+      { label: "PINCODE", value: member.pincode },
+      { label: "CITY", value: member.city },
+      { label: "STATE", value: member.state },
+      { label: "EMAIL / WEBSITE", value: member.emailWebsite },
+    ];
+
+    let y = 65;
+    fields.forEach((field, index) => {
+      const rawVal = field.value?.toString().trim()
+      const val = rawVal && rawVal !== "" ? rawVal : ""
+      const splitText = doc.splitTextToSize(val, index < 6 ? 110 : 160)
+      
+      const rowHeight = (splitText.length * 5) + 8
+
+      if (index % 2 === 0) {
+        doc.setFillColor(245, 248, 248)
+        doc.rect(20, y - 5, 170, rowHeight, 'F')
+      }
+
+      doc.setFont("helvetica", "bold")
+      doc.setFontSize(8.5)
+      doc.setTextColor(11, 75, 75)
+      doc.text(field.label, 25, y)
+      
+      doc.setFont("helvetica", "normal")
+      doc.setFontSize(10)
+      doc.setTextColor(40, 40, 40)
+      doc.text(splitText, 25, y + 5)
+      
+      y += rowHeight + 2
+    });
+
+    // 4. Member Photo (Drawn LAST to be on top)
     if (member.image) {
       try {
         const imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${member.image}`;
-        const res = await fetch(imageUrl);
-        const blob = await res.blob();
-        const base64: any = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
+        const logoData = await getImageData(imageUrl);
         
         // Shadow effect for photo
-        doc.setFillColor(240, 240, 240);
+        doc.setFillColor(230, 230, 230);
         doc.rect(152, 47, 40, 50, 'F');
         
-        doc.addImage(base64, 'JPEG', 150, 45, 40, 50);
+        doc.addImage(logoData, 'JPEG', 150, 45, 40, 50);
         doc.setDrawColor(11, 75, 75);
         doc.setLineWidth(0.8);
         doc.rect(150, 45, 40, 50);
@@ -287,40 +353,6 @@ export default function SebaMembersPage() {
         console.error("PDF Photo add failed", e);
       }
     }
-    
-    const fields = [
-      { label: "FULL NAME", value: member.name },
-      { label: "DESIGNATION", value: member.position || "Member" },
-      { label: "BUSINESS CATEGORY", value: member.category },
-      { label: "PRIMARY MOBILE", value: member.mobile },
-      { label: "OFFICE NUMBER", value: member.officeNo || "N/A" },
-      { label: "OPERATIONAL AREA", value: member.area },
-      { label: "OFFICE ADDRESS", value: member.address || "N/A" },
-      { label: "EMAIL / WEBSITE", value: member.emailWebsite || "N/A" },
-    ];
-
-    let y = 70;
-    fields.forEach((field, index) => {
-      if (index % 2 === 0) {
-        doc.setFillColor(245, 248, 248);
-        doc.rect(25, y - 6, 115, 12, 'F');
-      }
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(11, 75, 75);
-      doc.text(field.label, 30, y);
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(11);
-      doc.setTextColor(0, 0, 0);
-      
-      const val = field.value?.toString() || "N/A";
-      const splitText = doc.splitTextToSize(val, 80);
-      doc.text(splitText, 30, y + 6);
-      
-      y += (splitText.length * 6) + 12;
-    });
 
     // 6. Footer
     doc.setFillColor(11, 75, 75);
