@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import Sidebar from "./Sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
-import { fetchProfile, logout } from "@/lib/redux/slices/authSlice";
+import { fetchCurrentUser, logout } from "@/lib/redux/slices/authSlice";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -42,13 +42,12 @@ export default function DashboardLayout({ children, type, title }: DashboardLayo
       setIsAuthorized(true);
       // Fetch user data if missing
       if (type === 'user' && !user) {
-        dispatch(fetchProfile());
+        dispatch(fetchCurrentUser());
       } else if (type === 'admin' && !admin) {
-        // You might want to fetch admin data here too
-        dispatch(fetchProfile()); 
+        dispatch(fetchCurrentUser()); 
       }
     }
-  }, [type, pathname, router, dispatch, user, admin]);
+  }, [type, pathname, router, dispatch]); // Remove user/admin from dependencies to stop loop
 
   const handleLogout = () => {
     dispatch(logout());
