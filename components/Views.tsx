@@ -542,27 +542,20 @@ const getProfileImage = () => {
               process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
             const publicProfileUrl = `${appUrl}/card/${builderData?._id}`;
 
-            const shareText =
-              `*Welcome To ${builderData?.companyName || "MK GROUP"} Digital*\n` +
-              `Welcome To ${builderData?.companyName || "MK GROUP"} Digital | dgonline.co\ndgonline.co\n\n` +
-              `${publicProfileUrl}`;
-
             const shareData = {
-              title: builderData?.companyName || "MK GROUP",
-              text: shareText,
               url: publicProfileUrl,
             };
 
             if (navigator.share) {
               navigator.share(shareData as ShareData).catch(() => {
                 window.open(
-                  `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`,
+                  `https://api.whatsapp.com/send?text=${encodeURIComponent(publicProfileUrl)}`,
                   "_blank",
                 );
               });
             } else {
               window.open(
-                `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`,
+                `https://api.whatsapp.com/send?text=${encodeURIComponent(publicProfileUrl)}`,
                 "_blank",
               );
             }

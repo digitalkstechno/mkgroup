@@ -59,23 +59,7 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome, 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const publicProfileUrl = `${appUrl}/card/${builderData?._id}`;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api';
-    const baseUrl = apiUrl.split('/v1/api')[0];
-    
-    // Priority: Profile Image > Logo
-    const imageUrl = builderData?.profileImage
-      ? `${baseUrl}/builder/${builderData.profileImage}`
-      : builderData?.logo
-        ? `${baseUrl}/builder/${builderData.logo}`
-        : '';
-
-    const shareText = `*Welcome To ${builderData?.companyName || 'MK GROUP'} Digital*\n` +
-      `Welcome To ${builderData?.companyName || 'MK GROUP'} Digital | dgonline.co\ndgonline.co\n\n` +
-      `${publicProfileUrl}`;
-
     const shareData = {
-      title: builderData?.companyName || 'MK GROUP',
-      text: shareText,
       url: publicProfileUrl,
     };
 
@@ -83,10 +67,10 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome, 
       try {
         await navigator.share(shareData as ShareData);
       } catch {
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(publicProfileUrl)}`, '_blank');
       }
     } else {
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(publicProfileUrl)}`, '_blank');
     }
   };
 
