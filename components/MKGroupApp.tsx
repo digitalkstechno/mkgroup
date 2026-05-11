@@ -157,6 +157,22 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
     }
   }, [builderId]);
 
+  // Explicitly increment view count on load
+  useEffect(() => {
+    if (builderId) {
+      const incrementView = async () => {
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/builder/view/${builderId}`, {
+            method: 'POST'
+          });
+        } catch (error) {
+          console.error("Failed to increment view count:", error);
+        }
+      };
+      incrementView();
+    }
+  }, [builderId]);
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [startFromHome, setStartFromHome] = useState<boolean>(() => {
     try {

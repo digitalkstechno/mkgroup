@@ -56,45 +56,21 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome, 
   const handleShare = async () => {
     if (typeof window === 'undefined') return;
 
-    const profileUrl = builderData?.website
-      ? builderData.website.startsWith('http')
-        ? builderData.website
-        : `https://${builderData.website}`
-      : window.location.href;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    const publicProfileUrl = `${appUrl}/card/${builderData?._id}`;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/v1/api';
-    const baseUrl = apiUrl.split('/v1/api')[0];
-    const imageUrl = builderData?.profileImage
-      ? `${baseUrl}/builder/${builderData.profileImage}`
-      : builderData?.logo
-        ? `${baseUrl}/builder/${builderData.logo}`
-        : '';
-
-    const shareLines = [
-      builderData?.companyName || 'MK GROUP',
-      builderData?.name,
-      builderData?.location,
-      builderData?.timing ? `Timing: ${builderData.timing}` : undefined,
-      imageUrl ? `Image: ${imageUrl}` : undefined,
-      `Profile: ${profileUrl}`,
-      'Open this profile now!'
-    ].filter(Boolean);
-
-    const shareText = shareLines.join('\n');
     const shareData = {
-      title: builderData?.companyName || 'MK GROUP',
-      text: shareText,
-      url: profileUrl,
+      url: publicProfileUrl,
     };
 
     if (navigator.share) {
       try {
         await navigator.share(shareData as ShareData);
       } catch {
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(publicProfileUrl)}`, '_blank');
       }
     } else {
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(publicProfileUrl)}`, '_blank');
     }
   };
 
