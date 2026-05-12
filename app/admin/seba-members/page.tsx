@@ -59,7 +59,7 @@ export default function SebaMembersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    name: "", category: "", company: "",
+    name: "", category: "", subCategory: "", company: "",
     mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
     officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
     image: null as File | null
@@ -67,6 +67,8 @@ export default function SebaMembersPage() {
 
   const [categories, setCategories] = useState<any[]>([]);
   const [categorySelection, setCategorySelection] = useState("");
+  const [subCategorySelection, setSubCategorySelection] = useState("");
+  const [subCategories, setSubCategories] = useState<any[]>([]);
   const [showOtherCategory, setShowOtherCategory] = useState(false);
   const [otherCategoryName, setOtherCategoryName] = useState("");
 
@@ -181,12 +183,14 @@ export default function SebaMembersPage() {
     setIsEditing(false);
     setEditingId(null);
     setFormData({
-      name: "", category: "", company: "",
+      name: "", category: "", subCategory: "", company: "",
       mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
       officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
       image: null
     });
     setCategorySelection("");
+    setSubCategorySelection("");
+    setSubCategories([]);
     setShowOtherCategory(false);
     setOtherCategoryName("");
   };
@@ -197,6 +201,7 @@ export default function SebaMembersPage() {
     setFormData({
       name: member.name,
       category: member.category,
+      subCategory: member.subCategory || "",
       company: member.company || "",
       mobile: formatPhoneNumber(member.mobile),
       address: member.address || "",
@@ -210,6 +215,10 @@ export default function SebaMembersPage() {
       image: null
     });
     setCategorySelection(member.category);
+    setSubCategorySelection(member.subCategory || "");
+    const matchedCat = categories.find(c => c.name === member.category);
+    const subs = matchedCat?.subCategories || [];
+    setSubCategories(subs.map((s: string) => ({ name: s })));
     setIsDrawerOpen(true);
   };
 
@@ -304,6 +313,7 @@ export default function SebaMembersPage() {
       { label: "COMPANY NAME", value: member.company },
       { label: "DESIGNATION", value: member.position || "Member" },
       { label: "BUSINESS CATEGORY", value: member.category },
+      { label: "SUB CATEGORY", value: member.subCategory || "N/A" },
       { label: "PRIMARY MOBILE", value: formatPhoneNumber(member.mobile) },
       { label: "OFFICE NUMBER", value: member.officeNo ? formatPhoneNumber(member.officeNo) : "" },
       { label: "OPERATIONAL AREA", value: member.area },
@@ -419,7 +429,10 @@ export default function SebaMembersPage() {
       render: (row: any) => (
         <div className="space-y-1 text-xs">
           <p className="flex items-center gap-1.5 text-gray-800 font-bold"><Building2 size={13} className="text-gray-400" /> {row.company || "N/A"}</p>
-          <p className="flex items-center gap-1.5 text-gray-500"><Briefcase size={13} className="text-gray-400" /> {row.category}</p>
+          <p className="flex items-center gap-1.5 text-gray-600 font-medium">
+            <Briefcase size={13} className="text-gray-400 shrink-0" /> 
+            <span className="truncate">{[row.category, row.subCategory].filter(Boolean).join(' • ')}</span>
+          </p>
           <p className="flex items-center gap-1.5 text-gray-500"><MapPin size={13} className="text-gray-400" /> {row.area}</p>
         </div>
       )
@@ -601,7 +614,13 @@ export default function SebaMembersPage() {
                         onChange={(val) => {
                           setCategorySelection(val);
                           setShowOtherCategory(val === 'Others');
-                          if (val !== 'Others') setFormData({ ...formData, category: val });
+                          setSubCategorySelection("");
+                          const matchedCat = categories.find(c => c.name === val);
+                          const subs = matchedCat?.subCategories || [];
+                          setSubCategories(subs.map((s: string) => ({ name: s })));
+                          if (val !== 'Others') {
+                            setFormData(prev => ({ ...prev, category: val, subCategory: "" }));
+                          }
                         }}
                         placeholder="Select Category"
                       />
@@ -613,12 +632,33 @@ export default function SebaMembersPage() {
                           value={otherCategoryName}
                           onChange={(e) => {
                             setOtherCategoryName(e.target.value);
-                            setFormData({ ...formData, category: e.target.value });
+                            setFormData(prev => ({ ...prev, category: e.target.value }));
                           }}
                         />
                       )}
                     </div>
-                      {/* Area will be auto-filled by Map API */}
+                    <div>
+                      <label className={labelCls}>Sub Category</label>
+                      <SearchableSelect 
+                        options={subCategories}
+                        value={subCategorySelection}
+                        onChange={(val) => {
+                          setSubCategorySelection(val);
+                          setFormData(prev => ({ ...prev, subCategory: val === 'Others' ? '' : val }));
+                        }}
+                        placeholder="Select Sub Category"
+                        showOthers={true}
+                      />
+                      {subCategorySelection === 'Others' && (
+                        <input 
+                          required 
+                          className={`${inputCls} mt-2`} 
+                          placeholder="Write sub category name" 
+                          value={formData.subCategory}
+                          onChange={(e) => setFormData(prev => ({ ...prev, subCategory: e.target.value }))}
+                        />
+                      )}
+                    </div>
                   </div>
 
                   <div>

@@ -15,7 +15,7 @@ export default function SebaCategoriesPage() {
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [formData, setFormData] = useState({ name: "" });
+  const [formData, setFormData] = useState({ name: "", subCategories: "" });
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -42,7 +42,7 @@ export default function SebaCategoriesPage() {
       const response = await api.post('/seba/category', formData);
       if (response.data.status === "Success") {
         toast.success("Category created successfully!");
-        setFormData({ name: "" });
+        setFormData({ name: "", subCategories: "" });
         setIsDrawerOpen(false);
         fetchCategories();
       }
@@ -69,7 +69,20 @@ export default function SebaCategoriesPage() {
   const columns = [
     {
       header: "Category Name", accessor: "name",
-      render: (row: any) => <p className="font-bold text-gray-900 text-sm">{row.name}</p>
+      render: (row: any) => (
+        <div className="py-1">
+          <p className="font-bold text-gray-900 text-sm">{row.name}</p>
+          {row.subCategories && row.subCategories.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {row.subCategories.map((sub: string, i: number) => (
+                <span key={i} className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md text-[10px] font-bold border border-indigo-100">
+                  {sub}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )
     },
     {
       header: "Actions", accessor: "_id",
@@ -133,6 +146,15 @@ export default function SebaCategoriesPage() {
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
                       className={inputCls} 
                       placeholder="e.g. Builder & Developers" 
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Sub Categories (Comma Separated)</label>
+                    <textarea 
+                      value={formData.subCategories} 
+                      onChange={(e) => setFormData({ ...formData, subCategories: e.target.value })} 
+                      className={`${inputCls} h-20 resize-none`} 
+                      placeholder="Industrial, Residential, Commercial, Plotting" 
                     />
                   </div>
                 </div>
