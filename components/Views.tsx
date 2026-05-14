@@ -756,7 +756,6 @@ export const DashboardView = ({
           {
             img: "/icons/instaa.png",
             color: "bg-[#E1306C]",
-            customClass: "h-[55px]",
             action: () => {
               if (builderData?.instagramLink)
                 window.open(builderData.instagramLink, "_blank");
@@ -775,19 +774,21 @@ export const DashboardView = ({
             },
           },
         ].map((item, i) => (
-          <div
+          <button
             key={i}
             onClick={item.action}
-            className="flex justify-center items-center w-[45px] h-[45px] mx-auto cursor-pointer hover:translate-y-0.5 hover:drop-shadow-none transition-all"
+            className="flex flex-col items-center justify-center w-[45px] h-[45px] mx-auto group cursor-pointer hover:translate-y-0.5 transition-all"
           >
-            <Image
-              src={item.img}
-              alt="icon"
-              width={45}
-              height={45}
-              className={`object-contain w-full ${item.customClass || "h-full"} drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)]`}
-            />
-          </div>
+            <div className="w-[45px] h-[45px] flex items-center justify-center drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-none transition-all">
+              <Image
+                src={item.img}
+                alt="icon"
+                width={45}
+                height={45}
+                className="object-contain w-full h-full"
+              />
+            </div>
+          </button>
         ))}
       </div>
       <div className="grid grid-cols-4 gap-x-2 gap-y-4 w-full px-1 py-2">
@@ -822,13 +823,13 @@ export const DashboardView = ({
             onClick={() => setView(item.id as View)}
             className="flex flex-col items-center group cursor-pointer hover:translate-y-0.5 transition-all"
           >
-            <div className="drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-none transition-all">
+            <div className="w-[45px] h-[45px] flex items-center justify-center drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-none transition-all">
               <Image
                 src={item.img}
                 alt={item.label}
                 width={45}
                 height={45}
-                className="object-contain"
+                className="object-contain w-full h-full"
               />
             </div>
             <span className="text-[11px] font-bold text-gray-700 mt-1.5">
@@ -839,17 +840,6 @@ export const DashboardView = ({
       </div>
 
       <div className="flex space-x-2 w-full px-2 mt-2">
-        {/* <button
-          className="flex-1 flex items-center justify-center cursor-pointer hover:translate-y-0.5 transition-all drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] hover:drop-shadow-none"
-        > */}
-        {/* <Image
-            src="/selete2.png"
-            alt="Select language"
-            width={180}
-            height={50}
-            className="object-contain"
-          />
-        </button> */}
         <button
           onClick={() => {
             const n = builderData?.name || "MK GROUP";
@@ -864,14 +854,14 @@ export const DashboardView = ({
             a.click();
             URL.revokeObjectURL(url);
           }}
-          className="flex-1 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+          className="flex-1 flex items-center justify-center cursor-pointer group hover:translate-y-0.5 transition-all drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] hover:drop-shadow-none"
         >
           <Image
             src="/selete2.png"
             alt="Save Contact"
             width={180}
             height={50}
-            className="object-contain"
+            className="object-contain w-full h-auto"
           />
         </button>
 
@@ -889,13 +879,13 @@ export const DashboardView = ({
             <option value="hi">Hindi</option>
             <option value="gu">Gujarati</option>
           </select>
-          <div className="flex items-center justify-center transition-transform">
+          <div className="flex items-center justify-center">
             <Image
               src="/select1.png"
               alt="Select language"
               width={180}
               height={50}
-              className="object-contain"
+              className="object-contain w-full h-auto"
             />
           </div>
         </div>
@@ -918,13 +908,13 @@ export const DashboardView = ({
             onClick={item.action}
             className="flex flex-col items-center space-y-1.5 group cursor-pointer hover:translate-y-0.5 transition-all"
           >
-            <div className="drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-none transition-all">
+            <div className="w-[45px] h-[45px] flex items-center justify-center drop-shadow-[0_5px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-none transition-all">
               <Image
                 src={item.img}
                 alt={item.label}
                 width={45}
                 height={45}
-                className="object-contain"
+                className="object-contain w-full h-full"
               />
             </div>
             <span className="text-[9px] font-black text-gray-600 uppercase tracking-tighter">

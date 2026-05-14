@@ -74,14 +74,21 @@ export default function ScreenPage() {
   };
 
   const handleSaveScreen = async () => {
+    const finalProfile = { ...localProfile };
+    if (editingField) {
+      finalProfile[editingField as keyof typeof localProfile] = tempValue;
+      setLocalProfile(finalProfile);
+      setEditingField(null);
+    }
+
     const formData = new FormData();
     // We only need to send the fields managed on this page
-    formData.append("secondaryNumber", localProfile.secondaryNumber);
-    formData.append("whatsappNumber", localProfile.whatsappNumber);
-    formData.append("facebookLink", localProfile.facebookLink);
-    formData.append("instagramLink", localProfile.instagramLink);
-    formData.append("email", localProfile.email);
-    formData.append("companyName", localProfile.companyName);
+    formData.append("secondaryNumber", finalProfile.secondaryNumber);
+    formData.append("whatsappNumber", finalProfile.whatsappNumber);
+    formData.append("facebookLink", finalProfile.facebookLink);
+    formData.append("instagramLink", finalProfile.instagramLink);
+    formData.append("email", finalProfile.email);
+    formData.append("companyName", finalProfile.companyName);
 
     if (selectedAdImage) formData.append("adImage", selectedAdImage);
 
@@ -185,7 +192,10 @@ export default function ScreenPage() {
                       <input
                         autoFocus
                         value={tempValue}
-                        onChange={(e) => setTempValue(e.target.value)}
+                        onChange={(e) => {
+                          setTempValue(e.target.value);
+                          setLocalProfile(prev => ({ ...prev, [key]: e.target.value }));
+                        }}
                         onKeyDown={(e) => e.key === "Enter" && saveField()}
                         placeholder={placeholder}
                         className="w-full border-b-2 border-blue-600 bg-blue-50/50 px-2 py-1 text-sm font-semibold focus:outline-none transition-all"

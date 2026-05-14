@@ -8,6 +8,42 @@ import { AppDispatch, RootState } from "@/lib/redux/store";
 import { fetchProfile, updateProfile } from "@/lib/redux/slices/authSlice";
 import { toast } from "sonner";
 import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
+import Cropper, { Area } from "react-easy-crop";
+
+const getCroppedImg = (
+  imageSrc: string,
+  pixelCrop: Area
+): Promise<Blob | null> => {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.src = imageSrc;
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return reject(null);
+
+      canvas.width = pixelCrop.width;
+      canvas.height = pixelCrop.height;
+
+      ctx.drawImage(
+        image,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        pixelCrop.width,
+        pixelCrop.height
+      );
+
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, "image/jpeg");
+    };
+    image.onerror = (error) => reject(error);
+  });
+};
 
 export default function ProfilePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,6 +64,13 @@ export default function ProfilePage() {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string>("");
   
+  // Cropper states
+  const [activeCropper, setActiveCropper] = useState<"profile" | "logo" | null>(null);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState<string>("");
   
@@ -54,12 +97,12 @@ export default function ProfilePage() {
 
   const startEdit = (field: string, value: string) => {
     setEditingField(field);
-    setTempValue(field === 'number' ? formatPhoneNumber(value) : value);
+    setTempValue(field === "number" ? formatPhoneNumber(value) : value);
   };
 
   const saveField = () => {
     if (editingField) {
-      const finalValue = editingField === 'number' ? formatPhoneNumber(tempValue) : tempValue;
+      const finalValue = editingField === "number" ? formatPhoneNumber(tempValue) : tempValue;
       setLocalProfile((prev) => ({ ...prev, [editingField]: finalValue }));
       setEditingField(null);
     }
@@ -72,26 +115,75 @@ export default function ProfilePage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = () => {
+        setOriginalImage(reader.result as string);
+        setActiveCropper("profile");
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+      };
+      reader.readAsDataURL(file);
     }
+    e.target.value = "";
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedLogo(file);
-      setLogoPreviewUrl(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = () => {
+        setOriginalImage(reader.result as string);
+        setActiveCropper("logo");
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = "";
+  };
+
+  const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleCrop = async () => {
+    if (!originalImage || !croppedAreaPixels || !activeCropper) return;
+    try {
+      const blob = await getCroppedImg(originalImage, croppedAreaPixels);
+      if (blob) {
+        const filename = activeCropper === "profile" ? "profile.jpg" : "logo.jpg";
+        const file = new File([blob], filename, { type: "image/jpeg" });
+        if (activeCropper === "profile") {
+          setSelectedFile(file);
+          setPreviewUrl(URL.createObjectURL(blob));
+        } else {
+          setSelectedLogo(file);
+          setLogoPreviewUrl(URL.createObjectURL(blob));
+        }
+        setActiveCropper(null);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to crop image");
     }
   };
 
   const handleSaveProfile = async () => {
+    // Ensure any open editing field value is captured before submitting
+    const finalProfile = { ...localProfile };
+    if (editingField) {
+      const finalValue = editingField === "number" ? formatPhoneNumber(tempValue) : tempValue;
+      finalProfile[editingField as keyof typeof localProfile] = finalValue;
+      setLocalProfile(finalProfile);
+      setEditingField(null);
+    }
+
     const formData = new FormData();
-    formData.append("name", localProfile.name);
-    formData.append("number", cleanPhoneNumber(localProfile.number));
-    formData.append("location", localProfile.location);
-    formData.append("timing", localProfile.timing);
-    formData.append("website", localProfile.website);
+    formData.append("name", finalProfile.name);
+    formData.append("number", cleanPhoneNumber(finalProfile.number));
+    formData.append("location", finalProfile.location);
+    formData.append("timing", finalProfile.timing);
+    formData.append("website", finalProfile.website);
 
     if (selectedFile) formData.append("profileImage", selectedFile);
     if (selectedLogo) formData.append("logo", selectedLogo);
@@ -149,7 +241,7 @@ export default function ProfilePage() {
   return (
     <DashboardLayout type="user">
       <div className="mx-auto space-y-6">
-        <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
+        <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm relative">
            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">Profile Settings</p>
            <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="flex flex-col items-center">
@@ -162,7 +254,7 @@ export default function ProfilePage() {
                     <User size={36} className="text-gray-300" />
                   )}
                 </div>
-                <button onClick={() => fileRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors rounded-full border-2 border-white shadow-lg"><Camera size={16} /></button>
+                <button onClick={() => fileRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors rounded-full border-2 border-white shadow-lg cursor-pointer"><Camera size={16} /></button>
                 <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </div>
             </div>
@@ -177,7 +269,7 @@ export default function ProfilePage() {
                     <Globe size={36} className="text-gray-300" />
                   )}
                 </div>
-                <button onClick={() => logoRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors rounded-full border-2 border-white shadow-lg"><Camera size={16} /></button>
+                <button onClick={() => logoRef.current?.click()} className="absolute -bottom-2 -right-2 h-9 w-9 bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition-colors rounded-full border-2 border-white shadow-lg cursor-pointer"><Camera size={16} /></button>
                 <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
               </div>
             </div>
@@ -194,14 +286,44 @@ export default function ProfilePage() {
                   <div className="flex-1 min-w-0 pt-0.5">
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">{label}</p>
                     {editingField === key ? (
-                      <input
-                        autoFocus
-                        value={tempValue}
-                        onChange={(e) => setTempValue(key === 'number' ? formatPhoneNumber(e.target.value) : e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && saveField()}
-                        placeholder={placeholder}
-                        className="w-full border-b-2 border-blue-600 bg-blue-50/50 px-2 py-1 text-sm font-semibold focus:outline-none transition-all"
-                      />
+                      <div className="space-y-2 w-full">
+                        <input
+                          autoFocus
+                          value={tempValue}
+                          onChange={(e) => {
+                            const val = key === "number" ? formatPhoneNumber(e.target.value) : e.target.value;
+                            setTempValue(val);
+                            // Instantly store in localProfile so hitting primary save button captures typing flawlessly
+                            setLocalProfile(prev => ({ ...prev, [key]: val }));
+                          }}
+                          onKeyDown={(e) => e.key === "Enter" && saveField()}
+                          placeholder={placeholder}
+                          className="w-full border-b-2 border-blue-600 bg-blue-50/50 px-2 py-1 text-sm font-semibold focus:outline-none transition-all"
+                        />
+                        {key === "timing" && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {[
+                              "Mon-Sat: 9:00 AM - 6:00 PM",
+                              "Mon-Sat: 10:00 AM - 7:00 PM",
+                              "Mon-Fri: 9:00 AM - 6:00 PM",
+                              "Mon-Sun: 9:00 AM - 9:00 PM",
+                              "24 Hours Open"
+                            ].map((preset) => (
+                              <button
+                                key={preset}
+                                type="button"
+                                onClick={() => {
+                                  setTempValue(preset);
+                                  setLocalProfile(prev => ({ ...prev, timing: preset }));
+                                }}
+                                className="text-[9px] font-extrabold bg-gray-100 hover:bg-blue-600 hover:text-white text-gray-700 px-2.5 py-1 rounded-full transition-all cursor-pointer border border-gray-200 hover:border-blue-600 shadow-2xs"
+                              >
+                                {preset}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <p className="text-sm font-bold text-gray-900 truncate">
                         {(localProfile as any)[key] || <span className="text-gray-300 italic font-normal">Not set</span>}
@@ -213,17 +335,17 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-1 shrink-0 pt-1">
                   {editingField === key ? (
                     <>
-                      <button onClick={saveField} className="h-8 w-8 text-emerald-600 hover:bg-emerald-50 transition-all rounded-lg flex items-center justify-center">
+                      <button onClick={saveField} className="h-8 w-8 text-emerald-600 hover:bg-emerald-50 transition-all rounded-lg flex items-center justify-center cursor-pointer">
                         <Check size={18} />
                       </button>
-                      <button onClick={cancelEdit} className="h-8 w-8 text-red-500 hover:bg-red-50 transition-all rounded-lg flex items-center justify-center">
+                      <button onClick={cancelEdit} className="h-8 w-8 text-red-500 hover:bg-red-50 transition-all rounded-lg flex items-center justify-center cursor-pointer">
                         <X size={18} />
                       </button>
                     </>
                   ) : (
                     <button
                       onClick={() => startEdit(key, (localProfile as any)[key])}
-                      className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-lg flex items-center justify-center"
+                      className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-lg flex items-center justify-center cursor-pointer"
                     >
                       <Pencil size={14} />
                     </button>
@@ -236,14 +358,75 @@ export default function ProfilePage() {
           <button
             onClick={handleSaveProfile}
             disabled={loading}
-            className="w-full mt-8 bg-blue-600 text-white py-4 text-sm font-black uppercase tracking-widest hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 rounded-2xl shadow-xl shadow-blue-500/25 disabled:opacity-50"
+            className="w-full mt-8 bg-blue-600 text-white py-4 text-sm font-black uppercase tracking-widest hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-3 rounded-2xl shadow-xl shadow-blue-500/25 disabled:opacity-50 cursor-pointer"
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
             {loading ? "Saving Changes..." : "Save Profile Changes"}
           </button>
+
+          {/* Cropper Modal Overlay */}
+          {activeCropper && originalImage && (
+            <div className="fixed inset-0 bg-[#eeeeee] z-[200] flex flex-col items-center justify-start p-5 pt-10 overflow-y-auto">
+              <h3 className="text-gray-900 text-[16px] font-bold uppercase tracking-wider mb-6 italic">
+                Adjust {activeCropper === "profile" ? "Profile Image" : "Company Logo"}
+              </h3>
+              
+              {/* Crop Frame */}
+              <div className="relative w-full max-w-md h-[320px] bg-gray-900 rounded-2xl overflow-hidden shadow-inner">
+                <Cropper
+                  image={originalImage}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={activeCropper === "profile" ? 1 : 16 / 9}
+                  restrictPosition={false}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                />
+              </div>
+
+              <p className="text-[12px] text-gray-500 font-medium mt-4 italic">
+                Pinch or drag to adjust crop view
+              </p>
+
+              {/* Slider */}
+              <div className="w-full max-w-[280px] mt-4 flex flex-col gap-2">
+                <div className="flex justify-between items-center px-1">
+                  <span className="text-xs text-gray-700 font-bold">Zoom Scale:</span>
+                  <span className="text-xs text-blue-600 font-extrabold">{zoom.toFixed(1)}x</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="3" 
+                  step="0.1" 
+                  value={zoom} 
+                  onChange={(e) => setZoom(parseFloat(e.target.value))} 
+                  className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-4 mt-6 w-full max-w-[280px]">
+                <button 
+                  type="button" 
+                  onClick={() => setActiveCropper(null)} 
+                  className="flex-1 bg-white border border-gray-300 text-gray-600 py-3 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all cursor-pointer shadow-sm active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  onClick={handleCrop} 
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md cursor-pointer active:scale-95"
+                >
+                  Apply Crop
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>
   );
 }
-

@@ -175,6 +175,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [startFromHome, setStartFromHome] = useState<boolean>(() => {
+    if (builderId) return false;
     try {
       const stored = localStorage.getItem('mkgroup:startFromHome');
       return stored == null ? false : stored === '1';
@@ -184,6 +185,7 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
   });
 
   const [view, setView] = useState<View>(() => {
+    if (builderId) return 'home';
     try {
       const lastView = localStorage.getItem('mkgroup:lastView') as View | null;
       return lastView ?? 'home';
@@ -191,6 +193,14 @@ export default function MKGroupApp({ showAccessPanel = true, builderId }: MKGrou
       return 'home';
     }
   });
+
+  // Ensure ?view=home query param forces home view on initial client mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('view=home')) {
+      setView('home');
+      setStartFromHome(false);
+    }
+  }, []);
 
   useEffect(() => {
     try {
