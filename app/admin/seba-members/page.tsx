@@ -62,7 +62,7 @@ export default function SebaMembersPage() {
     name: "", category: "", subCategory: "", company: "",
     mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
     officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
-    image: null as File | null
+    image: null as File | null, natureOfBusiness: ""
   });
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -186,7 +186,7 @@ export default function SebaMembersPage() {
       name: "", category: "", subCategory: "", company: "",
       mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
       officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
-      image: null
+      image: null, natureOfBusiness: ""
     });
     setCategorySelection("");
     setSubCategorySelection("");
@@ -212,7 +212,8 @@ export default function SebaMembersPage() {
       pincode: member.pincode || "",
       city: member.city || "Surat",
       state: member.state || "Gujarat",
-      image: null
+      image: null,
+      natureOfBusiness: member.natureOfBusiness || ""
     });
     setCategorySelection(member.category);
     setSubCategorySelection(member.subCategory || "");
@@ -307,11 +308,11 @@ export default function SebaMembersPage() {
     doc.setTextColor(50, 50, 50);
     doc.text("MEMBER PROFILE SUMMARY", 25, 52);
 
-    // 5. Member Details Section
     const fields = [
       { label: "FULL NAME", value: member.name },
       { label: "COMPANY NAME", value: member.company },
       { label: "DESIGNATION", value: member.position || "Member" },
+      { label: "NATURE OF BUSINESS", value: member.natureOfBusiness || "" },
       { label: "BUSINESS CATEGORY", value: member.category },
       { label: "SUB CATEGORY", value: member.subCategory || "N/A" },
       { label: "PRIMARY MOBILE", value: formatPhoneNumber(member.mobile) },
@@ -328,7 +329,7 @@ export default function SebaMembersPage() {
     fields.forEach((field, index) => {
       const rawVal = field.value?.toString().trim()
       const val = rawVal && rawVal !== "" ? rawVal : ""
-      const splitText = doc.splitTextToSize(val, index < 6 ? 110 : 160)
+      const splitText = doc.splitTextToSize(val, index < 7 ? 110 : 160)
       
       const rowHeight = (splitText.length * 5) + 8
 
@@ -433,6 +434,9 @@ export default function SebaMembersPage() {
             <Briefcase size={13} className="text-gray-400 shrink-0" /> 
             <span className="truncate">{[row.category, row.subCategory].filter(Boolean).join(' • ')}</span>
           </p>
+          {row.natureOfBusiness && (
+            <p className="text-[10px] font-bold text-emerald-600 pl-4.5">Nature: {row.natureOfBusiness}</p>
+          )}
           <p className="flex items-center gap-1.5 text-gray-500"><MapPin size={13} className="text-gray-400" /> {row.area}</p>
         </div>
       )
@@ -603,6 +607,11 @@ export default function SebaMembersPage() {
                       <label className={labelCls}>Position</label>
                       <input value={formData.position} onChange={(e) => setFormData({ ...formData, position: e.target.value })} className={inputCls} placeholder="e.g. Director / Media Head" />
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className={labelCls}>Nature of Business</label>
+                    <input value={formData.natureOfBusiness} onChange={(e) => setFormData({ ...formData, natureOfBusiness: e.target.value })} className={inputCls} placeholder="e.g. Tiles / Real Estate Developer" />
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
