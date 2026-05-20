@@ -481,14 +481,14 @@ const getProfileImage = () => {
             {companyName}
           </h1>
         </div>
-        <div className="w-full bg-[#003B46] rounded-2xl flex flex-col items-center justify-center text-white cursor-pointer hover:opacity-95 transition-all shadow-xl border-2 border-white/30 h-32 ">
+        <div className="w-full bg-[#003B46] rounded-2xl flex flex-col items-center justify-center text-white cursor-pointer hover:opacity-95 transition-all shadow-xl border-2 border-white/30 h-32 overflow-hidden">
           {logoUrl ? (
             <div className="relative w-full h-full">
               <Image
                 src={logoUrl}
                 alt="Logo"
                 fill
-                className="object-contain drop-shadow-md"
+                className="object-cover"
                 unoptimized
               />
             </div>

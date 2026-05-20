@@ -36,9 +36,10 @@ const getCroppedImg = (
         pixelCrop.height
       );
 
+      // IMPORTANT: use image/png to keep transparent background
       canvas.toBlob((blob) => {
         resolve(blob);
-      }, 'image/jpeg');
+      }, 'image/png');
     };
     image.onerror = (error) => reject(error);
   });
@@ -84,7 +85,7 @@ export default function SebaAssociatedPage() {
     try {
       const blob = await getCroppedImg(originalImage, croppedAreaPixels);
       if (blob) {
-        const file = new File([blob], "logo.jpg", { type: "image/jpeg" });
+        const file = new File([blob], "logo.png", { type: "image/png" });
         setFormData({ ...formData, image: file });
         setShowCropper(false);
       }
@@ -156,8 +157,8 @@ export default function SebaAssociatedPage() {
     {
       header: "Image", accessor: "image",
       render: (row: any) => (
-        <div className="h-12 w-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shadow-sm">
-          <img src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${row.image}`} alt={row.name} className="h-full w-full object-cover" />
+        <div className="h-12 w-12 rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex items-center justify-center p-1">
+          <img src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${row.image}`} alt={row.name} className="max-h-full max-w-full object-contain" />
         </div>
       )
     },
@@ -276,12 +277,12 @@ export default function SebaAssociatedPage() {
               <h3 className="text-gray-900 text-sm font-extrabold uppercase tracking-wider mb-4">Adjust Logo / Image</h3>
               
               {/* Crop Frame */}
-              <div className="relative w-full h-[300px] bg-gray-900 rounded-lg overflow-hidden shadow-inner">
+              <div className="relative w-full h-[300px] bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%),linear-gradient(-45deg,#f0f0f0_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f0f0f0_75%),linear-gradient(-45deg,transparent_75%,#f0f0f0_75%)] bg-[size:16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] bg-white rounded-lg overflow-hidden shadow-inner border border-gray-100">
                 <Cropper
                   image={originalImage}
                   crop={crop}
                   zoom={zoom}
-                  aspect={1 / 1}
+                  aspect={116 / 110}
                   restrictPosition={false}
                   onCropChange={setCrop}
                   onCropComplete={onCropComplete}

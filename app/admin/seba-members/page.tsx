@@ -39,9 +39,10 @@ const getCroppedImg = (
         pixelCrop.height
       );
 
+      // IMPORTANT: use image/png to keep transparent background
       canvas.toBlob((blob) => {
         resolve(blob);
-      }, 'image/jpeg');
+      }, 'image/png');
     };
     image.onerror = (error) => reject(error);
   });
@@ -102,7 +103,7 @@ export default function SebaMembersPage() {
     try {
       const blob = await getCroppedImg(originalImage, croppedAreaPixels);
       if (blob) {
-        const file = new File([blob], "passport_photo.jpg", { type: "image/jpeg" });
+        const file = new File([blob], "passport_photo.png", { type: "image/png" });
         setFormData({ ...formData, image: file });
         setShowCropper(false);
       }
@@ -398,11 +399,11 @@ export default function SebaMembersPage() {
       header: "Member Profile", accessor: "name",
       render: (row: any) => (
         <div className="flex items-center gap-4 py-1">
-          <div className="h-12 w-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shadow-sm flex-shrink-0">
+          <div className={`h-12 w-12 rounded-xl bg-white border border-gray-200 overflow-hidden shadow-sm flex-shrink-0 ${row.image ? 'flex items-center justify-center p-1' : ''}`}>
             {row.image ? (
-              <img src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${row.image}`} className="h-full w-full object-cover" alt={row.name} />
+              <img src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${row.image}`} className="max-h-full max-w-full object-contain" alt={row.name} />
             ) : (
-              <div className="h-full w-full flex items-center justify-center bg-indigo-50 text-indigo-600 font-bold text-lg">
+              <div className="h-full w-full flex items-center justify-center bg-indigo-50 text-indigo-600 font-bold text-lg rounded-lg">
                 {row.name.charAt(0)}
               </div>
             )}
@@ -830,12 +831,12 @@ export default function SebaMembersPage() {
               <h3 className="text-gray-900 text-sm font-extrabold uppercase tracking-wider mb-4">Adjust Passport Photo</h3>
               
               {/* Crop Frame */}
-              <div className="relative w-full h-[300px] bg-gray-900 rounded-lg overflow-hidden shadow-inner">
+              <div className="relative w-full h-[300px] bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%),linear-gradient(-45deg,#f0f0f0_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f0f0f0_75%),linear-gradient(-45deg,transparent_75%,#f0f0f0_75%)] bg-[size:16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] bg-white rounded-lg overflow-hidden shadow-inner border border-gray-100">
                 <Cropper
                   image={originalImage}
                   crop={crop}
                   zoom={zoom}
-                  aspect={3 / 4}
+                  aspect={7 / 8}
                   restrictPosition={false}
                   onCropChange={setCrop}
                   onCropComplete={onCropComplete}

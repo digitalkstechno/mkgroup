@@ -8,7 +8,7 @@ import { AppDispatch, RootState } from "@/lib/redux/store";
 import { fetchProfile, updateProfile } from "@/lib/redux/slices/authSlice";
 import { toast } from "sonner";
 import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
-import Cropper, { Area } from "react-easy-crop";
+import Cropper, { Area } from 'react-easy-crop';
 
 const getCroppedImg = (
   imageSrc: string,
@@ -18,8 +18,8 @@ const getCroppedImg = (
     const image = new Image();
     image.src = imageSrc;
     image.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       if (!ctx) return reject(null);
 
       canvas.width = pixelCrop.width;
@@ -37,9 +37,10 @@ const getCroppedImg = (
         pixelCrop.height
       );
 
+      // IMPORTANT: use image/png to keep transparent background
       canvas.toBlob((blob) => {
         resolve(blob);
-      }, "image/jpeg");
+      }, 'image/png');
     };
     image.onerror = (error) => reject(error);
   });
@@ -65,11 +66,13 @@ export default function ProfilePage() {
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string>("");
   
   // Cropper states
-  const [activeCropper, setActiveCropper] = useState<"profile" | "logo" | null>(null);
+  const [cropType, setCropType] = useState<"profile" | "logo" | null>(null);
   const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [tempValue, setTempValue] = useState<string>("");
@@ -118,7 +121,8 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onload = () => {
         setOriginalImage(reader.result as string);
-        setActiveCropper("profile");
+        setCropType("profile");
+        setShowCropper(true);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
       };
@@ -133,7 +137,8 @@ export default function ProfilePage() {
       const reader = new FileReader();
       reader.onload = () => {
         setOriginalImage(reader.result as string);
-        setActiveCropper("logo");
+        setCropType("logo");
+        setShowCropper(true);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
       };
@@ -147,20 +152,23 @@ export default function ProfilePage() {
   };
 
   const handleCrop = async () => {
-    if (!originalImage || !croppedAreaPixels || !activeCropper) return;
+    if (!originalImage || !croppedAreaPixels || !cropType) return;
     try {
       const blob = await getCroppedImg(originalImage, croppedAreaPixels);
       if (blob) {
-        const filename = activeCropper === "profile" ? "profile.jpg" : "logo.jpg";
-        const file = new File([blob], filename, { type: "image/jpeg" });
-        if (activeCropper === "profile") {
+        const file = new File(
+          [blob],
+          cropType === "profile" ? "profile.png" : "logo.png",
+          { type: "image/png" }
+        );
+        if (cropType === "profile") {
           setSelectedFile(file);
-          setPreviewUrl(URL.createObjectURL(blob));
+          setPreviewUrl(URL.createObjectURL(file));
         } else {
           setSelectedLogo(file);
-          setLogoPreviewUrl(URL.createObjectURL(blob));
+          setLogoPreviewUrl(URL.createObjectURL(file));
         }
-        setActiveCropper(null);
+        setShowCropper(false);
       }
     } catch (e) {
       console.error(e);
@@ -243,13 +251,13 @@ export default function ProfilePage() {
       <div className="mx-auto space-y-6">
         <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm relative">
            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">Profile Settings</p>
-           <div className="grid grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-2 gap-6 mb-8">
             <div className="flex flex-col items-center">
               <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Profile Image</p>
               <div className="relative">
-                <div className="h-28 w-28 bg-gray-50 border border-gray-200 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
+                <div className="h-28 w-28 bg-[#eeeeee] border border-gray-200 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
                   {getImageUrl() ? (
-                    <img src={getImageUrl()} alt="Profile" className="h-full w-full object-cover" />
+                    <img src={getImageUrl()} alt="Profile" className="h-full w-full object-contain" />
                   ) : (
                     <User size={36} className="text-gray-300" />
                   )}
@@ -262,7 +270,7 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center">
               <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">Company Logo</p>
               <div className="relative">
-                <div className="h-28 w-28 bg-gray-50 border border-gray-200 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
+                <div className="h-28 w-28 bg-[#eeeeee] border border-gray-200 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
                   {getLogoUrl() ? (
                     <img src={getLogoUrl()} alt="Logo" className="h-full w-full object-contain p-2" />
                   ) : (
@@ -364,20 +372,20 @@ export default function ProfilePage() {
             {loading ? "Saving Changes..." : "Save Profile Changes"}
           </button>
 
-          {/* Cropper Modal Overlay */}
-          {activeCropper && originalImage && (
-            <div className="fixed inset-0 bg-[#eeeeee] z-[200] flex flex-col items-center justify-start p-5 pt-10 overflow-y-auto">
-              <h3 className="text-gray-900 text-[16px] font-bold uppercase tracking-wider mb-6 italic">
-                Adjust {activeCropper === "profile" ? "Profile Image" : "Company Logo"}
+        {showCropper && originalImage && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-6 max-w-sm w-full flex flex-col items-center shadow-2xl animate-slide-in">
+              <h3 className="text-gray-900 text-sm font-black uppercase tracking-wider mb-4">
+                {cropType === "profile" ? "Adjust Profile Picture" : "Adjust Company Logo"}
               </h3>
               
-              {/* Crop Frame */}
-              <div className="relative w-full max-w-md h-[320px] bg-gray-900 rounded-2xl overflow-hidden shadow-inner">
+              <div className="relative w-full h-[300px] bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%),linear-gradient(-45deg,#f0f0f0_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f0f0f0_75%),linear-gradient(-45deg,transparent_75%,#f0f0f0_75%)] bg-[size:16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] bg-white rounded-2xl overflow-hidden shadow-inner border border-gray-100">
                 <Cropper
                   image={originalImage}
                   crop={crop}
                   zoom={zoom}
-                  aspect={activeCropper === "profile" ? 1 : 16 / 9}
+                  aspect={cropType === "profile" ? 1 : 300 / 128}
+                  cropShape={cropType === "profile" ? "round" : "rect"}
                   restrictPosition={false}
                   onCropChange={setCrop}
                   onCropComplete={onCropComplete}
@@ -385,16 +393,10 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <p className="text-[12px] text-gray-500 font-medium mt-4 italic">
-                Pinch or drag to adjust crop view
-              </p>
+              <p className="text-[10px] text-gray-400 font-bold mt-3">Pinch or drag to crop like mobile apps</p>
 
-              {/* Slider */}
-              <div className="w-full max-w-[280px] mt-4 flex flex-col gap-2">
-                <div className="flex justify-between items-center px-1">
-                  <span className="text-xs text-gray-700 font-bold">Zoom Scale:</span>
-                  <span className="text-xs text-blue-600 font-extrabold">{zoom.toFixed(1)}x</span>
-                </div>
+              <div className="w-full mt-4 flex items-center gap-3">
+                <span className="text-xs text-gray-400 font-bold">Zoom</span>
                 <input 
                   type="range" 
                   min="1" 
@@ -402,29 +404,35 @@ export default function ProfilePage() {
                   step="0.1" 
                   value={zoom} 
                   onChange={(e) => setZoom(parseFloat(e.target.value))} 
-                  className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  className={`w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer ${
+                    cropType === "profile" ? "accent-blue-600" : "accent-purple-600"
+                  }`}
                 />
+                <span className="text-xs text-gray-700 font-bold w-8">{zoom.toFixed(1)}x</span>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-4 mt-6 w-full max-w-[280px]">
+              <div className="flex gap-3 mt-6 w-full">
                 <button 
                   type="button" 
-                  onClick={() => setActiveCropper(null)} 
-                  className="flex-1 bg-white border border-gray-300 text-gray-600 py-3 rounded-xl text-sm font-bold hover:bg-gray-50 transition-all cursor-pointer shadow-sm active:scale-95"
+                  onClick={() => setShowCropper(false)} 
+                  className="flex-1 bg-gray-100 text-gray-500 py-3 rounded-2xl text-xs font-bold hover:bg-gray-200 transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="button" 
                   onClick={handleCrop} 
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-md cursor-pointer active:scale-95"
+                  className={`flex-1 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer ${
+                    cropType === "profile" ? "bg-blue-600 hover:bg-blue-700 shadow-blue-500/25" : "bg-purple-600 hover:bg-purple-700 shadow-purple-500/25"
+                  }`}
                 >
                   Apply Crop
                 </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
+
         </div>
       </div>
     </DashboardLayout>
