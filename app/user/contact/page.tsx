@@ -13,6 +13,7 @@ interface Person {
   name: string;
   designation: string;
   role: string;
+  phone?: string;
   image: string;
 }
 
@@ -23,7 +24,7 @@ export default function ContactPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempPerson, setTempPerson] = useState<Partial<Person>>({});
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newPerson, setNewPerson] = useState({ name: "", designation: "", role: "" });
+  const [newPerson, setNewPerson] = useState({ name: "", designation: "", role: "", phone: "" });
   const [selectedNewFile, setSelectedNewFile] = useState<File | null>(null);
   const [selectedEditFile, setSelectedEditFile] = useState<File | null>(null);
   const [newPreview, setNewPreview] = useState("");
@@ -69,6 +70,7 @@ export default function ContactPage() {
     formData.append("name", tempPerson.name || "");
     formData.append("designation", tempPerson.designation || "");
     formData.append("role", tempPerson.role || "");
+    formData.append("phone", tempPerson.phone || "");
     if (selectedEditFile) {
       formData.append("image", selectedEditFile);
     }
@@ -128,6 +130,7 @@ export default function ContactPage() {
     formData.append("name", newPerson.name);
     formData.append("designation", newPerson.designation);
     formData.append("role", newPerson.role);
+    formData.append("phone", newPerson.phone);
     if (selectedNewFile) {
       formData.append("image", selectedNewFile);
     }
@@ -139,7 +142,7 @@ export default function ContactPage() {
       if (response.data.status === "Success") {
         toast.success("Person added successfully");
         setPersons([...persons, response.data.data]);
-        setNewPerson({ name: "", designation: "", role: "" });
+        setNewPerson({ name: "", designation: "", role: "", phone: "" });
         setSelectedNewFile(null);
         setNewPreview("");
         setShowAddForm(false);
@@ -189,12 +192,14 @@ export default function ContactPage() {
                 <input value={newPerson.designation} onChange={(e) => setNewPerson((p) => ({ ...p, designation: e.target.value }))} placeholder="Designation (e.g. Director)"
                   className="w-full border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md" />
                 <input value={newPerson.role} onChange={(e) => setNewPerson((p) => ({ ...p, role: e.target.value }))} placeholder="Role (e.g. Sales Expert)"
-                  className="w-full border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md col-span-full" />
+                  className="w-full border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md" />
+                <input value={newPerson.phone} onChange={(e) => setNewPerson((p) => ({ ...p, phone: e.target.value }))} placeholder="Mobile Number"
+                  className="w-full border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md" />
               </div>
             </div>
             <div className="flex gap-2 justify-end">
               <button 
-                onClick={() => { setShowAddForm(false); setNewPerson({ name: "", designation: "", role: "" }); setNewPreview(""); setSelectedNewFile(null); }} 
+                onClick={() => { setShowAddForm(false); setNewPerson({ name: "", designation: "", role: "", phone: "" }); setNewPreview(""); setSelectedNewFile(null); }} 
                 className="px-4 py-2 text-sm font-semibold text-gray-500 border border-gray-300 hover:bg-gray-50 rounded-lg"
               >
                 Cancel
@@ -241,11 +246,14 @@ export default function ContactPage() {
                         className="w-full border border-blue-500 bg-blue-50 px-3 py-1.5 text-sm focus:outline-none rounded" placeholder="Designation" />
                       <input value={tempPerson.role ?? ""} onChange={(e) => setTempPerson((p) => ({ ...p, role: e.target.value }))}
                         className="w-full border border-blue-500 bg-blue-50 px-3 py-1.5 text-sm focus:outline-none rounded" placeholder="Role" />
+                      <input value={tempPerson.phone ?? ""} onChange={(e) => setTempPerson((p) => ({ ...p, phone: e.target.value }))}
+                        className="w-full border border-blue-500 bg-blue-50 px-3 py-1.5 text-sm focus:outline-none rounded" placeholder="Mobile Number" />
                     </div>
                   ) : (
                     <>
                       <p className="text-base font-semibold text-gray-900 truncate">{person.name}</p>
                       <p className="text-sm text-gray-500 truncate mt-0.5">{person.designation} {person.role && `• ${person.role}`}</p>
+                      {person.phone && <p className="text-sm text-gray-400 truncate mt-0.5">Mob: {person.phone}</p>}
                     </>
                   )}
                 </div>

@@ -80,7 +80,7 @@ export const MobileFrame = ({ children, currentView, setView, setStartFromHome, 
       <div className={`${isMobile ? 'w-full h-full' : 'relative w-[400px] flex-shrink-0 bg-[#B0CADA] rounded-[60px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-[12px] border-[8px] border-white/30'}`}>
         {/* Screen — fixed height on desktop, fixed viewport height on mobile to enable internal scroll */}
         <div
-          className={`relative bg-[#B3D0E2] overflow-hidden flex flex-col ${isMobile ? 'h-[100dvh] max-h-[100dvh]' : 'rounded-[48px] shadow-inner'}`}
+          className={`relative bg-[#B3D0E2] overflow-hidden flex flex-col ${isMobile ? 'h-[100vh] max-h-[100vh]' : 'rounded-[48px] shadow-inner'}`}
           style={isMobile ? {} : { height: '820px', minHeight: '820px', maxHeight: '820px' }}
         >
 

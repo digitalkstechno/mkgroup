@@ -52,7 +52,8 @@ export default function DropboxPage() {
     item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.number?.includes(searchTerm) ||
     item.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.cardType?.toLowerCase().includes(searchTerm.toLowerCase())
+    item.cardType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.message?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -95,7 +96,7 @@ export default function DropboxPage() {
                   <tr className="bg-gray-900 text-white">
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700 w-16">No</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Card Type</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Patient/User</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Member Name</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Number</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Email</th>
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider border-r border-gray-700">Message</th>
@@ -107,7 +108,7 @@ export default function DropboxPage() {
                 <tbody className="divide-y divide-gray-100">
                   {filteredData.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-20 text-center text-gray-400 font-medium">No records found</td>
+                      <td colSpan={9} className="px-4 py-20 text-center text-gray-400 font-medium">No records found</td>
                     </tr>
                   ) : (
                     filteredData.map((row, index) => (

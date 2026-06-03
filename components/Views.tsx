@@ -1436,9 +1436,9 @@ export const ContactPersonView = ({ setView }: ViewProps) => {
         persons.map((person) => (
           <div
             key={person._id}
-            className="bg-white/40 rounded-2xl p-3 flex space-x-4 border border-white/60 shadow-sm backdrop-blur-sm group hover:bg-white/60 transition-all"
+            className="bg-white/40 rounded-2xl p-3 flex items-center space-x-4 border border-white/60 shadow-sm backdrop-blur-sm group hover:bg-white/60 transition-all"
           >
-            <div className="relative w-28 h-28 rounded-full overflow-hidden flex-shrink-0 border-2 border-black/80 shadow-md">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden flex-shrink-0 border-2 border-black/80 shadow-md">
               <Image
                 src={getPersonImage(person.image)}
                 alt={person.name}
@@ -1447,14 +1447,23 @@ export const ContactPersonView = ({ setView }: ViewProps) => {
                 unoptimized
               />
             </div>
-            <div className="flex flex-col justify-start pt-1 space-y-1">
-              <h3 className="font-black text-[#333333] text-lg leading-tight tracking-tight">
+            <div className="flex flex-col justify-center space-y-0.5 min-w-0">
+              <h3 className="font-black text-[#333333] text-base leading-tight tracking-tight truncate">
                 {person.name}
               </h3>
-              <p className="text-xs font-bold text-gray-600">
-                {person.designation}
-              </p>
-              <p className="text-xs font-bold text-gray-600">{person.role}</p>
+              {person.designation && (
+                <p className="text-xs font-bold text-gray-600 truncate">
+                  {person.designation}
+                </p>
+              )}
+              {person.role && (
+                <p className="text-xs font-bold text-gray-600 truncate">{person.role}</p>
+              )}
+              {person.phone && (
+                <p className="text-xs font-black text-[#003B46] truncate">
+                  {person.phone}
+                </p>
+              )}
             </div>
           </div>
         ))
@@ -1974,9 +1983,12 @@ export const DropboxView = ({
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    setImages((prev) => [...prev, ...files]);
-    const newPreviews = files.map((file) => URL.createObjectURL(file));
-    setPreviews((prev) => [...prev, ...newPreviews]);
+    setImages((prev) => {
+      const combined = [...prev, ...files].slice(0, 5);
+      const newPreviews = combined.map((file) => URL.createObjectURL(file));
+      setPreviews(newPreviews);
+      return combined;
+    });
   };
 
   const removeImage = (index: number) => {
@@ -1994,8 +2006,8 @@ export const DropboxView = ({
   };
 
   const handleSubmit = async () => {
-    if (!form.name || !form.mobile) {
-      toast.error("Please fill Name and Mobile");
+    if (!form.name || !form.mobile || !form.message) {
+      toast.error("Please fill Name, Mobile and Message");
       return;
     }
 
@@ -2091,16 +2103,29 @@ export const DropboxView = ({
             placeholder="Enter email address"
           />
         </div>
+        <div className="flex flex-col space-y-1">
+          <span className="text-xs font-bold text-gray-700 ml-1">Message :</span>
+          <textarea
+            value={form.message}
+            onChange={(e) => setForm({ ...form, message: e.target.value.slice(0, 2000) })}
+            className="w-full bg-white rounded-2xl py-2.5 px-4 text-sm border border-gray-200 outline-none shadow-sm resize-none h-28 focus:ring-2 focus:ring-blue-500/10 transition-all text-gray-800"
+            placeholder="Enter your message"
+            maxLength={2000}
+          />
+          <div className="text-right text-[10px] text-gray-400 font-bold pr-2">
+            {form.message.length} / 2000
+          </div>
+        </div>
 
         <div className="space-y-2 pt-2">
           <p className="text-sm font-bold text-center text-gray-800">
             Replace Images
           </p>
-          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="grid grid-cols-3 gap-3 pt-1">
             {previews.map((preview, index) => (
               <div
                 key={index}
-                className="relative flex-shrink-0 w-24 h-24 rounded-xl border-2 border-white shadow-md overflow-hidden bg-gray-100 group"
+                className="relative aspect-square w-full rounded-xl border-2 border-white shadow-md overflow-hidden bg-gray-100 group"
               >
                 <img
                   src={preview}
@@ -2109,22 +2134,24 @@ export const DropboxView = ({
                 />
                 <button
                   onClick={() => removeImage(index)}
-                  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-lg hover:bg-red-650 transition-colors"
                 >
                   <X size={12} />
                 </button>
               </div>
             ))}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-white/50 hover:bg-white transition-all group"
-            >
-              <Plus
-                size={32}
-                className="text-red-500 group-hover:scale-110 transition-transform"
-                strokeWidth={3}
-              />
-            </button>
+            {previews.length < 5 && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="aspect-square w-full rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-white/50 hover:bg-white transition-all group"
+              >
+                <Plus
+                  size={32}
+                  className="text-red-500 group-hover:scale-110 transition-transform"
+                  strokeWidth={3}
+                />
+              </button>
+            )}
             <input
               type="file"
               ref={fileInputRef}
