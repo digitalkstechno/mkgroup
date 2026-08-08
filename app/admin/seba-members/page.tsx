@@ -64,6 +64,7 @@ export default function SebaMembersPage() {
   const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, inactive: 0 });
 
   const [formData, setFormData] = useState({
+    sebaNo: "", dob: "",
     name: "", category: "", subCategory: "", company: "",
     mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
     officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
@@ -252,6 +253,7 @@ export default function SebaMembersPage() {
     setIsEditing(false);
     setEditingId(null);
     setFormData({
+      sebaNo: "", dob: "",
       name: "", category: "", subCategory: "", company: "",
       mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
       officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
@@ -268,6 +270,8 @@ export default function SebaMembersPage() {
     setIsEditing(true);
     setEditingId(member._id);
     setFormData({
+      sebaNo: member.sebaNo || member.memberId || "",
+      dob: member.dob || "",
       name: member.name,
       category: member.category,
       subCategory: member.subCategory || "",
@@ -382,14 +386,14 @@ export default function SebaMembersPage() {
       { label: "FULL NAME", value: member.name },
       { label: "COMPANY NAME", value: member.company },
       { label: "DESIGNATION", value: member.position || "Member" },
-      { label: "NATURE OF BUSINESS", value: member.natureOfBusiness || "" },
+      { label: "SEBA NUMBER", value: member.sebaNo || member.memberId },
+      { label: "DATE OF BIRTH", value: member.dob },
       { label: "BUSINESS CATEGORY", value: member.category },
       { label: "SUB CATEGORY", value: member.subCategory || "N/A" },
       { label: "PRIMARY MOBILE", value: formatPhoneNumber(member.mobile) },
       { label: "OFFICE NUMBER", value: member.officeNo ? formatPhoneNumber(member.officeNo) : "" },
       { label: "OPERATIONAL AREA", value: member.area },
       { label: "OFFICE ADDRESS", value: member.address },
-      { label: "PINCODE", value: member.pincode },
       { label: "CITY", value: member.city },
       { label: "STATE", value: member.state },
       { label: "EMAIL / WEBSITE", value: member.emailWebsite },
@@ -662,6 +666,8 @@ export default function SebaMembersPage() {
 
               <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
+                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>Full Name *</label>
@@ -673,11 +679,7 @@ export default function SebaMembersPage() {
                     </div>
                   </div>
                   
-                  <div>
-                    <label className={labelCls}>Nature of Business</label>
-                    <input value={formData.natureOfBusiness} onChange={(e) => setFormData({ ...formData, natureOfBusiness: e.target.value })} className={inputCls} placeholder="e.g. Tiles / Real Estate Developer" />
-                  </div>
-                  
+                 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>Category *</label>
@@ -735,6 +737,27 @@ export default function SebaMembersPage() {
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelCls}>SEBA Number</label>
+                      <input 
+                        value={formData.sebaNo} 
+                        onChange={(e) => setFormData({ ...formData, sebaNo: e.target.value })} 
+                        className={inputCls} 
+                        placeholder="e.g. SEBA00059" 
+                      />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Date of Birth</label>
+                      <input 
+                        type="date" 
+                        value={formData.dob} 
+                        onChange={(e) => setFormData({ ...formData, dob: e.target.value })} 
+                        className={inputCls} 
+                      />
+                    </div>
+                  </div>
+
                   <div>
                     <label className={labelCls}>Company Name</label>
                     <input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className={inputCls} placeholder="M K Group" />
@@ -754,36 +777,6 @@ export default function SebaMembersPage() {
                   <div>
                     <label className={labelCls}>Email / Website</label>
                     <input value={formData.emailWebsite} onChange={(e) => setFormData({ ...formData, emailWebsite: e.target.value })} className={inputCls} placeholder="www.domain.com" />
-                  </div>
-
-                  <div>
-                    <label className={labelCls}>Pincode (Auto-fills below)</label>
-                    <input 
-                      maxLength={6}
-                      value={formData.pincode} 
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '');
-                        setFormData({ ...formData, pincode: val });
-                        if (val.length === 6) {
-                          fetch(`https://api.postalpincode.in/pincode/${val}`)
-                            .then(res => res.json())
-                            .then(data => {
-                              if (data[0].Status === "Success") {
-                                const post = data[0].PostOffice[0];
-                                setFormData(prev => ({
-                                  ...prev,
-                                  pincode: val,
-                                  city: post.District,
-                                  state: post.State,
-                                  area: post.Name
-                                }));
-                              }
-                            });
-                        }
-                      }} 
-                      className={inputCls} 
-                      placeholder="395xxx" 
-                    />
                   </div>
 
                   <div>

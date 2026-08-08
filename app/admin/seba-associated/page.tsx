@@ -52,7 +52,7 @@ export default function SebaAssociatedPage() {
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [formData, setFormData] = useState({ name: "", image: null as File | null });
+  const [formData, setFormData] = useState({ name: "", shortName: "", image: null as File | null });
 
   // Cropper states
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -154,6 +154,7 @@ export default function SebaAssociatedPage() {
     try {
       const form = new FormData();
       form.append("name", formData.name);
+      if (formData.shortName) form.append("shortName", formData.shortName);
       form.append("image", formData.image);
 
       const response = await api.post('/seba/associated', form, {
@@ -161,7 +162,7 @@ export default function SebaAssociatedPage() {
       });
       if (response.data.status === "Success") {
         toast.success("Created successfully!");
-        setFormData({ name: "", image: null });
+        setFormData({ name: "", shortName: "", image: null });
         setIsDrawerOpen(false);
         fetchAssociated();
       }
@@ -196,7 +197,12 @@ export default function SebaAssociatedPage() {
     },
     {
       header: "Name", accessor: "name",
-      render: (row: any) => <p className="font-bold text-gray-900 text-sm">{row.name}</p>
+      render: (row: any) => (
+        <div>
+          <p className="font-bold text-gray-900 text-sm">{row.name}</p>
+          {row.shortName && <p className="text-xs text-indigo-600 font-medium">{row.shortName}</p>}
+        </div>
+      )
     },
     {
       header: "Actions", accessor: "_id",
@@ -256,6 +262,10 @@ export default function SebaAssociatedPage() {
                   <div>
                     <label className={labelCls}>Association Name *</label>
                     <input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className={inputCls} placeholder="e.g. ARCHITECT ASSOCIATION" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Short Company Name</label>
+                    <input value={formData.shortName} onChange={(e) => setFormData({ ...formData, shortName: e.target.value })} className={inputCls} placeholder="e.g. Short Name" />
                   </div>
                   <div>
                     <label className={labelCls}>Logo / Image *</label>

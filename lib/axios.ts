@@ -16,7 +16,7 @@ api.interceptors.request.use(
       const adminToken = localStorage.getItem('mkgroup_admin_token');
       const userToken = localStorage.getItem('mkgroup_user_token');
       
-      const adminEndpoints = ['/user/update', '/user/create', '/user/all', '/user/delete', '/builder/all'];
+      const adminEndpoints = ['/user/update', '/user/create', '/user/all', '/user/delete', '/builder/all', '/seba/'];
       const isAdminEndpoint = adminEndpoints.some(endpoint => config.url?.includes(endpoint));
 
       // 1. If it's a known admin endpoint, prioritize admin token
