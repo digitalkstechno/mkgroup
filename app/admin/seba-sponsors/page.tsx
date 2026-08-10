@@ -30,6 +30,8 @@ export default function SebaSponsorsPage() {
 
 
 
+  const [activeMembers, setActiveMembers] = useState<any[]>([]);
+
   const fetchSponsors = async () => {
     setLoading(true);
     try {
@@ -44,8 +46,17 @@ export default function SebaSponsorsPage() {
     }
   };
 
+  const fetchActiveMembers = async () => {
+    try {
+      const { data } = await api.get(`/seba/member?status=active`);
+      const mems = Array.isArray(data.data) ? data.data : (data.data?.data || []);
+      setActiveMembers(mems);
+    } catch (err) {}
+  };
+
   useEffect(() => {
     fetchSponsors();
+    fetchActiveMembers();
   }, []);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,14 +287,24 @@ export default function SebaSponsorsPage() {
                     )}
                   </div>
                   <div>
-                    <label className={labelCls}>NFC Number (Optional)</label>
-                    <input 
-                      type="text"
-                      placeholder="e.g. 98765 43210"
+                    <label className={labelCls}>Active SEBA Member NFC Number (Optional)</label>
+                    <select
                       value={formData.nfcNumber}
-                      onChange={(e) => setFormData({ ...formData, nfcNumber: formatPhoneNumber(e.target.value) })}
+                      onChange={(e) => setFormData({ ...formData, nfcNumber: e.target.value })}
                       className={inputCls}
-                    />
+                    >
+                      <option value="">-- Select Active SEBA Member NFC Number --</option>
+                      {activeMembers.map((m: any) => {
+                        const mobDisplay = formatPhoneNumber(m.mobile);
+                        const cleanMob = cleanPhoneNumber(m.mobile);
+                        const labelStr = `${m.name} (${m.sebaNo || m.memberId || 'SEBA'}) - ${mobDisplay}`;
+                        return (
+                          <option key={m._id} value={cleanMob}>
+                            {labelStr}
+                          </option>
+                        );
+                      })}
+                    </select>
                   </div>
                 </div>
 

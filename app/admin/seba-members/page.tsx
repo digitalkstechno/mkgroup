@@ -65,7 +65,7 @@ export default function SebaMembersPage() {
 
   const [formData, setFormData] = useState({
     sebaNo: "", dob: "",
-    name: "", category: "", subCategory: "", company: "",
+    name: "", category: "", subCategory: "", company: "", isCompany: false,
     mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
     officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
     image: null as File | null, natureOfBusiness: ""
@@ -212,7 +212,9 @@ export default function SebaMembersPage() {
     try {
       const form = new FormData();
       Object.keys(formData).forEach(key => {
-        if (formData[key as keyof typeof formData]) {
+        if (key === 'isCompany') {
+          form.append("isCompany", String(formData.isCompany));
+        } else if (formData[key as keyof typeof formData] !== null && formData[key as keyof typeof formData] !== undefined) {
           let value = formData[key as keyof typeof formData];
           if (key === 'mobile' || key === 'officeNo') {
             value = cleanPhoneNumber(value as string);
@@ -220,6 +222,9 @@ export default function SebaMembersPage() {
           form.append(key, value as any);
         }
       });
+      if (formData.sebaNo) {
+        form.append("memberId", formData.sebaNo);
+      }
 
       if (isEditing && editingId) {
         const response = await api.put(`/seba/member/${editingId}`, form, {
@@ -254,7 +259,7 @@ export default function SebaMembersPage() {
     setEditingId(null);
     setFormData({
       sebaNo: "", dob: "",
-      name: "", category: "", subCategory: "", company: "",
+      name: "", category: "", subCategory: "", company: "", isCompany: false,
       mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
       officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
       image: null, natureOfBusiness: ""
@@ -276,6 +281,7 @@ export default function SebaMembersPage() {
       category: member.category,
       subCategory: member.subCategory || "",
       company: member.company || "",
+      isCompany: member.isCompany === true,
       mobile: formatPhoneNumber(member.mobile),
       address: member.address || "",
       emailWebsite: member.emailWebsite || "",
@@ -478,7 +484,7 @@ export default function SebaMembersPage() {
           <div>
             <p className="font-bold text-gray-900 text-sm">{row.name}</p>
             <p className="text-xs font-semibold text-indigo-600 mt-0.5">{row.position || "Member"}</p>
-            <p className="text-[10px] text-gray-400 font-mono mt-0.5">{row.memberId}</p>
+            <p className="text-[10px] text-gray-400 font-mono mt-0.5">{row.sebaNo || row.memberId}</p>
           </div>
         </div>
       )
@@ -761,6 +767,32 @@ export default function SebaMembersPage() {
                   <div>
                     <label className={labelCls}>Company Name</label>
                     <input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className={inputCls} placeholder="M K Group" />
+                  </div>
+
+                  <div className="flex items-center gap-6 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700 select-none">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isCompany === true} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, isCompany: e.target.checked });
+                        }} 
+                        className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span>Company</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700 select-none">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isCompany === false} 
+                        onChange={(e) => {
+                          setFormData({ ...formData, isCompany: !e.target.checked });
+                        }} 
+                        className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <span>Not a Company</span>
+                    </label>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
