@@ -320,6 +320,19 @@ export default function SebaEventsPage() {
                     onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                     className={inputCls}
                   />
+                  {imageFile && (
+                    <div className="mt-2.5 flex items-center gap-3 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                      <img
+                        src={URL.createObjectURL(imageFile)}
+                        alt="Preview"
+                        className="w-16 h-16 object-cover rounded-md border border-gray-200 shadow-xs"
+                      />
+                      <div className="text-xs text-gray-600 truncate">
+                        <p className="font-semibold truncate">{imageFile.name}</p>
+                        <p className="text-[10px] text-gray-400">{(imageFile.size / 1024).toFixed(1)} KB</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
