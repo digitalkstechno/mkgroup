@@ -66,6 +66,7 @@ export default function SebaMembersPage() {
   const [formData, setFormData] = useState({
     sebaNo: "", dob: "",
     name: "", category: "", subCategory: "", company: "", isCompany: false,
+    hasNfcCard: false, nfcCardStatus: "active",
     mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
     officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
     image: null as File | null, natureOfBusiness: ""
@@ -214,6 +215,8 @@ export default function SebaMembersPage() {
       Object.keys(formData).forEach(key => {
         if (key === 'isCompany') {
           form.append("isCompany", String(formData.isCompany));
+        } else if (key === 'hasNfcCard') {
+          form.append("hasNfcCard", String(formData.hasNfcCard));
         } else if (formData[key as keyof typeof formData] !== null && formData[key as keyof typeof formData] !== undefined) {
           let value = formData[key as keyof typeof formData];
           if (key === 'mobile' || key === 'officeNo') {
@@ -260,6 +263,7 @@ export default function SebaMembersPage() {
     setFormData({
       sebaNo: "", dob: "",
       name: "", category: "", subCategory: "", company: "", isCompany: false,
+      hasNfcCard: false, nfcCardStatus: "active",
       mobile: formatPhoneNumber(""), address: "", emailWebsite: "", position: "",
       officeNo: formatPhoneNumber(""), area: "", pincode: "", city: "Surat", state: "Gujarat",
       image: null, natureOfBusiness: ""
@@ -282,6 +286,8 @@ export default function SebaMembersPage() {
       subCategory: member.subCategory || "",
       company: member.company || "",
       isCompany: member.isCompany === true,
+      hasNfcCard: Boolean(member.hasNfcCard),
+      nfcCardStatus: member.nfcCardStatus || (member.hasNfcCard ? "active" : "inactive"),
       mobile: formatPhoneNumber(member.mobile),
       address: member.address || "",
       emailWebsite: member.emailWebsite || "",
@@ -303,7 +309,14 @@ export default function SebaMembersPage() {
     setIsDrawerOpen(true);
   };
 
-  const handleUpdateStatus = async (id: string, status: string) => {
+  const handleUpdateStatus = async (id: string, status: string, member?: any) => {
+    if (status === "active" && member) {
+      const hasSeba = (member.sebaNo && String(member.sebaNo).trim() !== "") || (member.memberId && String(member.memberId).trim() !== "");
+      if (!hasSeba) {
+        toast.error("Cannot activate member without a SEBA Number. Please edit and add SEBA Number first.");
+        return;
+      }
+    }
     try {
       const response = await api.put(`/seba/member/${id}/status`, { status });
       if (response.data.status === "Success") {
@@ -484,7 +497,7 @@ export default function SebaMembersPage() {
           <div>
             <p className="font-bold text-gray-900 text-sm">{row.name}</p>
             <p className="text-xs font-semibold text-indigo-600 mt-0.5">{row.position || "Member"}</p>
-            <p className="text-[10px] text-gray-400 font-mono mt-0.5">{row.sebaNo || row.memberId}</p>
+            <p className="text-[10px] text-gray-400 font-mono mt-0.5">{row.sebaNo || row.memberId || "No SEBA No"}</p>
           </div>
         </div>
       )
@@ -529,6 +542,35 @@ export default function SebaMembersPage() {
       )
     },
     {
+      header: "NFC Digital Card", accessor: "hasNfcCard",
+      render: (row: any) => {
+        const isNfcActive = row.hasNfcCard && row.nfcCardStatus === 'active';
+        const isNfcInactive = row.hasNfcCard && row.nfcCardStatus === 'inactive';
+
+        return (
+          <div className="space-y-1 text-xs">
+            {isNfcActive ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> NFC Active
+              </span>
+            ) : isNfcInactive ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span> NFC Inactive
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleEdit(row)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 transition-all cursor-pointer"
+              >
+                + Enable NFC
+              </button>
+            )}
+          </div>
+        );
+      }
+    },
+    {
       header: "Status", accessor: "status",
       render: (row: any) => {
         const statusColors: any = {
@@ -560,7 +602,7 @@ export default function SebaMembersPage() {
 
           {row.status !== "active" && (
             <button 
-              onClick={() => handleUpdateStatus(row._id, 'active')} 
+              onClick={() => handleUpdateStatus(row._id, 'active', row)} 
               title="Activate" 
               className="p-2 text-emerald-600 hover:bg-emerald-50 border border-transparent hover:border-emerald-200 rounded-xl transition-all shadow-sm"
             >
@@ -745,7 +787,7 @@ export default function SebaMembersPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>SEBA Number</label>
+                      <label className={labelCls}>SEBA Number (Optional)</label>
                       <input 
                         value={formData.sebaNo} 
                         onChange={(e) => setFormData({ ...formData, sebaNo: e.target.value })} 
@@ -795,6 +837,54 @@ export default function SebaMembersPage() {
                     </label>
                   </div>
 
+                  {/* NFC Digital Card Management Panel */}
+                  <div className="bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-100 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-indigo-900 select-none">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.hasNfcCard} 
+                          onChange={(e) => setFormData({ ...formData, hasNfcCard: e.target.checked })} 
+                          className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <span>Enable / Create NFC Digital Card</span>
+                      </label>
+                      {formData.hasNfcCard && (
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${formData.nfcCardStatus === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                          {formData.nfcCardStatus === 'active' ? 'NFC Active' : 'NFC Inactive'}
+                        </span>
+                      )}
+                    </div>
+
+                    {formData.hasNfcCard && (
+                      <div className="pt-2 border-t border-indigo-100 flex items-center gap-4">
+                        <span className="text-xs font-bold text-gray-700">NFC Card Status:</span>
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-gray-700">
+                          <input 
+                            type="radio" 
+                            name="nfcCardStatus" 
+                            value="active" 
+                            checked={formData.nfcCardStatus === "active"} 
+                            onChange={() => setFormData({ ...formData, nfcCardStatus: "active" })} 
+                            className="w-3.5 h-3.5 text-indigo-600 focus:ring-indigo-500"
+                          />
+                          <span className="text-emerald-700 font-bold">Active</span>
+                        </label>
+                        <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-gray-700">
+                          <input 
+                            type="radio" 
+                            name="nfcCardStatus" 
+                            value="inactive" 
+                            checked={formData.nfcCardStatus === "inactive"} 
+                            onChange={() => setFormData({ ...formData, nfcCardStatus: "inactive" })} 
+                            className="w-3.5 h-3.5 text-indigo-600 focus:ring-indigo-500"
+                          />
+                          <span className="text-red-600 font-bold">Inactive</span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>Mobile No. *</label>
@@ -812,9 +902,11 @@ export default function SebaMembersPage() {
                   </div>
 
                   <div>
-                    <label className={labelCls}>Area / Locality *</label>
+                    <label className={labelCls}>
+                      Area / Locality {Boolean(formData.sebaNo && formData.sebaNo.trim()) ? "*" : "(Optional)"}
+                    </label>
                     <input 
-                      required 
+                      required={Boolean(formData.sebaNo && formData.sebaNo.trim())} 
                       value={formData.area} 
                       onChange={(e) => setFormData({ ...formData, area: e.target.value })} 
                       className={inputCls} 

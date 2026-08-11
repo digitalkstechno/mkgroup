@@ -12,6 +12,89 @@ import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/phoneUtils";
 const inputCls = "w-full border border-gray-200 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg shadow-sm";
 const labelCls = "text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5";
 
+function SearchableNfcSelect({ members, value, onChange }: { members: any[]; value: string; onChange: (val: string) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const nfcActiveOnly = members.filter((m: any) => m.hasNfcCard && m.nfcCardStatus === 'active');
+
+  const selectedMember = nfcActiveOnly.find((m: any) => cleanPhoneNumber(m.mobile) === cleanPhoneNumber(value));
+  const selectedLabel = selectedMember 
+    ? `${selectedMember.name} (${selectedMember.sebaNo || selectedMember.memberId || 'SEBA'}) - ${formatPhoneNumber(selectedMember.mobile)}`
+    : "";
+
+  const filteredMembers = nfcActiveOnly.filter((m: any) => {
+    const q = search.toLowerCase();
+    const nameStr = (m.name || "").toLowerCase();
+    const sebaStr = (m.sebaNo || m.memberId || "").toLowerCase();
+    const mobStr = (m.mobile || "").toLowerCase();
+    return nameStr.includes(q) || sebaStr.includes(q) || mobStr.includes(q);
+  });
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`${inputCls} text-left flex items-center justify-between cursor-pointer`}
+      >
+        <span className={selectedLabel ? "font-bold text-gray-900 truncate" : "text-gray-400 truncate"}>
+          {selectedLabel || "-- Select Active SEBA Member NFC Number --"}
+        </span>
+        <span className="text-gray-400 text-xs ml-2">▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl p-2 max-h-60 overflow-y-auto space-y-1">
+          <input
+            type="text"
+            placeholder="Search member by name, SEBA no, or mobile..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-1"
+            autoFocus
+          />
+          
+          <div
+            onClick={() => {
+              onChange("");
+              setIsOpen(false);
+            }}
+            className="px-3 py-2 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg cursor-pointer"
+          >
+            -- None / Clear Selection --
+          </div>
+
+          {filteredMembers.length === 0 ? (
+            <p className="text-xs text-gray-400 p-2 italic text-center">No active NFC members found</p>
+          ) : (
+            filteredMembers.map((m: any) => {
+              const cleanMob = cleanPhoneNumber(m.mobile);
+              const isSelected = cleanMob === cleanPhoneNumber(value);
+
+              return (
+                <div
+                  key={m._id}
+                  onClick={() => {
+                    onChange(cleanMob);
+                    setIsOpen(false);
+                  }}
+                  className={`px-3 py-2 text-xs rounded-lg cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'bg-indigo-50 text-indigo-700 font-bold' : 'hover:bg-gray-50 text-gray-800'}`}
+                >
+                  <span className="truncate">
+                    {m.name} ({m.sebaNo || m.memberId || 'SEBA'}) - {formatPhoneNumber(m.mobile)}
+                  </span>
+                  {isSelected && <span className="text-indigo-600 font-bold ml-2">✓</span>}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SebaSponsorsPage() {
   const [sponsors, setSponsors] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -288,23 +371,11 @@ export default function SebaSponsorsPage() {
                   </div>
                   <div>
                     <label className={labelCls}>Active SEBA Member NFC Number (Optional)</label>
-                    <select
+                    <SearchableNfcSelect
+                      members={activeMembers}
                       value={formData.nfcNumber}
-                      onChange={(e) => setFormData({ ...formData, nfcNumber: e.target.value })}
-                      className={inputCls}
-                    >
-                      <option value="">-- Select Active SEBA Member NFC Number --</option>
-                      {activeMembers.map((m: any) => {
-                        const mobDisplay = formatPhoneNumber(m.mobile);
-                        const cleanMob = cleanPhoneNumber(m.mobile);
-                        const labelStr = `${m.name} (${m.sebaNo || m.memberId || 'SEBA'}) - ${mobDisplay}`;
-                        return (
-                          <option key={m._id} value={cleanMob}>
-                            {labelStr}
-                          </option>
-                        );
-                      })}
-                    </select>
+                      onChange={(cleanMob) => setFormData({ ...formData, nfcNumber: cleanMob })}
+                    />
                   </div>
                 </div>
 
