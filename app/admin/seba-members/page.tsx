@@ -808,7 +808,7 @@ export default function SebaMembersPage() {
 
                   <div>
                     <label className={labelCls}>Company Name</label>
-                    <input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className={inputCls} placeholder="M K Group" />
+                    <input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className={inputCls} placeholder="Enter your company name" />
                   </div>
 
                   <div className="flex items-center gap-6 bg-gray-50 p-3 rounded-lg border border-gray-200">
