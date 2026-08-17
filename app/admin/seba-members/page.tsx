@@ -157,7 +157,7 @@ export default function SebaMembersPage() {
       let url = `/seba/member?page=${page}&limit=10`;
       if (filterStatus) url += `&status=${filterStatus}`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
-      
+
       const { data } = await api.get(url);
       if (data.status === "Success") {
         if (data.total !== undefined) {
@@ -202,7 +202,7 @@ export default function SebaMembersPage() {
           const sortedCats = [...data.data].sort((a: any, b: any) => a.name.localeCompare(b.name));
           setCategories(sortedCats);
         }
-      } catch (err) {}
+      } catch (err) { }
     };
     fetchCategories();
   }, []);
@@ -310,13 +310,6 @@ export default function SebaMembersPage() {
   };
 
   const handleUpdateStatus = async (id: string, status: string, member?: any) => {
-    if (status === "active" && member) {
-      const hasSeba = (member.sebaNo && String(member.sebaNo).trim() !== "") || (member.memberId && String(member.memberId).trim() !== "");
-      if (!hasSeba) {
-        toast.error("Cannot activate member without a SEBA Number. Please edit and add SEBA Number first.");
-        return;
-      }
-    }
     try {
       const response = await api.put(`/seba/member/${id}/status`, { status });
       if (response.data.status === "Success") {
@@ -340,7 +333,7 @@ export default function SebaMembersPage() {
       toast.error(err.response?.data?.message || "Failed to delete");
     }
   };
-  
+
   const handleDownloadPDF = async (member: any) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -369,9 +362,9 @@ export default function SebaMembersPage() {
     };
 
     // 1. Decorative Sidebar
-    doc.setFillColor(11, 75, 75); 
+    doc.setFillColor(11, 75, 75);
     doc.rect(0, 0, 15, pageHeight, 'F');
-    
+
     // 2. Header with Logo
     try {
       // Since this is in admin, we use the Nfc.png from public folder
@@ -385,12 +378,12 @@ export default function SebaMembersPage() {
     doc.setFontSize(22);
     doc.setTextColor(11, 75, 75);
     doc.text("SEBA", 45, 27);
-    
+
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.setFont("helvetica", "italic");
     doc.text("Surat East Builder Association", 45, 33);
-    
+
     doc.setDrawColor(11, 75, 75);
     doc.setLineWidth(0.5);
     doc.line(20, 40, 190, 40);
@@ -423,7 +416,7 @@ export default function SebaMembersPage() {
       const rawVal = field.value?.toString().trim()
       const val = rawVal && rawVal !== "" ? rawVal : ""
       const splitText = doc.splitTextToSize(val, index < 7 ? 110 : 160)
-      
+
       const rowHeight = (splitText.length * 5) + 8
 
       if (index % 2 === 0) {
@@ -435,12 +428,12 @@ export default function SebaMembersPage() {
       doc.setFontSize(8.5)
       doc.setTextColor(11, 75, 75)
       doc.text(field.label, 25, y)
-      
+
       doc.setFont("helvetica", "normal")
       doc.setFontSize(10)
       doc.setTextColor(40, 40, 40)
       doc.text(splitText, 25, y + 5)
-      
+
       y += rowHeight + 2
     });
 
@@ -449,11 +442,11 @@ export default function SebaMembersPage() {
       try {
         const imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${member.image}`;
         const logoData = await getImageData(imageUrl);
-        
+
         // Shadow effect for photo
         doc.setFillColor(230, 230, 230);
         doc.rect(152, 47, 40, 50, 'F');
-        
+
         doc.addImage(logoData, 'JPEG', 150, 45, 40, 50);
         doc.setDrawColor(11, 75, 75);
         doc.setLineWidth(0.8);
@@ -466,12 +459,12 @@ export default function SebaMembersPage() {
     // 6. Footer
     doc.setFillColor(11, 75, 75);
     doc.rect(0, pageHeight - 20, pageWidth, 20, 'F');
-    
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
     doc.text("CONFIDENTIAL ADMIN RECORD", pageWidth / 2, pageHeight - 12, { align: 'center' });
-    
+
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
     doc.text(`Report Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, pageHeight - 7, { align: 'center' });
@@ -518,7 +511,7 @@ export default function SebaMembersPage() {
         <div className="space-y-1 text-xs">
           <p className="flex items-center gap-1.5 text-gray-800 font-bold"><Building2 size={13} className="text-gray-400" /> {row.company || "N/A"}</p>
           <p className="flex items-center gap-1.5 text-gray-600 font-medium">
-            <Briefcase size={13} className="text-gray-400 shrink-0" /> 
+            <Briefcase size={13} className="text-gray-400 shrink-0" />
             <span className="truncate">{[row.category, row.subCategory].filter(Boolean).join(' • ')}</span>
           </p>
           {row.natureOfBusiness && (
@@ -532,7 +525,7 @@ export default function SebaMembersPage() {
       header: "Application Form", accessor: "pdf",
       render: (row: any) => (
         <div>
-          <button 
+          <button
             onClick={() => handleDownloadPDF(row)}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 border border-indigo-100 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all cursor-pointer shadow-sm"
           >
@@ -592,36 +585,36 @@ export default function SebaMembersPage() {
       render: (row: any) => (
         <div className="flex items-center gap-2">
           {/* Edit Button */}
-          <button 
-            onClick={() => handleEdit(row)} 
-            title="Edit Details" 
+          <button
+            onClick={() => handleEdit(row)}
+            title="Edit Details"
             className="p-2 text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-200 rounded-xl transition-all shadow-sm"
           >
             <FileText size={16} className="stroke-[2.5]" />
           </button>
 
           {row.status !== "active" && (
-            <button 
-              onClick={() => handleUpdateStatus(row._id, 'active', row)} 
-              title="Activate" 
+            <button
+              onClick={() => handleUpdateStatus(row._id, 'active', row)}
+              title="Activate"
               className="p-2 text-emerald-600 hover:bg-emerald-50 border border-transparent hover:border-emerald-200 rounded-xl transition-all shadow-sm"
             >
               <Check size={16} className="stroke-[2.5]" />
             </button>
           )}
-          
+
           {(row.status === "active" || row.status === "pending") && (
-            <button 
-              onClick={() => handleUpdateStatus(row._id, 'inactive')} 
-              title="Deactivate / Reject" 
+            <button
+              onClick={() => handleUpdateStatus(row._id, 'inactive')}
+              title="Deactivate / Reject"
               className="p-2 text-amber-600 hover:bg-amber-50 border border-transparent hover:border-amber-200 rounded-xl transition-all shadow-sm"
             >
               <X size={16} className="stroke-[2.5]" />
             </button>
           )}
 
-          <button 
-            onClick={() => handleDelete(row._id)} 
+          <button
+            onClick={() => handleDelete(row._id)}
             title="Delete Permanently"
             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 rounded-xl transition-all shadow-sm"
           >
@@ -635,7 +628,7 @@ export default function SebaMembersPage() {
   return (
     <DashboardLayout type="admin">
       <div className="space-y-6">
-        
+
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
@@ -683,7 +676,7 @@ export default function SebaMembersPage() {
             </div>
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">SEBA Members Directory</h3>
           </div>
-          <button 
+          <button
             onClick={() => setIsDrawerOpen(true)}
             className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 text-xs font-bold rounded-xl hover:bg-indigo-700 shadow-md transition-all"
           >
@@ -704,8 +697,8 @@ export default function SebaMembersPage() {
                     {isEditing ? "Edit SEBA Member" : "Add SEBA Member"}
                   </h3>
                 </div>
-                <button 
-                  onClick={closeDrawer} 
+                <button
+                  onClick={closeDrawer}
                   className="p-1.5 hover:bg-gray-100 text-gray-400 hover:text-gray-900 rounded-lg transition-colors"
                 >
                   <X size={18} />
@@ -714,7 +707,7 @@ export default function SebaMembersPage() {
 
               <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between space-y-6">
                 <div className="space-y-4">
-                  
+
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -726,12 +719,12 @@ export default function SebaMembersPage() {
                       <input value={formData.position} onChange={(e) => setFormData({ ...formData, position: e.target.value })} className={inputCls} placeholder="e.g. Director / Media Head" />
                     </div>
                   </div>
-                  
-                 
+
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>Category *</label>
-                      <SearchableSelect 
+                      <SearchableSelect
                         options={categories}
                         value={categorySelection}
                         onChange={(val) => {
@@ -749,10 +742,10 @@ export default function SebaMembersPage() {
                         placeholder="Select Category"
                       />
                       {showOtherCategory && (
-                        <input 
-                          required 
-                          className={`${inputCls} mt-2`} 
-                          placeholder="Write category name" 
+                        <input
+                          required
+                          className={`${inputCls} mt-2`}
+                          placeholder="Write category name"
                           value={otherCategoryName}
                           onChange={(e) => {
                             setOtherCategoryName(e.target.value);
@@ -763,7 +756,7 @@ export default function SebaMembersPage() {
                     </div>
                     <div>
                       <label className={labelCls}>Sub Category</label>
-                      <SearchableSelect 
+                      <SearchableSelect
                         options={subCategories}
                         value={subCategorySelection}
                         onChange={(val) => {
@@ -774,10 +767,10 @@ export default function SebaMembersPage() {
                         showOthers={true}
                       />
                       {subCategorySelection === 'Others' && (
-                        <input 
-                          required 
-                          className={`${inputCls} mt-2`} 
-                          placeholder="Write sub category name" 
+                        <input
+                          required
+                          className={`${inputCls} mt-2`}
+                          placeholder="Write sub category name"
                           value={formData.subCategory}
                           onChange={(e) => setFormData(prev => ({ ...prev, subCategory: e.target.value }))}
                         />
@@ -788,20 +781,20 @@ export default function SebaMembersPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>SEBA Number (Optional)</label>
-                      <input 
-                        value={formData.sebaNo} 
-                        onChange={(e) => setFormData({ ...formData, sebaNo: e.target.value })} 
-                        className={inputCls} 
-                        placeholder="e.g. SEBA00059" 
+                      <input
+                        value={formData.sebaNo}
+                        onChange={(e) => setFormData({ ...formData, sebaNo: e.target.value })}
+                        className={inputCls}
+                        placeholder="e.g. SEBA00059"
                       />
                     </div>
                     <div>
                       <label className={labelCls}>Date of Birth</label>
-                      <input 
-                        type="date" 
-                        value={formData.dob} 
-                        onChange={(e) => setFormData({ ...formData, dob: e.target.value })} 
-                        className={inputCls} 
+                      <input
+                        type="date"
+                        value={formData.dob}
+                        onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                        className={inputCls}
                       />
                     </div>
                   </div>
@@ -813,24 +806,24 @@ export default function SebaMembersPage() {
 
                   <div className="flex items-center gap-6 bg-gray-50 p-3 rounded-lg border border-gray-200">
                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700 select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={formData.isCompany === true} 
+                      <input
+                        type="checkbox"
+                        checked={formData.isCompany === true}
                         onChange={(e) => {
                           setFormData({ ...formData, isCompany: e.target.checked });
-                        }} 
+                        }}
                         className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
                       />
                       <span>Company</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700 select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={formData.isCompany === false} 
+                      <input
+                        type="checkbox"
+                        checked={formData.isCompany === false}
                         onChange={(e) => {
                           setFormData({ ...formData, isCompany: !e.target.checked });
-                        }} 
+                        }}
                         className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
                       />
                       <span>Not a Company</span>
@@ -841,10 +834,10 @@ export default function SebaMembersPage() {
                   <div className="bg-indigo-50/70 p-3.5 rounded-xl border border-indigo-100 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-indigo-900 select-none">
-                        <input 
-                          type="checkbox" 
-                          checked={formData.hasNfcCard} 
-                          onChange={(e) => setFormData({ ...formData, hasNfcCard: e.target.checked })} 
+                        <input
+                          type="checkbox"
+                          checked={formData.hasNfcCard}
+                          onChange={(e) => setFormData({ ...formData, hasNfcCard: e.target.checked })}
                           className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
                         />
                         <span>Enable / Create NFC Digital Card</span>
@@ -860,23 +853,23 @@ export default function SebaMembersPage() {
                       <div className="pt-2 border-t border-indigo-100 flex items-center gap-4">
                         <span className="text-xs font-bold text-gray-700">NFC Card Status:</span>
                         <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-gray-700">
-                          <input 
-                            type="radio" 
-                            name="nfcCardStatus" 
-                            value="active" 
-                            checked={formData.nfcCardStatus === "active"} 
-                            onChange={() => setFormData({ ...formData, nfcCardStatus: "active" })} 
+                          <input
+                            type="radio"
+                            name="nfcCardStatus"
+                            value="active"
+                            checked={formData.nfcCardStatus === "active"}
+                            onChange={() => setFormData({ ...formData, nfcCardStatus: "active" })}
                             className="w-3.5 h-3.5 text-indigo-600 focus:ring-indigo-500"
                           />
                           <span className="text-emerald-700 font-bold">Active</span>
                         </label>
                         <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-gray-700">
-                          <input 
-                            type="radio" 
-                            name="nfcCardStatus" 
-                            value="inactive" 
-                            checked={formData.nfcCardStatus === "inactive"} 
-                            onChange={() => setFormData({ ...formData, nfcCardStatus: "inactive" })} 
+                          <input
+                            type="radio"
+                            name="nfcCardStatus"
+                            value="inactive"
+                            checked={formData.nfcCardStatus === "inactive"}
+                            onChange={() => setFormData({ ...formData, nfcCardStatus: "inactive" })}
                             className="w-3.5 h-3.5 text-indigo-600 focus:ring-indigo-500"
                           />
                           <span className="text-red-600 font-bold">Inactive</span>
@@ -905,40 +898,40 @@ export default function SebaMembersPage() {
                     <label className={labelCls}>
                       Area / Locality {Boolean(formData.sebaNo && formData.sebaNo.trim()) ? "*" : "(Optional)"}
                     </label>
-                    <input 
-                      required={Boolean(formData.sebaNo && formData.sebaNo.trim())} 
-                      value={formData.area} 
-                      onChange={(e) => setFormData({ ...formData, area: e.target.value })} 
-                      className={inputCls} 
-                      placeholder="e.g. Adajan / Surat" 
+                    <input
+                      required={Boolean(formData.sebaNo && formData.sebaNo.trim())}
+                      value={formData.area}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                      className={inputCls}
+                      placeholder="e.g. Adajan / Surat"
                     />
                   </div>
 
                   <div>
                     <label className={labelCls}>Office Address *</label>
-                    <textarea 
-                      value={formData.address} 
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })} 
-                      className={`${inputCls} h-[80px] py-2 resize-none`} 
-                      placeholder="Full physical address" 
+                    <textarea
+                      value={formData.address}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      className={`${inputCls} h-[80px] py-2 resize-none`}
+                      placeholder="Full physical address"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>City</label>
-                      <input 
-                        value={formData.city} 
-                        onChange={(e) => setFormData({ ...formData, city: e.target.value })} 
+                      <input
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         className={inputCls}
                         placeholder="City"
                       />
                     </div>
                     <div>
                       <label className={labelCls}>State</label>
-                      <input 
-                        value={formData.state} 
-                        onChange={(e) => setFormData({ ...formData, state: e.target.value })} 
+                      <input
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                         className={inputCls}
                         placeholder="State"
                       />
@@ -954,16 +947,16 @@ export default function SebaMembersPage() {
                 </div>
 
                 <div className="border-t pt-4 flex gap-3 justify-end">
-                  <button 
-                    type="button" 
-                    onClick={closeDrawer} 
+                  <button
+                    type="button"
+                    onClick={closeDrawer}
                     className="px-4 py-2.5 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition-all"
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
-                    disabled={loading} 
+                  <button
+                    type="submit"
+                    disabled={loading}
                     className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-5 py-2.5 text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md disabled:opacity-60"
                   >
                     {loading ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{isEditing ? "Update Details" : <><Plus size={16} className="stroke-[2.5]" /> Create Member</>}</>}
@@ -981,9 +974,9 @@ export default function SebaMembersPage() {
               <FileText size={16} className="text-gray-500" />
               <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">SEBA Members Directory</h3>
             </div>
-            <select 
-              value={filterStatus} 
-              onChange={e => setFilterStatus(e.target.value)} 
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
               className="border border-gray-300 rounded-xl px-4 py-2 text-xs font-bold text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer transition-all"
             >
               <option value="">Status: ALL RECORDS</option>
@@ -1011,7 +1004,7 @@ export default function SebaMembersPage() {
           <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
             <div className="bg-white rounded-2xl p-6 max-w-lg w-full flex flex-col items-center shadow-2xl">
               <h3 className="text-gray-900 text-sm font-extrabold uppercase tracking-wider mb-4">Adjust Passport Photo</h3>
-              
+
               {/* Crop Frame */}
               <div className="relative w-full max-h-[400px] bg-gray-900 rounded-lg overflow-auto shadow-inner flex items-center justify-center p-2 border border-gray-100">
                 <ReactCrop
@@ -1032,16 +1025,16 @@ export default function SebaMembersPage() {
 
               {/* Actions */}
               <div className="flex gap-3 mt-6 w-full">
-                <button 
-                  type="button" 
-                  onClick={() => setShowCropper(false)} 
+                <button
+                  type="button"
+                  onClick={() => setShowCropper(false)}
                   className="flex-1 bg-gray-100 text-gray-500 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="button" 
-                  onClick={handleCrop} 
+                <button
+                  type="button"
+                  onClick={handleCrop}
                   className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-md cursor-pointer"
                 >
                   Apply Crop

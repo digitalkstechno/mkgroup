@@ -15,8 +15,6 @@ interface Advertisement {
   note?: string;
 }
 
-
-
 interface PreviewFile {
   file: File;
   preview: string;
@@ -208,8 +206,8 @@ export default function AdvertisementPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {previews.map((item, index) => (
                 <div key={index} className="bg-white p-3 rounded-2xl border border-blue-100 flex gap-4 shadow-sm relative group">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
-                    <img src={item.preview} className="w-full h-full object-cover" />
+                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 bg-gray-50 flex items-center justify-center p-1">
+                    <img src={item.preview} className="max-h-full max-w-full object-contain mx-auto my-auto" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <input 
@@ -252,8 +250,8 @@ export default function AdvertisementPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {filteredAds.map((ad) => (
               <div key={ad._id} className="relative group rounded-2xl overflow-hidden border border-gray-100 shadow-sm bg-white flex flex-col">
-                <div className="relative aspect-square">
-                  <img src={getImageUrl(ad.image)} alt="" className="h-full w-full object-cover" />
+                <div className="relative aspect-square bg-gray-50 flex items-center justify-center p-1">
+                  <img src={getImageUrl(ad.image)} alt="" className="max-h-full max-w-full object-contain mx-auto my-auto" />
 
                   {/* Status Badge */}
                   <div className="absolute top-2 left-2 z-10">

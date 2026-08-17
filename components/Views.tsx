@@ -641,28 +641,39 @@ export const DashboardView = ({
 }: DashboardViewProps) => {
   const builderData = useContext(BuilderContext);
 
-  const getLogoImage = () => {
-    if (builderData?.logo) {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
-      const baseUrl = apiUrl.split("/v1/api")[0];
-      return `${baseUrl}/builder/${builderData.logo}`;
-    }
-    return null;
-  };
+  const companyName = builderData?.companyName?.trim()
+    ? builderData.companyName.trim()
+    : "MK GROUP";
+  const [topAdImage, setTopAdImage] = React.useState<string | null>(null);
 
-  const getAdImage = () => {
-    if (builderData?.adImage) {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
-      const baseUrl = apiUrl.split("/v1/api")[0];
-      return `${baseUrl}/builder/${builderData.adImage}`;
-    }
-    return null;
-  };
-
-  const logoUrl = getLogoImage();
-  const adImageUrl = getAdImage();
+  React.useEffect(() => {
+    const fetchTopAd = async () => {
+      if (builderData?.adImage) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+        const baseUrl = apiUrl.split("/v1/api")[0];
+        setTopAdImage(`${baseUrl}/builder/${builderData.adImage}`);
+        return;
+      }
+      const userId = builderData?.userId || builderData?._id;
+      if (!userId) return;
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/advertisement/user/${userId}`);
+        const result = await response.json();
+        if (result.status === "Success" && result.data && result.data.length > 0) {
+          // Prefer 'Advertisement' type image, or fallback to first uploaded ad image
+          const adObj = result.data.find((a: any) => a.type === "Advertisement") || result.data[0];
+          if (adObj?.image) {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/v1/api";
+            const baseUrl = apiUrl.split("/v1/api")[0];
+            setTopAdImage(`${baseUrl}/builder/${adObj.image}`);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching top ad:", err);
+      }
+    };
+    fetchTopAd();
+  }, [builderData?.adImage, builderData?.userId, builderData?._id]);
 
   return (
     <div className="flex flex-col items-center px-4 space-y-4 pt-4">
@@ -698,22 +709,25 @@ export const DashboardView = ({
           onClick={() => setView("advertisement")}
           className="w-full mt-4 px-1 pb-2 cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
-          <div className="relative w-full aspect-[21/9] rounded-[24px] overflow-hidden border-2 border-[#E5ECEA] shadow-lg bg-[#E5ECEA]/30">
-            {adImageUrl && (
-              <Image
-                src={adImageUrl}
+          <div className="relative w-full rounded-[24px] overflow-hidden border-2 border-[#E5ECEA] shadow-lg flex items-center justify-center">
+            {topAdImage ? (
+              <img
+                src={topAdImage}
                 alt="Advertisement"
-                fill
-                className="object-cover"
-                unoptimized
+                className="w-full h-auto object-contain block rounded-[22px]"
               />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-white px-4 text-center">
+                <span className="font-black text-sm uppercase tracking-wider">{companyName}</span>
+                <span className="text-[10px] text-white/80 font-bold mt-0.5">Click to view Advertisements</span>
+              </div>
             )}
           </div>
         </div>
       </div>
 
       <div
-        className={`grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2 ${adImageUrl ? "mt-4" : "mt-8"}`}
+        className={`grid grid-cols-6 sm:grid-cols-6 gap-2 w-full px-2 ${topAdImage ? "mt-4" : "mt-8"}`}
       >
         {[
           {
@@ -2302,17 +2316,7 @@ export const AdvertisementView = ({
         );
         const result = await response.json();
         if (result.status === "Success") {
-          // Normalize categories: change "Upcoming" to "Advertisement", and "Completed" to "Upcoming"
-          const normalizedAds = result.data.map((ad: any) => ({
-            ...ad,
-            type:
-              ad.type === "Upcoming"
-                ? "Advertisement"
-                : ad.type === "Completed"
-                  ? "Upcoming"
-                  : ad.type,
-          }));
-          setAds(normalizedAds);
+          setAds(result.data);
         }
       } catch (error) {
         console.error("Failed to fetch ads:", error);
@@ -2358,34 +2362,19 @@ export const AdvertisementView = ({
             </div>
           </div>
         )}
-        <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[3/4] bg-gray-100 border border-gray-200">
+        <div className="relative rounded-2xl overflow-hidden shadow-xl border border-gray-200/50 flex items-center justify-center min-h-[200px]">
           {loading ? (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="py-16 flex items-center justify-center">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent animate-spin rounded-full" />
             </div>
           ) : currentAd ? (
-            <>
-              <Image
-                src={getImageUrl(currentAd.image)}
-                alt="Advertisement"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-              {filteredAds.length > 1 && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 px-4 z-10">
-                  {filteredAds.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentIndex(idx)}
-                      className={`h-1.5 rounded-full transition-all ${currentIndex === idx ? "w-6 bg-white shadow-sm" : "w-1.5 bg-white/40"}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
+            <img
+              src={getImageUrl(currentAd.image)}
+              alt="Advertisement"
+              className="w-full h-auto max-h-[520px] object-contain rounded-2xl block"
+            />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+            <div className="py-16 flex flex-col items-center justify-center text-gray-400">
               <ImageIcon size={48} />
               <p className="text-xs font-bold mt-2 uppercase">
                 No {adTab} Projects
@@ -2394,29 +2383,48 @@ export const AdvertisementView = ({
           )}
         </div>
 
+        {/* Navigation Controls Below Image Box */}
         {filteredAds.length > 1 && (
-          <>
+          <div className="flex items-center justify-center gap-5 px-2 pt-3">
             <button
               onClick={() =>
                 setCurrentIndex((prev) =>
-                  prev > 0 ? prev - 1 : filteredAds.length - 1,
+                  prev > 0 ? prev - 1 : filteredAds.length - 1
                 )
               }
-              className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+              className="w-9 h-9 rounded-full bg-white text-gray-700 hover:text-gray-900 border border-gray-200 shadow-md flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+              title="Previous Image"
             >
-              <ChevronLeft size={28} />
+              <ChevronLeft size={20} strokeWidth={2.5} />
             </button>
+
+            {/* Dots Indicator in the center */}
+            <div className="flex items-center gap-2">
+              {filteredAds.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`h-2.5 rounded-full transition-all cursor-pointer ${
+                    currentIndex === idx
+                      ? "w-7 bg-[#003B46] shadow-sm"
+                      : "w-2.5 bg-gray-300 hover:bg-gray-400"
+                  }`}
+                />
+              ))}
+            </div>
+
             <button
               onClick={() =>
                 setCurrentIndex((prev) =>
-                  prev < filteredAds.length - 1 ? prev + 1 : 0,
+                  prev < filteredAds.length - 1 ? prev + 1 : 0
                 )
               }
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+              className="w-9 h-9 rounded-full bg-white text-gray-700 hover:text-gray-900 border border-gray-200 shadow-md flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+              title="Next Image"
             >
-              <ChevronRight size={28} />
+              <ChevronRight size={20} strokeWidth={2.5} />
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>

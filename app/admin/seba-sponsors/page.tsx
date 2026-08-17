@@ -16,11 +16,19 @@ function SearchableNfcSelect({ members, value, onChange }: { members: any[]; val
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
+  const getMemberSebaLabel = (m: any) => {
+    const s = (m.sebaNo || m.memberId || "").trim();
+    if (s && !/^[0-9a-fA-F]{24}$/.test(s)) {
+      return s;
+    }
+    return "No SEBA No";
+  };
+
   const nfcActiveOnly = members.filter((m: any) => m.hasNfcCard && m.nfcCardStatus === 'active');
 
   const selectedMember = nfcActiveOnly.find((m: any) => cleanPhoneNumber(m.mobile) === cleanPhoneNumber(value));
   const selectedLabel = selectedMember 
-    ? `${selectedMember.name} (${selectedMember.sebaNo || selectedMember.memberId || 'SEBA'}) - ${formatPhoneNumber(selectedMember.mobile)}`
+    ? `${selectedMember.name} (${getMemberSebaLabel(selectedMember)}) - ${formatPhoneNumber(selectedMember.mobile)}`
     : "";
 
   const filteredMembers = nfcActiveOnly.filter((m: any) => {
@@ -82,7 +90,7 @@ function SearchableNfcSelect({ members, value, onChange }: { members: any[]; val
                   className={`px-3 py-2 text-xs rounded-lg cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'bg-indigo-50 text-indigo-700 font-bold' : 'hover:bg-gray-50 text-gray-800'}`}
                 >
                   <span className="truncate">
-                    {m.name} ({m.sebaNo || m.memberId || 'SEBA'}) - {formatPhoneNumber(m.mobile)}
+                    {m.name} ({getMemberSebaLabel(m)}) - {formatPhoneNumber(m.mobile)}
                   </span>
                   {isSelected && <span className="text-indigo-600 font-bold ml-2">✓</span>}
                 </div>
@@ -131,7 +139,7 @@ export default function SebaSponsorsPage() {
 
   const fetchActiveMembers = async () => {
     try {
-      const { data } = await api.get(`/seba/member?status=active`);
+      const { data } = await api.get(`/seba/member`);
       const mems = Array.isArray(data.data) ? data.data : (data.data?.data || []);
       setActiveMembers(mems);
     } catch (err) {}
