@@ -2,7 +2,7 @@
 
 import DashboardLayout from "@/components/DashboardLayout";
 import CommonTable from "@/components/CommonTable";
-import { Plus, LayoutDashboard, Trash2, X } from "lucide-react";
+import { Plus, LayoutDashboard, Trash2, X, Pencil } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import api from "@/lib/axios";
@@ -51,6 +51,8 @@ export default function SebaAssociatedPage() {
   const [associated, setAssociated] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [existingImage, setExistingImage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({ name: "", shortName: "", image: null as File | null });
 
@@ -144,9 +146,23 @@ export default function SebaAssociatedPage() {
     fetchAssociated();
   }, []);
 
-  const handleCreate = async (e: FormEvent) => {
+  const handleOpenAdd = () => {
+    setEditingId(null);
+    setExistingImage(null);
+    setFormData({ name: "", shortName: "", image: null });
+    setIsDrawerOpen(true);
+  };
+
+  const handleOpenEdit = (row: any) => {
+    setEditingId(row._id);
+    setExistingImage(row.image || null);
+    setFormData({ name: row.name || "", shortName: row.shortName || "", image: null });
+    setIsDrawerOpen(true);
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!formData.image) {
+    if (!editingId && !formData.image) {
       toast.error("Please upload an image");
       return;
     }
@@ -154,20 +170,30 @@ export default function SebaAssociatedPage() {
     try {
       const form = new FormData();
       form.append("name", formData.name);
-      if (formData.shortName) form.append("shortName", formData.shortName);
-      form.append("image", formData.image);
+      if (formData.shortName !== undefined) form.append("shortName", formData.shortName);
+      if (formData.image) form.append("image", formData.image);
 
-      const response = await api.post('/seba/associated', form, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      let response;
+      if (editingId) {
+        response = await api.put(`/seba/associated/${editingId}`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        response = await api.post('/seba/associated', form, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+
       if (response.data.status === "Success") {
-        toast.success("Created successfully!");
+        toast.success(editingId ? "Updated successfully!" : "Created successfully!");
         setFormData({ name: "", shortName: "", image: null });
+        setEditingId(null);
+        setExistingImage(null);
         setIsDrawerOpen(false);
         fetchAssociated();
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to create");
+      toast.error(err.response?.data?.message || (editingId ? "Failed to update" : "Failed to create"));
     } finally {
       setLoading(false);
     }
@@ -199,8 +225,7 @@ export default function SebaAssociatedPage() {
       header: "Name", accessor: "name",
       render: (row: any) => (
         <div>
-          <p className="font-bold text-gray-900 text-sm">{row.name}</p>
-          {row.shortName && <p className="text-xs text-indigo-600 font-medium">{row.shortName}</p>}
+          <p className="font-bold text-gray-900 text-sm">{row.shortName || row.name}</p>
         </div>
       )
     },
@@ -209,8 +234,16 @@ export default function SebaAssociatedPage() {
       render: (row: any) => (
         <div className="flex items-center gap-1">
           <button
+            onClick={() => handleOpenEdit(row)}
+            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
+            title="Edit Association"
+          >
+            <Pencil size={16} />
+          </button>
+          <button
             onClick={() => handleDelete(row._id)}
             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            title="Delete Association"
           >
             <Trash2 size={16} />
           </button>
@@ -231,7 +264,7 @@ export default function SebaAssociatedPage() {
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">SEBA Associated</h3>
           </div>
           <button 
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={handleOpenAdd}
             className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 text-xs font-bold rounded-xl hover:bg-indigo-700 shadow-md transition-all"
           >
             <Plus size={16} className="stroke-[2.5]" /> Add Association
@@ -247,7 +280,9 @@ export default function SebaAssociatedPage() {
                   <div className="h-9 w-9 bg-gray-900 rounded-xl flex items-center justify-center">
                     <LayoutDashboard size={16} className="text-white" />
                   </div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">Create SEBA Associated</h3>
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">
+                    {editingId ? "Edit SEBA Associated" : "Create SEBA Associated"}
+                  </h3>
                 </div>
                 <button 
                   onClick={() => setIsDrawerOpen(false)} 
@@ -257,7 +292,7 @@ export default function SebaAssociatedPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleCreate} className="flex-1 flex flex-col justify-between">
+              <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between">
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>Association Name *</label>
@@ -268,8 +303,20 @@ export default function SebaAssociatedPage() {
                     <input value={formData.shortName} onChange={(e) => setFormData({ ...formData, shortName: e.target.value })} className={inputCls} placeholder="e.g. Short Name" />
                   </div>
                   <div>
-                    <label className={labelCls}>Logo / Image *</label>
-                    <input type="file" accept="image/*" required onChange={handleImageSelect} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all border border-gray-200 px-3 py-2.5 rounded-lg bg-white shadow-sm" />
+                    <label className={labelCls}>
+                      Logo / Image {editingId ? "(Optional)" : "*"}
+                    </label>
+                    {editingId && existingImage && !formData.image && (
+                      <div className="mb-2 flex items-center gap-3 p-2 border border-gray-200 rounded-lg bg-gray-50">
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}/builder/${existingImage}`}
+                          alt="Current Logo"
+                          className="h-10 w-10 object-contain rounded"
+                        />
+                        <span className="text-xs text-gray-500 font-medium">Current logo retained if no file chosen</span>
+                      </div>
+                    )}
+                    <input type="file" accept="image/*" required={!editingId} onChange={handleImageSelect} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all border border-gray-200 px-3 py-2.5 rounded-lg bg-white shadow-sm" />
                   </div>
                 </div>
 
@@ -286,7 +333,13 @@ export default function SebaAssociatedPage() {
                     disabled={loading} 
                     className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-5 py-2.5 text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md disabled:opacity-60"
                   >
-                    {loading ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><Plus size={16} className="stroke-[2.5]" /> Create</>}
+                    {loading ? (
+                      <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : editingId ? (
+                      <><Pencil size={16} className="stroke-[2.5]" /> Update</>
+                    ) : (
+                      <><Plus size={16} className="stroke-[2.5]" /> Create</>
+                    )}
                   </button>
                 </div>
               </form>
